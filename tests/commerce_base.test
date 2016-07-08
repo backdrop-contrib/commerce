@@ -147,6 +147,7 @@ abstract class CommerceBaseTestCase extends DrupalWebTestCase {
       'administer payments',
       'administer taxes',
       'administer rules',
+      'administer fields',
     );
     $store_customer = array(
       'access content',
