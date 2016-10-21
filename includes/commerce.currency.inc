@@ -1152,7 +1152,7 @@ function commerce_commerce_currency_info() {
       'numeric_code' => '949',
       'thousands_separator' => '.',
       'decimal_separator' => ',',
-      'symbol_placement' => 'after',
+      'symbol_placement' => 'before',
       'code_placement' => '',
       'minor_unit' => t('Kurus'),
       'major_unit' => t('Lira'),
