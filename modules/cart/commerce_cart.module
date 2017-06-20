@@ -1100,9 +1100,9 @@ function commerce_cart_order_refresh($order) {
       // current quantity and display URI information.
       commerce_product_line_item_populate($cloned_line_item, $product);
 
-      // Process the unit price through Rules so it reflects the user's actual
-      // current purchase price.
-      rules_invoke_event('commerce_product_calculate_sell_price', $cloned_line_item);
+      // Process the unit price through the sell price calculation callback
+      // so it reflects the user's actual current purchase price.
+      commerce_product_pricing_invoke($cloned_line_item);
     }
 
     // Allow other modules to alter line items on a shopping cart refresh.
@@ -2426,9 +2426,9 @@ function commerce_cart_add_to_cart_form_submit($form, &$form_state) {
     // Add field data to the line item.
     field_attach_submit('commerce_line_item', $line_item, $form['line_item_fields'], $form_state);
 
-    // Process the unit price through Rules so it reflects the user's actual
-    // purchase price.
-    rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
+    // Process the unit price through the sell price calculation callback
+    // so it reflects the user's actual current purchase price.
+    commerce_product_pricing_invoke($line_item);
 
     // Only attempt an Add to Cart if the line item has a valid unit price.
     $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
