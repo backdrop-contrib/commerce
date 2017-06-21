@@ -749,12 +749,20 @@ function commerce_checkout_access($order, $account = NULL) {
       return FALSE;
     }
   }
-  elseif (empty($_SESSION['commerce_cart_completed_orders']) ||
-    !in_array($order->order_id, $_SESSION['commerce_cart_completed_orders'])) {
-    // And then return FALSE if the anonymous user's session doesn't specify
-    // this order ID.
-    if (empty($_SESSION['commerce_cart_orders']) || !in_array($order->order_id, $_SESSION['commerce_cart_orders'])) {
-      return FALSE;
+  else {
+    // There's no choice but to check the current user's cart
+    // using the commerce_cart module.
+    if (module_exists('commerce_cart')) {
+      $cart_order_ids = commerce_cart_order_session_order_ids();
+      $completed_order_ids = commerce_cart_order_session_order_ids(TRUE);
+      if (empty($completed_order_ids) ||
+        !in_array($order->order_id, $completed_order_ids)) {
+        // And then return FALSE if the anonymous user's session doesn't specify
+        // this order ID.
+        if (empty($cart_order_ids) || !in_array($order->order_id, $cart_order_ids)) {
+          return FALSE;
+        }
+      }
     }
   }
 

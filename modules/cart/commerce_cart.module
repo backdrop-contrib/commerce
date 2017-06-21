@@ -8,6 +8,8 @@
  * special considerations to associate it with a user and
  */
 
+// Define a constant for the default cart provider.
+define('COMMERCE_CART_DEFAULT_PROVIDER', 'session');
 // Define constants for the shopping cart refresh modes.
 define('COMMERCE_CART_REFRESH_ALWAYS', 'always');
 define('COMMERCE_CART_REFRESH_OWNER_ONLY', 'owner_only');
@@ -357,6 +359,19 @@ function commerce_cart_form_commerce_order_settings_form_alter(&$form, &$form_st
     '#description' => t('Even if enabled the link will not appear on shopping cart order edit forms.'),
     '#default_value' => variable_get('commerce_order_apply_pricing_rules_link', TRUE),
     '#weight' => 10,
+  );
+
+  $cart_providers = array();
+  foreach (commerce_cart_get_providers() as $key => $cart_provider) {
+    $cart_providers[$key] = $cart_provider['title'];
+  }
+
+  $form['commerce_cart_provider'] = array(
+    '#title' => t('Cart provider'),
+    '#type' => 'select',
+    '#options' => $cart_providers,
+    '#default_value' => variable_get('commerce_cart_provider', COMMERCE_CART_DEFAULT_PROVIDER),
+    '#access' => count($cart_providers) > 1,
   );
 
   // Add a fieldset for settings pertaining to the shopping cart refresh.
@@ -1185,8 +1200,9 @@ function commerce_cart_get_properties($data = FALSE, array $options, $name) {
  *   An array of applicable cart order IDs or an empty array if none exist.
  */
 function commerce_cart_order_session_order_ids($completed = FALSE) {
-  $key = $completed ? 'commerce_cart_completed_orders' : 'commerce_cart_orders';
-  return empty($_SESSION[$key]) ? array() : $_SESSION[$key];
+  if ($cart_provider = commerce_cart_get_provider()) {
+    return $cart_provider->cartOrderIds($completed);
+  }
 }
 
 /**
@@ -1199,13 +1215,8 @@ function commerce_cart_order_session_order_ids($completed = FALSE) {
  *     completed orders array instead of the active cart orders array.
  */
 function commerce_cart_order_session_save($order_id, $completed = FALSE) {
-  $key = $completed ? 'commerce_cart_completed_orders' : 'commerce_cart_orders';
-
-  if (empty($_SESSION[$key])) {
-    $_SESSION[$key] = array($order_id);
-  }
-  elseif (!in_array($order_id, $_SESSION[$key])) {
-    $_SESSION[$key][] = $order_id;
+  if ($cart_provider = commerce_cart_get_provider()) {
+    $cart_provider->cartSave($order_id, $completed);
   }
 }
 
@@ -1224,16 +1235,11 @@ function commerce_cart_order_session_save($order_id, $completed = FALSE) {
  *     or if the specified order ID exists in the session.
  */
 function commerce_cart_order_session_exists($order_id = NULL, $completed = FALSE) {
-  $key = $completed ? 'commerce_cart_completed_orders' : 'commerce_cart_orders';
+  if ($cart_provider = commerce_cart_get_provider()) {
+    return $cart_provider->cartExists($order_id, $completed);
+  }
 
-  // If an order was specified, look for it in the array.
-  if (!empty($order_id)) {
-    return !empty($_SESSION[$key]) && in_array($order_id, $_SESSION[$key]);
-  }
-  else {
-    // Otherwise look for any value.
-    return !empty($_SESSION[$key]);
-  }
+  return FALSE;
 }
 
 /**
@@ -1247,15 +1253,8 @@ function commerce_cart_order_session_exists($order_id = NULL, $completed = FALSE
  *     completed orders array instead of the active cart orders array.
  */
 function commerce_cart_order_session_delete($order_id = NULL, $completed = FALSE) {
-  $key = $completed ? 'commerce_cart_completed_orders' : 'commerce_cart_orders';
-
-  if (!empty($_SESSION[$key])) {
-    if (!empty($order_id)) {
-      $_SESSION[$key] = array_diff($_SESSION[$key], array($order_id));
-    }
-    else {
-      unset($_SESSION[$key]);
-    }
+  if ($cart_provider = commerce_cart_get_provider()) {
+    $cart_provider->cartDelete($order_id, $completed);
   }
 }
 
@@ -2765,4 +2764,50 @@ function commerce_cart_i18n_string_list_field_alter(&$strings, $type = NULL, $ob
       'title' => t('Attribute widget title'),
     );
   }
+}
+
+/**
+ * Implements hook_ctools_plugin_type().
+ */
+function commerce_cart_ctools_plugin_type() {
+  $plugins['cart_provider'] = array(
+    'classes' => array('class'),
+  );
+  return $plugins;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function commerce_cart_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'commerce_cart') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Returns the instanciated cart provider.
+ */
+function commerce_cart_get_provider($provider = NULL) {
+  ctools_include('plugins');
+  if (empty($provider)) {
+    $provider = variable_get('commerce_cart_provider', COMMERCE_CART_DEFAULT_PROVIDER);
+  }
+
+  // Return NULL if the class could not be found.
+  if (!$class = ctools_plugin_load_class('commerce_cart', 'cart_provider', $provider, 'class')) {
+    return NULL;
+  }
+
+  return new $class();
+}
+
+/**
+ * Returns the cart providers.
+ */
+function commerce_cart_get_providers() {
+  ctools_include('plugins');
+  $plugins = ctools_get_plugins('commerce_cart', 'cart_provider');
+  uasort($plugins, 'ctools_plugin_sort');
+  return $plugins;
 }

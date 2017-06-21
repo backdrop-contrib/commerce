@@ -21,3 +21,6 @@ files[] = includes/views/handlers/commerce_cart_handler_area_empty_text.inc
 
 ; Simple tests
 files[] = tests/commerce_cart.test
+
+; Cart provider Interface.
+files[] = plugins/cart_provider/interface.inc
