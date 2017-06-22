@@ -762,35 +762,37 @@ function commerce_cart_commerce_order_load($orders) {
     // Refresh only if this order object represents the latest revision of a
     // shopping cart order, it hasn't been refreshed already in this request
     // and it meets the criteria in the shopping cart refresh settings.
-    if (!isset($refreshed[$order->order_id]) &&
-      commerce_cart_order_is_cart($order) &&
-      commerce_order_is_latest_revision($order) &&
-      commerce_cart_order_can_refresh($order)) {
-      // Update the last cart refresh timestamp and record the order's current
-      // changed timestamp to detect if the order is actually updated.
-      $order->data['last_cart_refresh'] = REQUEST_TIME;
+    if (isset($refreshed[$order->order_id]) ||
+      commerce_entity_is_unchanged('commerce_order', $order) ||
+      !commerce_cart_order_is_cart($order) ||
+      !commerce_order_is_latest_revision($order) ||
+      !commerce_cart_order_can_refresh($order)) {
+      continue;
+    }
+    // Update the last cart refresh timestamp and record the order's current
+    // changed timestamp to detect if the order is actually updated.
+    $order->data['last_cart_refresh'] = REQUEST_TIME;
 
-      $unchanged_data = $order->data;
-      $last_changed = $order->changed;
+    $unchanged_data = $order->data;
+    $last_changed = $order->changed;
 
-      // Refresh the order and add its ID to the refreshed array.
-      $refreshed[$order->order_id] = TRUE;
-      commerce_cart_order_refresh($order);
+    // Refresh the order and add its ID to the refreshed array.
+    $refreshed[$order->order_id] = TRUE;
+    commerce_cart_order_refresh($order);
 
-      // If order wasn't updated during the refresh, we need to manually update
-      // the last cart refresh timestamp in the database.
-      if ($order->changed == $last_changed) {
-        db_update('commerce_order')
-          ->fields(array('data' => serialize($unchanged_data)))
-          ->condition('order_id', $order->order_id)
-          ->execute();
+    // If order wasn't updated during the refresh, we need to manually update
+    // the last cart refresh timestamp in the database.
+    if ($order->changed == $last_changed) {
+      db_update('commerce_order')
+        ->fields(array('data' => serialize($unchanged_data)))
+        ->condition('order_id', $order->order_id)
+        ->execute();
 
-        db_update('commerce_order_revision')
-          ->fields(array('data' => serialize($unchanged_data)))
-          ->condition('order_id', $order->order_id)
-          ->condition('revision_id', $order->revision_id)
-          ->execute();
-      }
+      db_update('commerce_order_revision')
+        ->fields(array('data' => serialize($unchanged_data)))
+        ->condition('order_id', $order->order_id)
+        ->condition('revision_id', $order->revision_id)
+        ->execute();
     }
   }
 }
