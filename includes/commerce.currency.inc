@@ -551,6 +551,16 @@ function commerce_commerce_currency_info() {
       'minor_unit' => t('Paisa'),
       'major_unit' => t('Rupee'),
     ),
+    'IQD' => array(
+      'code' => 'IQD',
+      'numeric_code' => '368',
+      'symbol' => 'د.ع.‏',
+      'name' => t('Iraqi Dinar'),
+      'symbol_placement' => 'after',
+      'code_placement' => 'hidden',
+      'major_unit' => t('Dinar'),
+      'decimals' => 0,
+    ),
     'IRR' => array(
       'code' => 'IRR',
       'symbol' => 'ریال',
