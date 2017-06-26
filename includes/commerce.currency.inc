@@ -429,6 +429,16 @@ function commerce_commerce_currency_info() {
       'minor_unit' => t('Penny'),
       'major_unit' => t('Pound'),
     ),
+    'GEL' => array(
+      'code' => 'GEL',
+      'numeric_code' => '981',
+      'symbol' => '₾',
+      'name' => t('Georgian Lari'),
+      'symbol_placement' => 'after',
+      'code_placement' => 'hidden',
+      'minor_unit' => t('Tetri'),
+      'major_unit' => t('Lari'),
+    ),
     'GHS' => array(
       'code' => 'GHS',
       'symbol' => 'GH₵',
