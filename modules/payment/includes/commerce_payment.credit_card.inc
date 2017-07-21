@@ -278,7 +278,13 @@ function commerce_payment_credit_card_validate($details, $settings) {
  * @see commerce_payment_credit_card_types()
  */
 function commerce_payment_validate_credit_card_type($number, array $card_types = array()) {
-  return CommercePaymentCreditCard::detectType($number);
+  $type = CommercePaymentCreditCard::detectType($number);
+
+  if (!$type || !in_array($type['id'], $card_types)) {
+    return FALSE;
+  }
+
+  return $type['id'];
 }
 
 /**
