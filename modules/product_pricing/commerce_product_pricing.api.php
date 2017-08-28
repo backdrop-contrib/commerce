@@ -79,12 +79,12 @@ function hook_commerce_product_calculate_sell_price_line_item_alter($line_item) 
 /**
  * Allow modules to alter the product line item during sell price calculation
  * when the "Product pricing process" is configured to either "rules_invoke_all"
- * or "modules_invoke_all".
+ * or "module_invoke_all".
  *
  * @param $line_item
  *   The product line item used for sell price calculation.
  */
-function hook_commerce_product_calculate_sell_price_line_item($line_item) {
+function hook_commerce_product_calculate_sell_price($line_item) {
   $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
   $product = $line_item_wrapper->commerce_product->value();
 
