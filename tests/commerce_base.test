@@ -125,6 +125,7 @@ abstract class CommerceBaseTestCase extends DrupalWebTestCase {
       'administer permissions',
       'administer users',
       'administer rules',
+      'administer fields',
     );
     $store_admin = array(
       'access administration pages',
