@@ -349,7 +349,7 @@ function commerce_product_reference_entity_view($entity, $entity_type, $view_mod
 
       // Load a wrapper for the entity being viewed.
       if (empty($wrapper)) {
-        $wrapper = entity_metadata_wrapper($entity_type, $entity);
+        $wrapper = entity_metadata_wrapper($entity_type, $entity)->language($langcode);
       }
 
       // Fetch the product reference field value.
