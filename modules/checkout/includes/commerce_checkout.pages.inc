@@ -263,10 +263,10 @@ function _commerce_checkout_set_validated(&$element, $imploded_parents) {
 /**
  * Validate handler for the continue button of the checkout form.
  *
- * This function calls the validation function of each pane, followed by
- * the submit function if the validation succeeded. As long as one pane
- * fails validation, we then ask for the form to be rebuilt. Once all the panes
- * are happy, we move on to the next page.
+ * This function calls the validation function of each pane, followed by the
+ * submit function if the validation succeeded. As long as one pane fails
+ * validation, we then ask for the form to be rebuilt. Once all the panes are
+ * happy, we move on to the next page.
  */
 function commerce_checkout_form_validate($form, &$form_state) {
   $checkout_page = $form_state['checkout_page'];
@@ -278,15 +278,24 @@ function commerce_checkout_form_validate($form, &$form_state) {
   $previous_messages = drupal_get_messages();
 
   // Load any pre-existing validation errors for the elements.
+  $form_errors = form_get_errors();
   $errors = array();
 
-  foreach ((array) form_get_errors() as $element_path => $error) {
+  // If we found any errors at all on the page, go ahead and mark the form as
+  // failing validation. This will ensure that even form elements on the page
+  // that aren't part of a checkout pane trigger validation failure.
+  $form_validate = TRUE;
+
+  if (!empty($form_errors)) {
+    $form_validate = FALSE;
+  }
+
+  foreach ((array) $form_errors as $element_path => $error) {
     list($pane_id, ) = explode('][', $element_path, 2);
     $errors[$pane_id][$element_path] = $error;
   }
 
   // Loop through the enabled checkout panes for the current page.
-  $form_validate = TRUE;
   foreach (commerce_checkout_panes(array('enabled' => TRUE, 'page' => $checkout_page['page_id'])) as $pane_id => $checkout_pane) {
     $validate = TRUE;
 
