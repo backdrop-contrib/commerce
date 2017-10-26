@@ -634,12 +634,14 @@ function commerce_line_item_load_multiple($line_item_ids = array(), $conditions 
  *
  * @param $line_item_id
  *   The ID of the line item to delete.
+ * @param boolean $skip_order_save
+ *   TRUE to skip saving the order after deleting the line item.
  *
  * @return
  *   TRUE on success, FALSE otherwise.
  */
-function commerce_line_item_delete($line_item_id) {
-  return commerce_line_item_delete_multiple(array($line_item_id));
+function commerce_line_item_delete($line_item_id, $skip_order_save = FALSE) {
+  return commerce_line_item_delete_multiple(array($line_item_id), $skip_order_save);
 }
 
 /**
@@ -647,12 +649,14 @@ function commerce_line_item_delete($line_item_id) {
  *
  * @param $line_item_ids
  *   An array of line item IDs to delete.
+ * @param boolean $skip_order_save
+ *   TRUE to skip saving the order after deleting the line item.
  *
  * @return
  *   TRUE on success, FALSE otherwise.
  */
-function commerce_line_item_delete_multiple($line_item_ids) {
-  return entity_get_controller('commerce_line_item')->delete($line_item_ids);
+function commerce_line_item_delete_multiple($line_item_ids, $skip_order_save = FALSE) {
+  return entity_get_controller('commerce_line_item')->delete($line_item_ids, NULL, $skip_order_save);
 }
 
 /**
