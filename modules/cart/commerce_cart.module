@@ -666,9 +666,6 @@ function commerce_cart_block_view($delta) {
 
   // Prepare the display of the default Shopping Cart block.
   if ($delta == 'cart') {
-    // Default to an empty cart block message.
-    $content = theme('commerce_cart_empty_block');
-
     // First check to ensure there are products in the shopping cart.
     if ($order = commerce_cart_order_load($user->uid)) {
       $wrapper = entity_metadata_wrapper('commerce_order', $order);
@@ -684,6 +681,11 @@ function commerce_cart_block_view($delta) {
 
         $content = theme('commerce_cart_block', $variables);
       }
+    }
+
+    if (empty($content)) {
+      // Default to an empty cart block message.
+      $content = theme('commerce_cart_empty_block');
     }
 
     return array('subject' => t('Shopping cart'), 'content' => $content);
