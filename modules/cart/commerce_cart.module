@@ -1703,6 +1703,104 @@ function commerce_cart_forms($form_id, $args) {
 }
 
 /**
+ * Returns an array of products matching a set of attribute values.
+ *
+ * @param $products
+ *   An array of product objects.
+ * @param $form_state
+ *   The $form_state from an Add to Cart form.
+ */
+function _commerce_cart_matching_products($products, &$form_state) {
+  $matching_products = array();
+
+  // If the form state contains attribute data...
+  if (!empty($form_state['values']['attributes'])) {
+    $changed_attribute = NULL;
+    $attributes = (array) array_diff_key($form_state['values']['attributes'], array('product_select' => ''));
+    $unchanged_attributes = $form_state['values']['unchanged_attributes'];
+
+    // Get the changed attribute.
+    foreach ($attributes as $attribute_name => $attribute_value) {
+      // If this is the attribute widget that was changed...
+      if ($attribute_value != $unchanged_attributes[$attribute_name]) {
+        // Store the field name.
+        $changed_attribute = $attribute_name;
+
+        // Clear the input for the "Select a product" widget now if it
+        // exists on the form since we know an attribute was changed.
+        unset($form_state['input']['attributes']['product_select']);
+
+        // We found the changed attribute so we're done.
+        break;
+      }
+    }
+
+    // If we found a changed attribute and it's not already in the first
+    // position of the array.
+    if (!empty($changed_attribute) && array_search($changed_attribute, array_keys($attributes))) {
+      // Move the changed attribute to the first position of the array so it's
+      // handled first.
+      $attributes = array($changed_attribute => $attributes[$changed_attribute]) + $attributes;
+    }
+
+    // Create a list of all products associated with each attribute for
+    // filtering.
+    $attributes_products = array_fill_keys(array_keys($attributes), array());
+    foreach ($products as $product_id => $product) {
+      $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
+
+      // Store which attributes this product is associated with.
+      foreach ($attributes as $attribute_name => $attribute_value) {
+        if ($product_wrapper->{$attribute_name}->raw() == $attribute_value) {
+          $attributes_products[$attribute_name][$product_id] = $product;
+        }
+      }
+    }
+
+    // Filter out products starting with those not associated with the changed
+    // attribute and proceeding with those not associated with other attributes
+    // in the order the attributes appear in the form.
+    $matching_products = array_shift($attributes_products);
+    foreach ($attributes_products as $attribute_name => $attribute_products) {
+      $filtered_products = array_intersect_key($matching_products, $attribute_products);
+
+      // If all products have been filtered out, use the set of products prior
+      // to filtering on the current attribute.
+      if (!empty($filtered_products)) {
+        $matching_products = $filtered_products;
+      }
+      else {
+        break;
+      }
+    }
+
+    // Only accept the first matching product and subsequent matching products
+    // with identical attribute values.
+    if (count($matching_products) > 1) {
+      $default_product = array_shift($matching_products);
+      $default_product_wrapper = entity_metadata_wrapper('commerce_product', $default_product);
+      $default_products[$default_product->product_id] = $default_product;
+
+      foreach ($matching_products as $matching_product_id => $matching_product) {
+        $matching_product_wrapper = entity_metadata_wrapper('commerce_product', $matching_product);
+
+        foreach ($attributes as $attribute_name => $attribute_value) {
+          if ($matching_product_wrapper->{$attribute_name}->raw() != $default_product_wrapper->{$attribute_name}->raw()) {
+            continue 2;
+          }
+        }
+
+        $default_products[$matching_product_id] = $matching_product;
+      }
+
+      $matching_products = $default_products;
+    }
+  }
+
+  return $matching_products;
+}
+
+/**
  * Builds an Add to Cart form for a set of products.
  *
  * @param $line_item
@@ -1818,17 +1916,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
       $same_type = TRUE;
       $type = '';
 
-      // Find the default product so we know how to set default options on the
-      // various Add to Cart form widgets and an array of any matching product
-      // based on attribute selections so we can add a selection widget.
-      $matching_products = array();
-      $default_product = NULL;
-      $attribute_names = array();
-      $unchanged_attributes = array();
-
       foreach ($products as $product_id => $product) {
-        $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
-
         // Store the first product type.
         if (empty($type)) {
           $type = $product->type;
@@ -1839,71 +1927,14 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
         if ($product->type != $type) {
           $same_type = FALSE;
         }
-
-        // If the form state contains a set of attribute data, use it to try
-        // and determine the default product.
-        $changed_attribute = NULL;
-
-        if (!empty($form_state['values']['attributes'])) {
-          $match = TRUE;
-
-          // Set an array of checked attributes for later comparison against the
-          // default matching product.
-          if (empty($attribute_names)) {
-            $attribute_names = (array) array_diff_key($form_state['values']['attributes'], array('product_select' => ''));
-            $unchanged_attributes = $form_state['values']['unchanged_attributes'];
-          }
-
-          foreach ($attribute_names as $key => $value) {
-            // If this is the attribute widget that was changed...
-            if ($value != $unchanged_attributes[$key]) {
-              // Store the field name.
-              $changed_attribute = $key;
-
-              // Clear the input for the "Select a product" widget now if it
-              // exists on the form since we know an attribute was changed.
-              unset($form_state['input']['attributes']['product_select']);
-            }
-
-            // If a field name has been stored and we've moved past it to
-            // compare the next attribute field...
-            if (!empty($changed_attribute) && $changed_attribute != $key) {
-              // Wipe subsequent values from the form state so the attribute
-              // widgets can use the default values from the new default product.
-              unset($form_state['input']['attributes'][$key]);
-
-              // Don't accept this as a matching product.
-              continue;
-            }
-
-            if ($product_wrapper->{$key}->raw() != $value) {
-              $match = FALSE;
-            }
-          }
-
-          // If the changed field name has already been stored, only accept the
-          // first matching product by ignoring the rest that would match. An
-          // exception is granted for additional matching products that share
-          // the exact same attribute values as the first.
-          if ($match && !empty($changed_attribute) && !empty($matching_products)) {
-            reset($matching_products);
-            $matching_product = $matching_products[key($matching_products)];
-            $matching_product_wrapper = entity_metadata_wrapper('commerce_product', $matching_product);
-
-            foreach ($attribute_names as $key => $value) {
-              if ($product_wrapper->{$key}->raw() != $matching_product_wrapper->{$key}->raw()) {
-                $match = FALSE;
-              }
-            }
-          }
-
-          if ($match) {
-            $matching_products[$product_id] = $product;
-          }
-        }
       }
 
-      // Set the default product now if it isn't already set.
+      // Find an array of matching products based on attribute selections so we
+      // can find the default product and add a selection widget if multiple
+      // matching products are found.
+      $matching_products = _commerce_cart_matching_products($products, $form_state);
+
+      // Set the default product.
       if (empty($matching_products)) {
         // If a product ID value was passed in, use that product if it exists.
         if (!empty($form_state['values']['product_id']) &&
@@ -1938,15 +1969,23 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
       // Wrap the default product for later use.
       $default_product_wrapper = entity_metadata_wrapper('commerce_product', $default_product);
 
+      // Remove any attribute input values from the form state that aren't
+      // associated with the default product so that attribute widgets can use
+      // the default values.
+      if (!empty($form_state['input']['attributes'])) {
+        foreach ($form_state['input']['attributes'] as $attribute_name => $attribute_value) {
+          if (empty($default_product_wrapper->{$attribute_name}) || $default_product_wrapper->{$attribute_name}->raw() != $attribute_value) {
+            unset($form_state['input']['attributes'][$attribute_name]);
+          }
+        }
+      }
+
       $form_state['default_product'] = $default_product;
 
       // If all the products are of the same type...
       if ($same_type) {
         // Loop through all the field instances on that product type.
         foreach (field_info_instances('commerce_product', $type) as $field_name => $instance) {
-          // A field qualifies if it is single value, required and uses a widget
-          // with a definite set of options. For the sake of simplicity, this is
-          // currently restricted to fields defined by the options module.
           $field = field_info_field($field_name);
 
           // If the instance is of a field type that is eligible to function as
@@ -2135,7 +2174,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
         }
       }
 
-      // If the products referenced were of different types or did not posess
+      // If the products referenced were of different types or did not possess
       // any qualifying attribute fields...
       if (!$same_type || empty($qualifying_fields)) {
         // For a single product form, just add the hidden product_id field.
