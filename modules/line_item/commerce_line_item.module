@@ -1174,14 +1174,18 @@ function theme_commerce_line_item_manager($variables) {
 
   // Add each line item to the table.
   foreach (element_children($form['line_items']) as $line_item_id) {
-    $row = array(
-      drupal_render($form['line_items'][$line_item_id]['remove']),
-      drupal_render($form['line_items'][$line_item_id]['title']),
-      drupal_render($form['line_items'][$line_item_id]['line_item_label']),
-      drupal_render($form['line_items'][$line_item_id]['commerce_unit_price']),
-      drupal_render($form['line_items'][$line_item_id]['quantity']),
-      drupal_render($form['line_items'][$line_item_id]['commerce_total']),
-    );
+    $row = array();
+
+    // Loop over all child elements in the line item's form array.
+    foreach (element_children($form['line_items'][$line_item_id]) as $item) {
+      // Do not attempt to render value elements into the row.
+      if (!empty($form['line_items'][$line_item_id][$item]['#type']) &&
+        $form['line_items'][$line_item_id][$item]['#type'] == 'value') {
+        continue;
+      }
+
+      $row[] = drupal_render($form['line_items'][$line_item_id][$item]);
+    }
 
     $rows[] = $row;
   }
