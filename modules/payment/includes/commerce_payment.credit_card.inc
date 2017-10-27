@@ -238,7 +238,7 @@ function commerce_payment_credit_card_validate($details, $settings) {
   }
 
   // Validate the security code if present.
-  if (isset($details['code']) && !commerce_payment_validate_credit_card_security_code($details['number'], $details['code'])) {
+  if (!empty($details['code']) && !commerce_payment_validate_credit_card_security_code($details['number'], $details['code'])) {
     form_set_error($prefix . 'code', t('You have entered an invalid card security code.'));
     $valid = FALSE;
   }
