@@ -2064,7 +2064,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
                 continue;
               }
 
-              if (isset($form['attributes'][$used_field_name]['#default_value'])) {
+              if (array_key_exists('#default_value', $form['attributes'][$used_field_name])) {
                 if ($product_wrapper->{$used_field_name}->raw() != $form['attributes'][$used_field_name]['#default_value']) {
                   continue 2;
                 }
