@@ -1777,7 +1777,8 @@ function _commerce_cart_matching_products($products, &$form_state) {
     // Only accept the first matching product and subsequent matching products
     // with identical attribute values.
     if (count($matching_products) > 1) {
-      $default_product = array_shift($matching_products);
+      $default_product = reset($matching_products);
+      unset($matching_products[key($matching_products)]);
       $default_product_wrapper = entity_metadata_wrapper('commerce_product', $default_product);
       $default_products[$default_product->product_id] = $default_product;
 
