@@ -1466,6 +1466,30 @@ function commerce_line_items_quantity($line_items, $types = array()) {
 }
 
 /**
+ * Returns the total quantity of a group of line items identified by ID.
+ *
+ * @param int[] $line_item_ids
+ *   An array of line item IDs whose quantities should be summed and returned.
+ * @param string[] $types
+ *   An array of line item types to filter by before counting.
+ *
+ * @return int
+ *   The quantity of the line items.
+ */
+function commerce_line_items_quantity_by_id($line_item_ids, $types = array()) {
+  if (empty($line_item_ids)) {
+    return 0;
+  }
+
+  if (empty($types)) {
+    return db_query("SELECT SUM(quantity) FROM {commerce_line_item} WHERE line_item_id IN(:line_item_ids)", array(':line_item_ids' => $line_item_ids))->fetchField();
+  }
+  else {
+    return db_query("SELECT SUM(quantity) FROM {commerce_line_item} WHERE line_item_id IN(:line_item_ids) AND type IN (:types)", array(':line_item_ids' => $line_item_ids, ':types' => $types))->fetchField();
+  }
+}
+
+/**
  * Returns the total price amount and currency of an array of line items.
  *
  * @param $line_items

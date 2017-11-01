@@ -276,36 +276,34 @@ function commerce_order_rules_compare_address($order, $address_field, $component
 function commerce_order_rules_contains_product($order, $sku, $operator, $value) {
   $count = 0;
 
-  // Exit if we do not have a valid order or line items.
-  if (empty($order) || empty($order->commerce_line_items)) {
-    return FALSE;
-  }
+  // If we got a valid order with line items...
+  if (!empty($order) && !empty($order->commerce_line_items)) {
+    // Collect all the line item IDs on the order.
+    $line_item_ids = array();
 
-  // Collect all the line item IDs on the order.
-  $line_item_ids = array();
-
-  if ($items = field_get_items('commerce_order', $order, 'commerce_line_items')) {
-    foreach ($items as $item) {
-      $line_item_ids[] = $item['line_item_id'];
+    if ($items = field_get_items('commerce_order', $order, 'commerce_line_items')) {
+      foreach ($items as $item) {
+        $line_item_ids[] = $item['line_item_id'];
+      }
     }
-  }
 
-  // If we found valid line item IDs...
-  if (!empty($line_item_ids)) {
-    // Get the product ID matching the given SKU.
-    $product_id = db_query("SELECT product_id FROM {commerce_product} WHERE sku = :sku", array(':sku' => $sku))->fetchField();
+    // If we found valid line item IDs...
+    if (!empty($line_item_ids)) {
+      // Get the product ID matching the given SKU.
+      $product_id = db_query("SELECT product_id FROM {commerce_product} WHERE sku = :sku", array(':sku' => $sku))->fetchField();
 
-    // Build a query to find the line items matching the given SKU.
-    $query = new EntityFieldQuery();
-    $query
-      ->entityCondition('entity_type', 'commerce_line_item')
-      ->entityCondition('bundle', commerce_product_line_item_types(), 'IN')
-      ->entityCondition('entity_id', $line_item_ids)
-      ->fieldCondition('commerce_product', 'product_id', $product_id);
-    $result = $query->execute();
+      // Build a query to find the line items matching the given SKU.
+      $query = new EntityFieldQuery();
+      $query
+        ->entityCondition('entity_type', 'commerce_line_item')
+        ->entityCondition('bundle', commerce_product_line_item_types(), 'IN')
+        ->entityCondition('entity_id', $line_item_ids)
+        ->fieldCondition('commerce_product', 'product_id', $product_id);
+      $result = $query->execute();
 
-    if (!empty($result['commerce_line_item'])) {
-      $count = db_query("SELECT SUM(quantity) FROM {commerce_line_item} WHERE line_item_id IN(:line_item_ids)", array(':line_item_ids' => array_keys($result['commerce_line_item'])))->fetchField();
+      if (!empty($result['commerce_line_item'])) {
+        $count = commerce_line_items_quantity_by_id(array_keys($result['commerce_line_item']));
+      }
     }
   }
 
@@ -376,12 +374,20 @@ function commerce_order_rules_contains_product_type($order, $product_types, $ope
 function commerce_order_rules_compare_total_quantity($order, $operator, $value) {
   $quantity = 0;
 
-  // If we received an order, get the total quantity of products on it.
-  if (!empty($order)) {
-    $wrapper = entity_metadata_wrapper('commerce_order', $order);
+  // If we got a valid order with line items...
+  if (!empty($order) && !empty($order->commerce_line_items)) {
+    // Collect all the line item IDs on the order.
+    $line_item_ids = array();
 
-    if (!empty($wrapper->commerce_line_items)) {
-      $quantity = commerce_line_items_quantity($wrapper->commerce_line_items, commerce_product_line_item_types());
+    if ($items = field_get_items('commerce_order', $order, 'commerce_line_items')) {
+      foreach ($items as $item) {
+        $line_item_ids[] = $item['line_item_id'];
+      }
+    }
+
+    // If we found valid line item IDs...
+    if (!empty($line_item_ids)) {
+      $quantity = commerce_line_items_quantity_by_id($line_item_ids, commerce_product_line_item_types());
     }
   }
 
