@@ -297,7 +297,7 @@ function commerce_order_rules_contains_product($order, $sku, $operator, $value) 
       $query
         ->entityCondition('entity_type', 'commerce_line_item')
         ->entityCondition('bundle', commerce_product_line_item_types(), 'IN')
-        ->entityCondition('entity_id', $line_item_ids)
+        ->entityCondition('entity_id', $line_item_ids, 'IN')
         ->fieldCondition('commerce_product', 'product_id', $product_id);
       $result = $query->execute();
 
@@ -331,20 +331,62 @@ function commerce_order_rules_contains_product($order, $sku, $operator, $value) 
 function commerce_order_rules_contains_product_type($order, $product_types, $operator, $value) {
   $quantity = 0;
 
-  // If we actually received a valid order...
-  if (!empty($order)) {
-    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  // If we got a valid order with line items...
+  if (!empty($order) && !empty($order->commerce_line_items)) {
+    // Collect all the line item IDs on the order.
+    $line_item_ids = array();
 
-    // Look for product line items on the order whose products match the
-    // specified product types and increment the quantity count accordingly.
-    foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-      if (in_array($line_item_wrapper->getBundle(), commerce_product_line_item_types())) {
-        // Extract the product type from the line item.
-        $line_item_product_type = $line_item_wrapper->commerce_product->getBundle();
+    if ($items = field_get_items('commerce_order', $order, 'commerce_line_items')) {
+      foreach ($items as $item) {
+        $line_item_ids[] = $item['line_item_id'];
+      }
+    }
 
-        // If the line item product type matches, update the total quantity.
-        if (in_array($line_item_product_type, $product_types)) {
-          $quantity += $line_item_wrapper->quantity->value();
+    // If we found valid line item IDs...
+    if (!empty($line_item_ids)) {
+      // Build a query to find the order's product line items.
+      $query = new EntityFieldQuery();
+      $query
+        ->entityCondition('entity_type', 'commerce_line_item')
+        ->entityCondition('bundle', commerce_product_line_item_types(), 'IN')
+        ->entityCondition('entity_id', $line_item_ids, 'IN');
+      $line_item_result = $query->execute();
+
+      // If the query discovered product line items...
+      if (!empty($line_item_result['commerce_line_item'])) {
+        // Load the product line items.
+        $line_items = commerce_line_item_load_multiple(array_keys($line_item_result['commerce_line_item']));
+
+        // Build an array of referenced product IDs.
+        $product_ids_to_line_items = array();
+
+        foreach ($line_items as $line_item) {
+          if ($items = field_get_items('commerce_line_item', $line_item, 'commerce_product')) {
+            $item = reset($items);
+            $product_ids_to_line_items[$item['product_id']][] = $line_item->line_item_id;
+          }
+        }
+
+        // If the search resulted in products to load...
+        if (!empty($product_ids_to_line_items)) {
+          // Build a query to find products in the appropriate types.
+          $query = new EntityFieldQuery();
+          $query
+            ->entityCondition('entity_type', 'commerce_product')
+            ->entityCondition('entity_id', array_keys($product_ids_to_line_items), 'IN')
+            ->entityCondition('bundle', $product_types, 'IN');
+          $product_result = $query->execute();
+
+          // If the query discovered valid products...
+          if (!empty($product_result['commerce_product'])) {
+            // Loop over all valid product stubs and add their related line
+            // item quantities to the running total.
+            foreach (array_keys($product_result['commerce_product']) as $product_id) {
+              foreach ($product_ids_to_line_items[$product_id] as $line_item_id) {
+                $quantity += $line_items[$line_item_id]->quantity;
+              }
+            }
+          }
         }
       }
     }
