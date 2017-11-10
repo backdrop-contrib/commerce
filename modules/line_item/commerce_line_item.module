@@ -1453,12 +1453,12 @@ function commerce_line_items_quantity($line_items, $types = array()) {
   $quantity = 0;
 
   foreach ($line_items as $line_item) {
-    if (!$line_item instanceof EntityMetadataWrapper) {
-      $line_item = entity_metadata_wrapper('commerce_line_item', $line_item);
+    if ($line_item instanceof EntityMetadataWrapper) {
+      $line_item = $line_item->value();
     }
 
-    if (empty($types) || in_array($line_item->getBundle(), $types)) {
-      $quantity += $line_item->quantity->value();
+    if (empty($types) || in_array($line_item->type, $types)) {
+      $quantity += $line_item->quantity;
     }
   }
 
