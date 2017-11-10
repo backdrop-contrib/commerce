@@ -1045,7 +1045,12 @@ function commerce_product_reference_options_list($field, $instance = NULL) {
     $limit = (int) $field['settings']['options_list_limit'];
   }
   else {
-    $limit = 10;
+    // If there is no such limit, then default it to NULL (i.e. no limit) unless
+    // a variable has been set that provides an alternate default. This is
+    // usually required when product matching has been configured to use an
+    // EntityFieldQuery instead of the standard db_select(). Refer to the inline
+    // comments in commerce_product_match_products() for more information.
+    $limit = variable_get('commerce_product_reference_default_options_list_limit', NULL);
   }
 
   // Loop through all product matches.
