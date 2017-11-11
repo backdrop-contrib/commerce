@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Provides a session cart provider.
+ * Defines a session array based cart provider.
  */
 class CommerceCartProviderSession implements CommerceCartProviderInterface {
 
@@ -9,7 +9,7 @@ class CommerceCartProviderSession implements CommerceCartProviderInterface {
   const CART = 'commerce_cart_orders';
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function cartDelete($order_id = NULL, $completed = FALSE) {
     $key = $completed ? self::COMPLETED : self::CART;
@@ -25,7 +25,7 @@ class CommerceCartProviderSession implements CommerceCartProviderInterface {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function cartExists($order_id = NULL, $completed = FALSE) {
     $key = $completed ? self::COMPLETED : self::CART;
@@ -41,7 +41,7 @@ class CommerceCartProviderSession implements CommerceCartProviderInterface {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function cartOrderIds($completed = FALSE) {
     $key = $completed ? self::COMPLETED : self::CART;
@@ -49,7 +49,7 @@ class CommerceCartProviderSession implements CommerceCartProviderInterface {
   }
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function cartSave($order_id, $completed = FALSE) {
     $key = $completed ? self::COMPLETED : self::CART;

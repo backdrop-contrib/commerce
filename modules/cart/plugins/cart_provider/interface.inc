@@ -7,18 +7,18 @@
 interface CommerceCartProviderInterface {
 
   /**
-   * Deletes all order IDs or a specific order ID from the cart.
+   * Deletes either all order IDs or a specific order ID from a carts array.
    *
    * @param $order_id
    *   The order ID to remove from the array or NULL to delete the variable.
    * @param $completed
    *   Boolean indicating whether or not the operation should delete from the
-   *     completed orders array instead of the active cart orders array.
+   *   completed orders array instead of the active cart orders array.
    */
   public function cartDelete($order_id = NULL, $completed = FALSE);
 
   /**
-   * Checks to see if any order ID or a specific order ID exists.
+   * Checks to see if any cart order ID or a specific cart order ID exists.
    *
    * @param $order_id
    *   Optionally specify an order ID to look for; defaults to NULL.
@@ -27,7 +27,8 @@ interface CommerceCartProviderInterface {
    *   completed orders array instead of the active cart orders array.
    *
    * @return
-   *   Boolean indicating whether or not any cart order ID exists.
+   *   Boolean indicating whether or not a cart order ID exists for the given
+   *   parameters.
    */
   public function cartExists($order_id = NULL, $completed = FALSE);
 
@@ -50,7 +51,7 @@ interface CommerceCartProviderInterface {
    *   The order ID to save to the array.
    * @param $completed
    *   Boolean indicating whether or not the operation should save to the
-   *     completed orders array instead of the active cart orders array.
+   *   completed orders array instead of the active cart orders array.
    */
   public function cartSave($order_id, $completed = FALSE);
 

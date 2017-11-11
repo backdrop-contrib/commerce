@@ -10,6 +10,7 @@
 
 // Define a constant for the default cart provider.
 define('COMMERCE_CART_DEFAULT_PROVIDER', 'session');
+
 // Define constants for the shopping cart refresh modes.
 define('COMMERCE_CART_REFRESH_ALWAYS', 'always');
 define('COMMERCE_CART_REFRESH_OWNER_ONLY', 'owner_only');
@@ -2833,7 +2834,7 @@ function commerce_cart_ctools_plugin_directory($module, $plugin) {
 }
 
 /**
- * Returns the instanciated cart provider.
+ * Returns the instantiated cart provider.
  */
 function commerce_cart_get_provider($provider = NULL) {
   ctools_include('plugins');
