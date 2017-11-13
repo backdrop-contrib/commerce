@@ -60,6 +60,14 @@ function commerce_order_entity_property_info() {
     'setter permission' => 'administer commerce_order entities',
     'schema field' => 'changed',
   );
+  $properties['placed'] = array(
+    'type' => 'date',
+    'label' => t('Date placed'),
+    'description' => t('The date the order was placed.'),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer commerce_order entities',
+    'schema field' => 'placed',
+  );
   $properties['hostname'] = array(
     'type' => 'text',
     'label' => t('Host name'),

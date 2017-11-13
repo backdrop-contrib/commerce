@@ -959,6 +959,14 @@ function commerce_checkout_order_can_checkout($order) {
  * Completes the checkout process for the given order.
  */
 function commerce_checkout_complete($order) {
+  // An order could complete the checkout process more than once for a variety
+  // of reasons, including administrators making changes. We want to keep the
+  // timestamp from when the order was originally placed, so we don't update it
+  // if it is already set.
+  if (empty($order->placed)) {
+    $order->placed = REQUEST_TIME;
+  }
+
   rules_invoke_all('commerce_checkout_complete', $order);
 }
 
