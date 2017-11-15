@@ -562,7 +562,7 @@ function commerce_line_item_type_to_arg($type) {
 function commerce_line_item_type_callback($line_item_type, $callback) {
   // If the specified callback function exists, return it.
   if (!empty($line_item_type['callbacks'][$callback]) &&
-      function_exists($line_item_type['callbacks'][$callback])) {
+      is_callable($line_item_type['callbacks'][$callback])) {
     return $line_item_type['callbacks'][$callback];
   }
 

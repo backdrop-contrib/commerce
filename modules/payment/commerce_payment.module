@@ -658,7 +658,7 @@ function commerce_payment_method_callback($payment_method, $callback) {
 
   // If the specified callback function exists, return it.
   if (!empty($payment_method['callbacks'][$callback]) &&
-      function_exists($payment_method['callbacks'][$callback])) {
+      is_callable($payment_method['callbacks'][$callback])) {
     return $payment_method['callbacks'][$callback];
   }
 
