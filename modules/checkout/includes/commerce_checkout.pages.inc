@@ -82,6 +82,10 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_checkout') .'/theme/commerce_checkout.theme.css';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_checkout') . '/commerce_checkout.js';
 
+  // Refresh the order object in case it has been altered outside the checkout
+  // process so cache_form has a stale version.
+  $order = commerce_order_load($order->order_id);
+
   $form_state['order'] = $order;
   $form_state['checkout_page'] = $checkout_page;
   $form_state['account'] = clone($user);
@@ -113,6 +117,11 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
     if ($callback = commerce_checkout_pane_callback($checkout_pane, 'checkout_form')) {
       // Generate the pane form.
       $pane_form = $callback($form, $form_state, $checkout_pane, $order);
+
+      // Refresh the order object in case the checkout pane altered it outside
+      // of the passed reference.
+      $order = commerce_order_load($order->order_id);
+      $form_state['order'] = $order;
 
       // Combine the messages that were created during this pane's validation or
       // submit process with any that were created during the pane generation
