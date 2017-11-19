@@ -316,8 +316,12 @@ function commerce_payment_update_7103() {
  * Add an index on the remote_id field for payment transaction revisions.
  */
 function commerce_payment_update_7104() {
-  db_add_index('commerce_payment_transaction', 'remote_id', array('remote_id'));
-  db_add_index('commerce_payment_transaction_revision', 'remote_id', array('remote_id'));
+  if (!db_index_exists('commerce_payment_transaction', 'remote_id')) {
+    db_add_index('commerce_payment_transaction', 'remote_id', array('remote_id'));
+  }
+  if (!db_index_exists('commerce_payment_transaction_revision', 'remote_id')) {
+    db_add_index('commerce_payment_transaction_revision', 'remote_id', array('remote_id'));
+  }
 
   return t('Schema for the commerce_payment_transaction and commerce_payment_transaction_revision tables have been updated.');
 }
