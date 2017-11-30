@@ -611,7 +611,7 @@ function commerce_price_field_widget_form(&$form, &$form_state, $field, $instanc
   }
 
   // If a price has already been set for this instance prepare default values.
-  if (isset($items[$delta]['amount'])) {
+  if (isset($items[$delta]['amount']) && $items[$delta]['amount'] !== '') {
     $currency = commerce_currency_load($items[$delta]['currency_code']);
 
     // Convert the price amount to a user friendly decimal value.
