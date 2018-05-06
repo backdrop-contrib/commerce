@@ -817,7 +817,7 @@ function commerce_price_field_data_property_info($name = NULL) {
 }
 
 /**
- * Property getter callback returing the amount (as a decimal).
+ * Property getter callback returning the amount (as a decimal).
  */
 function commerce_price_amount_decimal_get($data, array $options, $name, $type, $info) {
   return commerce_currency_amount_to_decimal($data['amount'], $data['currency_code']);
