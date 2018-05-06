@@ -300,6 +300,11 @@ function commerce_payment_validate_credit_card_type($number, array $card_types =
  */
 function commerce_payment_validate_credit_card_number($number) {
   $type = CommercePaymentCreditCard::detectType($number);
+
+  if (!$type || !is_array($type)) {
+    return FALSE;
+  }
+
   return CommercePaymentCreditCard::validateNumber($number, $type);
 }
 
@@ -381,6 +386,11 @@ function commerce_payment_validate_credit_card_issue($issue) {
  */
 function commerce_payment_validate_credit_card_security_code($number, $code) {
   $type = CommercePaymentCreditCard::detectType($number);
+
+  if (!$type || !is_array($type)) {
+    return FALSE;
+  }
+
   return CommercePaymentCreditCard::validateSecurityCode($code, $type);
 }
 
