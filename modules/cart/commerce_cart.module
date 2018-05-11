@@ -2069,7 +2069,18 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
                 continue;
               }
 
-              if (array_key_exists('#default_value', $form['attributes'][$used_field_name])) {
+              // Don't apply this check if the previously used field we'd
+              // compare against was unset from the qualifying fields array,
+              // meaning that we only added NULL values to its used options
+              // array because it was an unused optional attribute field.
+              if (!isset($qualifying_fields[$used_field_name])) {
+                continue;
+              }
+
+              // However, if the form does include an element for the previous
+              // attribute field, ensure the current product's attribute field
+              // value matches the selected value on that element.
+              if (isset($form['attributes'][$used_field_name]) && array_key_exists('#default_value', $form['attributes'][$used_field_name])) {
                 if ($product_wrapper->{$used_field_name}->raw() != $form['attributes'][$used_field_name]['#default_value']) {
                   continue 2;
                 }
