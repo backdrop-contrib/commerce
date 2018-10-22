@@ -1261,8 +1261,8 @@ function commerce_line_item_manager_validate($element, &$form_state, $form) {
         commerce_line_item_rebase_unit_price($line_item);
       }
 
-      // Only save if values were actually changed.
-      if ($line_item != $element['line_items'][$line_item_id]['line_item']['#value']) {
+      // Only save if no errors and values were actually changed.
+      if (!form_get_errors() && $line_item != $element['line_items'][$line_item_id]['line_item']['#value']) {
         commerce_line_item_save($line_item);
       }
     }
