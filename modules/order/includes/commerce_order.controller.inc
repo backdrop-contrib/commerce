@@ -140,4 +140,39 @@ class CommerceOrderEntityController extends DrupalCommerceEntityController {
     // hook_commerce_order_load().
     parent::attachLoad($queried_orders, $revision_id);
   }
+
+  /**
+   * Deletes multiple orders by ID.
+   *
+   * @param $order_ids
+   *   An array of order IDs to delete.
+   * @param $transaction
+   *   An optional transaction object.
+   *
+   * @return boolean
+   *   TRUE on success, FALSE otherwise.
+   */
+  public function delete($order_ids, DatabaseTransaction $transaction = NULL) {
+    if (!empty($order_ids)) {
+      $orders = $this->load($order_ids, array());
+
+      // Ensure the orders can actually be deleted.
+      foreach ((array) $orders as $order_id => $order) {
+        if (in_array(FALSE, module_invoke_all('commerce_order_can_delete', $order))) {
+          unset($orders[$order_id]);
+        }
+      }
+
+      // If none of the specified orders can be deleted, return FALSE.
+      if (empty($orders)) {
+        return FALSE;
+      }
+
+      parent::delete($order_ids, $transaction);
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
 }

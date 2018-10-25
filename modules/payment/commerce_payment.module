@@ -480,6 +480,18 @@ function commerce_payment_commerce_payment_transaction_update($transaction) {
 }
 
 /**
+ * Implements hook_commerce_order_delete().
+ *
+ * Make sure all payment transactions are deleted whenever the
+ * order they are associated with is deleted.
+ */
+function commerce_payment_commerce_order_delete($order) {
+  foreach (commerce_payment_transaction_load_multiple(array(), array('order_id' => $order->order_id)) as $transaction) {
+    commerce_payment_transaction_delete($transaction->transaction_id);
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function commerce_payment_views_api() {
@@ -1144,6 +1156,59 @@ function commerce_payment_transaction_get_properties($transaction, array $option
       else {
         return '';
       }
+  }
+}
+
+/**
+ * Checks if the order has any associated payment transactions.
+ *
+ * @param $order
+ *   A commerce_order object.
+ *
+ * @return bool
+ *   TRUE if payment transactions exist.
+ */
+function commerce_payment_order_has_payments($order) {
+  $query = new EntityFieldQuery();
+
+  $query
+    ->entityCondition('entity_type', 'commerce_payment_transaction')
+    ->propertyCondition('order_id', $order->order_id, '=')
+    ->propertyCondition('status', COMMERCE_PAYMENT_STATUS_FAILURE, '!=')
+    ->count();
+
+  return $query->execute() == 1;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Makes sure the user deleting an order has permissions to delete
+ * associated payment transactions if they exist on the order
+ * being deleted. Prevents deletion of the order if the user
+ * does not have access.
+ */
+function commerce_payment_form_commerce_order_ui_order_delete_form_alter(&$form, &$form_state) {
+  if (commerce_payment_order_has_payments($form_state['order'])) {
+
+    if (user_access('administer payments')) {
+      // Add a required checkbox to force user to confirm
+      // deletion of attached payments as well.
+      $form['delete_order_payments'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Confirm deletion of order and all of its related payment transactions.'),
+        '#required' => TRUE,
+      );
+      $form['actions']['submit']['#states']['visible'][] = array(
+          ':input[name="delete_order_payments"]' => array('checked' => TRUE),
+      );
+    }
+    else {
+      // Inform the user they cannot delete the order due
+      // to attached payments.
+      $form['description']['#markup'] = '<p>' . t('This order has payment transactions attached to it. You do not have sufficient permissions to delete it.');
+      $form['actions']['submit']['#access'] = FALSE;
+    }
   }
 }
 
