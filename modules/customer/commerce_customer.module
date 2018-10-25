@@ -1313,22 +1313,32 @@ function commerce_customer_profile_copy_validate($element, &$form_state, $form) 
   $triggering_element = end($form_state['triggering_element']['#array_parents']);
   $pane_id = reset($element['#array_parents']);
 
-  // Checkbox: Off - Only invoked for the corresponding trigger element.
+  // If this profile copying checkbox was unchecked, update and save the order.
   if ($triggering_element == 'commerce_customer_profile_copy' && $form_state['triggering_element']['#id'] == $element['#id'] && empty($element['#value'])) {
     $form_state['order']->data['profile_copy'][$pane_id]['status'] = FALSE;
     unset($form_state['order']->data['profile_copy'][$pane_id]['elements']);
     commerce_order_save($form_state['order']);
   }
 
-  // Checkbox: On - Only invoked for the corresponding trigger element, or the
-  // "continue" checkout form button.
-  elseif ((($triggering_element == 'commerce_customer_profile_copy' && $form_state['triggering_element']['#id'] == $element['#id']) || $triggering_element == 'continue') && !empty($element['#value'])) {
+  // Otherwise, if this profile copying checkbox is checked for any reason,
+  // attempt to copy now if there are no errors in the source profile.
+  elseif (!empty($element['#value'])) {
     $type = substr($pane_id, 17);  // Removes 'customer_profile_'
     $source_id = 'customer_profile_' . variable_get('commerce_' . $pane_id . '_profile_copy_source', '');
     $info = array('commerce_customer_profile', $type, $pane_id);
 
     // Try getting the source profile from the form_state values, if it is present on the form..
     if (isset($form_state['values'][$source_id])) {
+      // If there were errors in the source profile pane, there's no need
+      // to copy the profile fields, we should therefore stop here.
+      if ($errors = form_get_errors()) {
+        foreach ($errors as $field => $error) {
+          if (strpos($field, $source_id . '][') === 0) {
+            return;
+          }
+        }
+      }
+
       commerce_customer_profile_copy_fields($info, $form_state['input'][$pane_id], $form_state['input'][$source_id], $form_state);
       commerce_customer_profile_copy_fields($info, $form_state['values'][$pane_id], $form_state['values'][$source_id], $form_state);
     }
