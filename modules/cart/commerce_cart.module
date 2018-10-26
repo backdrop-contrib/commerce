@@ -313,18 +313,23 @@ function commerce_cart_checkout_form_cancel_submit($form, &$form_state) {
 function commerce_cart_line_item_views_form_submit($form, &$form_state) {
   // Reset the status of the order to cart.
   $order = commerce_order_load($form_state['order']->order_id);
-  $form_state['order'] = commerce_order_status_update($order, 'cart', TRUE);
 
-  // Skip saving in the status update and manually save here to force a save
-  // even when the status doesn't actually change.
-  if (variable_get('commerce_order_auto_revision', TRUE)) {
-    $form_state['order']->revision = TRUE;
-    $form_state['order']->log = t('Customer updated the order via the shopping cart form.');
+  // Check order state for stale orders (cancelled, completed.)
+  $status = commerce_order_status_load($order->status);
+  if (in_array($status['state'], array('cart', 'checkout'))) {
+    $form_state['order'] = commerce_order_status_update($order, 'cart', TRUE);
+
+    // Skip saving in the status update and manually save here to force a save
+    // even when the status doesn't actually change.
+    if (variable_get('commerce_order_auto_revision', TRUE)) {
+      $form_state['order']->revision = TRUE;
+      $form_state['order']->log = t('Customer updated the order via the shopping cart form.');
+    }
+
+    commerce_order_save($form_state['order']);
+
+    drupal_set_message(t('Your shopping cart has been updated.'));
   }
-
-  commerce_order_save($form_state['order']);
-
-  drupal_set_message(t('Your shopping cart has been updated.'));
 }
 
 /**
