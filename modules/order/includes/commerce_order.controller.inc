@@ -71,6 +71,12 @@ class CommerceOrderEntityController extends DrupalCommerceEntityController {
         if (empty($order->created)) {
           $order->created = REQUEST_TIME;
         }
+        if (empty($order->changed)) {
+          $order->changed = REQUEST_TIME;
+        }
+        if (empty($order->revision_timestamp)) {
+          $order->revision_timestamp = REQUEST_TIME;
+        }
         if (empty($order->hostname)) {
           $order->hostname = ip_address();
         }
@@ -89,11 +95,12 @@ class CommerceOrderEntityController extends DrupalCommerceEntityController {
         if ($order->hostname === '') {
           unset($order->hostname);
         }
+
+        $time = time();
+        $order->changed = $time;
+        $order->revision_timestamp = $time;
       }
 
-      $order->changed = REQUEST_TIME;
-
-      $order->revision_timestamp = REQUEST_TIME;
       $order->revision_hostname = ip_address();
       $order->revision_uid = $user->uid;
 
