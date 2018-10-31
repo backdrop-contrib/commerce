@@ -1490,7 +1490,7 @@ function commerce_cart_order_product_line_item_delete($order, $line_item_id, $sk
   rules_invoke_all('commerce_cart_product_remove', $order, $product, $line_item->quantity, $line_item);
 
   // Delete the actual line item.
-  commerce_line_item_delete($line_item->line_item_id);
+  commerce_line_item_delete($line_item->line_item_id, $skip_save);
 
   if (!$skip_save) {
     commerce_order_save($order);
