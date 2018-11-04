@@ -1827,6 +1827,8 @@ function _commerce_cart_matching_products($products, &$form_state) {
  *   - $line_item->data['context']['show_single_product_attributes']: a boolean
  *     indicating whether or not product attribute fields with single options
  *     should be shown on the Add to Cart form.
+ *   - $line_item->data['context']['button_text']: a string that overrides the
+ *     default Add to Cart button text for submitting the form.
  *   - $line_item->quantity: the default value for the quantity widget if
  *     included (determined by the $show_quantity parameter).
  *   - $line_item->commerce_product: the value of this field will be used as the
@@ -2287,9 +2289,19 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
       );
     }
     else {
+      // If the context contains custom button text, filter it and attempt to
+      // translate it.
+      if (!empty($line_item->data['context']['button_text'])) {
+        $button_text = function_exists('locale') ? locale(filter_xss($line_item->data['context']['button_text'])) :
+          filter_xss($line_item->data['context']['button_text']);
+      }
+      else {
+        $button_text = t('Add to cart');
+      }
+
       $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => t('Add to cart'),
+        '#value' => $button_text,
         '#weight' => 50,
       );
     }
@@ -2541,6 +2553,7 @@ function commerce_cart_field_formatter_info() {
       'description' => t('Display an Add to Cart form for the referenced product.'),
       'field types' => array('commerce_product_reference', 'entityreference'),
       'settings' => array(
+        'button_text' => t('Add to cart'),
         'show_quantity' => FALSE,
         'default_quantity' => 1,
         'combine' => TRUE,
@@ -2561,6 +2574,14 @@ function commerce_cart_field_formatter_settings_form($field, $instance, $view_mo
   $element = array();
 
   if ($display['type'] == 'commerce_cart_add_to_cart_form') {
+    $button_text = !empty($settings['button_text']) ? filter_xss($settings['button_text'], array()) : t('Add to cart');
+    $element['button_text'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Button text'),
+      '#default_value' => $button_text,
+      '#description' => t('Text to use for the Add to Cart button. Default: %default', array('%default' => 'Add to cart')),
+    );
+
     $element['show_quantity'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display a textfield quantity widget on the add to cart form.'),
@@ -2630,7 +2651,13 @@ function commerce_cart_field_formatter_settings_summary($field, $instance, $view
   $summary = array();
 
   if ($display['type'] == 'commerce_cart_add_to_cart_form') {
+    $button_text = !empty($settings['button_text']) ? filter_xss($settings['button_text'], array()) : t('Add to cart');
+    $translated_instance = commerce_i18n_object('field_instance', $instance);
+    if (!empty($translated_instance['add_to_cart_form-button_text-' . $view_mode])) {
+      $button_text = $translated_instance['add_to_cart_form-button_text-' . $view_mode] . ' (' . t('translated') . ')';
+    }
     $summary = array(
+      t('Button text: !text', array('!text' => $button_text)),
       t('Quantity widget: !status', array('!status' => !empty($settings['show_quantity']) ? t('Enabled') : t('Disabled'))),
       t('Default quantity: @quantity', array('@quantity' => $settings['default_quantity'])),
       t('Combine like items: !status', array('!status' => !empty($settings['combine']) ? t('Enabled') : t('Disabled'))),
@@ -2673,6 +2700,7 @@ function commerce_cart_field_formatter_view($entity_type, $entity, $field, $inst
     if (!empty($products)) {
       $type = !empty($settings['line_item_type']) ? $settings['line_item_type'] : 'product';
       $line_item = commerce_product_line_item_new(commerce_product_reference_default_product($products), $settings['default_quantity'], 0, array(), $type);
+      $line_item->data['context']['button_text'] = !empty($settings['button_text']) ? filter_xss($settings['button_text'], array()) : t('Add to cart');;
       $line_item->data['context']['product_ids'] = array_keys($products);
       $line_item->data['context']['add_to_cart_combine'] = !empty($settings['combine']);
       $line_item->data['context']['show_single_product_attributes'] = !empty($settings['show_single_product_attributes']);
@@ -2752,6 +2780,21 @@ function commerce_cart_field_attach_view_alter(&$output, $context) {
           $arguments['line_item']->data['context']['product_ids'] = 'entity';
         }
 
+        // Translate button text.
+        $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+        $translated_instance = commerce_i18n_object('field_instance', $instance);
+        $view_mode = $element['#view_mode'];
+        // Special case for full view mode.
+        if ($view_mode == 'full') {
+          $view_modes = field_view_mode_settings($element['#entity_type'], $element['#bundle']);
+          if (!empty($view_modes['full']) && !$view_modes['full']['custom_settings']) {
+            $view_mode = 'default';
+          }
+        }
+        if (!empty($translated_instance['add_to_cart_form-button_text-' . $view_mode])) {
+          $arguments['line_item']->data['context']['button_text'] = $translated_instance['add_to_cart_form-button_text-' . $view_mode];
+        }
+
         // Replace the array containing the arguments with the return value of
         // drupal_get_form(). It will be rendered when the rest of the object is
         // rendered for display.
@@ -2819,6 +2862,19 @@ function commerce_cart_preprocess_views_view(&$vars) {
  * Implements hook_i18n_string_list_TEXTGROUP_alter().
  */
 function commerce_cart_i18n_string_list_field_alter(&$strings, $type = NULL, $object = NULL) {
+  // Add to cart button text translatable strings.
+  $field = field_info_field($object['field_name']);
+  if (in_array($field['type'], array('commerce_product_reference', 'entityreference')) && !empty($object['display'])) {
+    foreach ($object['display'] as $display_name => $display) {
+      if (!empty($display['settings']['button_text'])) {
+        $strings['field'][$object['field_name']][$object['bundle']]['add_to_cart_form-button_text-' . $display_name] = array(
+          'string' => $display['settings']['button_text'],
+          'title' => t('Add to cart button text') . ' (view mode: ' . $display_name . ')',
+        );
+      }
+    }
+  }
+  // Attribute widget title translatable string.
   if (!isset($strings['field']) || !is_array($object) || !commerce_cart_field_instance_is_attribute($object)) {
     return;
   }
