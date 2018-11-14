@@ -529,9 +529,9 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
         'thousands_separator' => ',',
         'decimal_separator' => '.',
         'symbol_placement' => 'hidden',
-        'symbol_spacer' => ' ',
+        'symbol_spacer' => "\xC2\xA0",
         'code_placement' => 'after',
-        'code_spacer' => ' ',
+        'code_spacer' => "\xC2\xA0",
         'format_callback' => '',
         'conversion_callback' => '',
         'conversion_rate' => 1,
@@ -657,7 +657,7 @@ function commerce_currency_format($amount, $currency_code, $object = NULL, $conv
     '@code_spacer' => $currency['code_spacer'],
   );
 
-  return trim(t('@code_before@code_spacer@negative@symbol_before@symbol_spacer_before@price@symbol_spacer@symbol_after@code_spacer@code_after', $replacements));
+  return trim(t('@code_before@code_spacer@negative@symbol_before@symbol_spacer_before@price@symbol_spacer@symbol_after@code_spacer@code_after', $replacements), " \xC2\xA0");
 }
 
 /**
