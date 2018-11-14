@@ -425,18 +425,18 @@ final class CommercePaymentCreditCard {
         'id' => 'visa',
         'label' => t('Visa'),
         'number_prefixes' => array('4'),
+        'number_lengths' => array(16, 18, 19),
       ),
       'mastercard' => array(
         'id' => 'mastercard',
-        'label' => t('MasterCard'),
+        'label' => t('Mastercard'),
         'number_prefixes' => array('51-55', '222100-272099'),
       ),
       'maestro' => array(
         'id' => 'maestro',
         'label' => t('Maestro'),
         'number_prefixes' => array(
-          '5018', '5020', '5038', '5612', '5893', '6304',
-          '6759', '6761', '6762', '6763', '0604', '6390',
+          '5018', '502', '503', '506', '56', '58', '639', '6220', '67',
         ),
         'number_lengths' => array(12, 13, 14, 15, 16, 17, 18, 19),
       ),
@@ -451,7 +451,7 @@ final class CommercePaymentCreditCard {
         'id' => 'dc',
         'label' => t('Diners Club'),
         'number_prefixes' => array('300-305', '309', '36', '38', '39'),
-        'number_lengths' => array(14),
+        'number_lengths' => array(14, 16, 19),
       ),
       'discover' => array(
         'id' => 'discover',
@@ -463,6 +463,7 @@ final class CommercePaymentCreditCard {
         'id' => 'jcb',
         'label' => t('JCB'),
         'number_prefixes' => array('3528-3589'),
+        'number_lengths' => array(16, 17, 18, 19),
       ),
       'unionpay' => array(
         'id' => 'unionpay',
