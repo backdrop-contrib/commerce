@@ -447,7 +447,9 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
 function commerce_payment_commerce_payment_transaction_insert($transaction) {
   // If the inserted transaction was marked as a success and placed against a
   // valid order...
-  if ($transaction->status == COMMERCE_PAYMENT_STATUS_SUCCESS &&
+  $transaction_statuses = commerce_payment_transaction_statuses();
+
+  if (!empty($transaction_statuses[$transaction->status]['total']) &&
     $order = commerce_order_load($transaction->order_id)) {
     // Then check to make sure the event hasn't been invoked for this order.
     if (empty($order->data['commerce_payment_order_paid_in_full_invoked'])) {
