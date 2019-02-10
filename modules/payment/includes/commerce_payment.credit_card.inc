@@ -211,8 +211,14 @@ function commerce_payment_credit_card_validate($details, $settings) {
   $prefix = implode('][', $settings['form_parents']) . '][';
   $valid = TRUE;
 
-  // Validate the credit card type.
-  if (!empty($details['valid_types'])) {
+  // Validate the credit card number.
+  if (!commerce_payment_validate_credit_card_number($details['number'])) {
+    form_set_error($prefix . 'number', t('You have entered an invalid credit card number.'));
+    $valid = FALSE;
+  }
+
+  // Validate the credit card type if the credit card number is valid.
+  elseif (!empty($details['valid_types'])) {
     $type = commerce_payment_validate_credit_card_type($details['number'], $details['valid_types']);
 
     if ($type === FALSE) {
@@ -223,12 +229,6 @@ function commerce_payment_credit_card_validate($details, $settings) {
       form_set_error($prefix . 'number', t('You have entered a credit card number that does not match the type selected.'));
       $valid = FALSE;
     }
-  }
-
-  // Validate the credit card number.
-  if (!commerce_payment_validate_credit_card_number($details['number'])) {
-    form_set_error($prefix . 'number', t('You have entered an invalid credit card number.'));
-    $valid = FALSE;
   }
 
   // Validate the expiration date.
