@@ -457,6 +457,13 @@ function commerce_payment_commerce_payment_transaction_insert($transaction) {
       $balance = commerce_payment_order_balance($order);
 
       if (!empty($balance) && $balance['amount'] <= 0) {
+        // If automatic order revisions are enabled site-wide, create a new
+        // revision now with a log message identifying the payment event.
+        if (variable_get('commerce_order_auto_revision', TRUE)) {
+          $order->revision = TRUE;
+          $order->log = t('Order updated to reflect the order has just been paid in full.');
+        }
+
         // Invoke the event including a hook of the same name.
         rules_invoke_all('commerce_payment_order_paid_in_full', $order, $transaction);
 
