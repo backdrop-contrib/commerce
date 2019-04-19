@@ -26,6 +26,7 @@ function commerce_customer_profile_pane_settings_form($checkout_pane) {
     }
   }
 
+  // TODO This variable was probably removed in Backdrop without replacement.
   $form['commerce_' . $checkout_pane['pane_id'] . '_field'] = array(
     '#type' => 'select',
     '#title' => t('Related customer profile reference field'),
@@ -41,6 +42,7 @@ function commerce_customer_profile_pane_settings_form($checkout_pane) {
   unset($profile_types[$type]);
 
   if (count($profile_types)) {
+    // TODO This variable was probably removed in Backdrop without replacement.
     $form['commerce_' . $checkout_pane['pane_id'] . '_profile_copy'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable profile copying on this checkout pane, helping customers avoid having to enter the same address twice.'),
@@ -57,6 +59,7 @@ function commerce_customer_profile_pane_settings_form($checkout_pane) {
       ),
     );
 
+    // TODO This variable was probably removed in Backdrop without replacement.
     $form['commerce_' . $checkout_pane['pane_id'] . '_profile_copy_wrapper']['commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source'] = array(
       '#type' => 'select',
       '#title' => t('Profile to copy from'),
@@ -64,6 +67,7 @@ function commerce_customer_profile_pane_settings_form($checkout_pane) {
       '#default_value' => variable_get('commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source', NULL),
     );
 
+    // TODO This variable was probably removed in Backdrop without replacement.
     $form['commerce_' . $checkout_pane['pane_id'] . '_profile_copy_wrapper']['commerce_' . $checkout_pane['pane_id'] . '_profile_copy_default'] = array(
       '#type' => 'checkbox',
       '#title' => t('Make copying information from this profile the default action, requiring users to uncheck a box on the checkout pane to enter a different address.'),
@@ -88,6 +92,7 @@ function commerce_customer_profile_pane_checkout_form($form, &$form_state, $chec
   $profile = NULL;
 
   // If the associated order field has been set...
+  // TODO This variable was probably removed in Backdrop without replacement.
   if ($field_name = variable_get('commerce_' . $checkout_pane['pane_id'] . '_field', '')) {
     // Check to ensure the specified profile reference field exists on the
     // current order type.
@@ -125,9 +130,12 @@ function commerce_customer_profile_pane_checkout_form($form, &$form_state, $chec
 
   // If this checkout pane is configured to use values from a different
   // customer profile, add a checkbox to allow users to toggle this.
+  // TODO This variable was probably removed in Backdrop without replacement.
+  // TODO This variable was probably removed in Backdrop without replacement.
   if (variable_get('commerce_' . $checkout_pane['pane_id'] . '_profile_copy', FALSE)
-    && $source_profile_type_name = variable_get('commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source', NULL)) {
+     && $source_profile_type_name = variable_get('commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source', NULL)) {
     // Load the default profile copy option from settings.
+    // TODO This variable was probably removed in Backdrop without replacement.
     $profile_copy_default = variable_get('commerce_' . $checkout_pane['pane_id'] . '_profile_copy_default', FALSE);
 
     // Make sure our profile type still exists..
@@ -147,7 +155,7 @@ function commerce_customer_profile_pane_checkout_form($form, &$form_state, $chec
           'wrapper' => strtr($checkout_pane['pane_id'], '_', '-') . '-ajax-wrapper',
         ),
         '#attached' => array(
-          'css' => array(drupal_get_path('module', 'commerce_customer') . '/theme/commerce_customer.theme.css'),
+          'css' => array(backdrop_get_path('module', 'commerce_customer') . '/theme/commerce_customer.theme.css'),
         ),
         '#prefix' => '<div class="commerce-customer-profile-copy">',
         '#suffix' => '</div>',
@@ -179,7 +187,7 @@ function commerce_customer_profile_pane_checkout_form($form, &$form_state, $chec
         // Get field names that will be copied from the source profile.
         foreach (field_info_instances('commerce_customer_profile', $source_profile_type['type']) as $field_name => $field) {
           // If the field exists on the destination profile then disable it.
-          if (!empty($pane_form[$field_name])){
+          if (!empty($pane_form[$field_name])) {
             $langcode = $pane_form[$field_name]['#language'];
             $pane_form[$field_name][$langcode]['#access'] = FALSE;
           }
@@ -227,10 +235,10 @@ function commerce_customer_profile_copy_refresh($form, &$form_state) {
   $commands = array();
 
   // Render the pane afresh to capture any changes based on address entry.
-  $commands[] = ajax_command_replace(NULL, drupal_render($form[$pane_id]));
+  $commands[] = ajax_command_replace(NULL, backdrop_render($form[$pane_id]));
 
   // Allow other modules to add arbitrary AJAX commands on the refresh.
-  drupal_alter('commerce_customer_profile_copy_refresh', $commands, $form, $form_state);
+  backdrop_alter('commerce_customer_profile_copy_refresh', $commands, $form, $form_state);
 
   return array('#type' => 'ajax', '#commands' => $commands);
 }
@@ -243,6 +251,7 @@ function commerce_customer_profile_pane_checkout_form_validate($form, &$form_sta
 
   // Check to ensure the specified profile reference field exists on the
   // current order type.
+  // TODO This variable was probably removed in Backdrop without replacement.
   $field_name = variable_get('commerce_' . $pane_id . '_field', '');
 
   if (!empty($field_name) && !field_info_instance('commerce_order', $field_name, $order->type)) {
@@ -275,6 +284,7 @@ function commerce_customer_profile_pane_checkout_form_submit($form, &$form_state
 
   // Check to ensure the specified profile reference field exists on the
   // current order type.
+  // TODO This variable was probably removed in Backdrop without replacement.
   $field_name = variable_get('commerce_' . $pane_id . '_field', '');
 
   if (!empty($field_name) && !field_info_instance('commerce_order', $field_name, $order->type)) {
@@ -313,6 +323,7 @@ function commerce_customer_profile_pane_checkout_form_submit($form, &$form_state
  */
 function commerce_customer_profile_pane_review($form, $form_state, $checkout_pane, $order) {
   // Load the profile based on the related customer profile reference field...
+  // TODO This variable was probably removed in Backdrop without replacement.
   if ($field_name = variable_get('commerce_' . $checkout_pane['pane_id'] . '_field', '')) {
     $profile = entity_metadata_wrapper('commerce_order', $order)->{$field_name}->value();
   }
@@ -324,7 +335,7 @@ function commerce_customer_profile_pane_review($form, $form_state, $checkout_pan
   if ($profile) {
     $content = entity_view('commerce_customer_profile', array($profile->profile_id => $profile), 'customer');
 
-    return drupal_render($content);
+    return backdrop_render($content);
   }
   else {
     return t('No information');

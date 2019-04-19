@@ -118,7 +118,7 @@ function commerce_product_calculate_sell_price($product, $precalc = FALSE) {
   $line_item = commerce_product_line_item_new($product);
 
   // Allow modules to prepare this as necessary.
-  drupal_alter('commerce_product_calculate_sell_price_line_item', $line_item);
+  backdrop_alter('commerce_product_calculate_sell_price_line_item', $line_item);
 
   // Attempt to fetch a database stored price if specified.
   if ($precalc) {
@@ -308,7 +308,7 @@ function commerce_product_pre_calculate_sell_prices($from = NULL, $count = 1) {
         // Also fire any Rules that weren't included in the key because they
         // don't have any conditions.
         foreach ($event as $rule) {
-         if (count($rule->conditions()) == 0) {
+          if (count($rule->conditions()) == 0) {
             $rule->fire($state);
           }
         }
@@ -332,7 +332,7 @@ function commerce_product_pre_calculate_sell_prices($from = NULL, $count = 1) {
           );
 
           // Save the price and increment the total if successful.
-          if (drupal_write_record('commerce_calculated_price', $record) == SAVED_NEW) {
+          if (backdrop_write_record('commerce_calculated_price', $record) == SAVED_NEW) {
             $total++;
           }
         }
@@ -488,7 +488,17 @@ function commerce_product_batch_pre_calculate_sell_prices_finished($success, $re
     $message = t('Batch pre-calculation finished with an error.');
   }
 
-  drupal_set_message($message);
+  backdrop_set_message($message);
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function commerce_product_pricing_config_info() {
+  $prefixes['commerce_product_pricing.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
+  );
 }
 
 /**
@@ -499,7 +509,7 @@ function commerce_product_batch_pre_calculate_sell_prices_finished($success, $re
  *   The product line item used for sell price calculation.
  */
 function commerce_product_pricing_invoke($line_item) {
-  $callback = variable_get('commerce_product_pricing_callback', 'rules_invoke_event');
+  $callback = config_get('commerce_product_pricing.settings', 'commerce_product_pricing_callback');
 
   // Defaults to rules_invoke_event if the specified callback doesn't exist.
   if (!function_exists($callback)) {

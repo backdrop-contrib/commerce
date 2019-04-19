@@ -1,0 +1,24 @@
+[CommercePaymentRulesTest]
+name = Payment Rules
+description = Test the rules provided by the payment module.
+group = Drupal Commerce
+file = commerce_payment.rules.test
+
+[CommercePaymentCreditCardTest]
+name = Credit card detection testing
+description = Tests credit card definitions.
+group = Drupal Commerce
+file = commerce_payment_credit_card.test
+
+[CommercePaymentUITest]
+name = Payment user interface
+description = Test the payment user and administrator interface.
+group = Drupal Commerce
+file = commerce_payment_ui.test
+
+[CommercePaymentOffsiteTest]
+name = Payment Offsite
+description = Test the payment offsite process.
+group = Drupal Commerce
+file = commerce_payment_ui.test
+

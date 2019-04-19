@@ -33,7 +33,7 @@ function commerce_checkout_menu() {
   $items['admin/commerce/config/checkout'] = array(
     'title' => 'Checkout settings',
     'description' => 'Customize the checkout form and configure checkout rules.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_checkout_builder_form'),
     'access arguments' => array('administer checkout'),
     'type' => MENU_NORMAL_ITEM,
@@ -63,10 +63,10 @@ function commerce_checkout_menu() {
   $items['admin/commerce/config/checkout/rules/add'] = array(
     'title' => 'Add a checkout rule',
     'description' => 'Adds an additional checkout completion rule configuration.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_checkout_add_complete_rule_form', 'admin/commerce/config/checkout/rules'),
     'access arguments' => array('administer checkout'),
-    'file path' => drupal_get_path('module', 'rules_admin'),
+    'file path' => backdrop_get_path('module', 'rules_admin'),
     'file' => 'rules_admin.inc',
     'type' => MENU_LOCAL_ACTION,
   );
@@ -75,7 +75,7 @@ function commerce_checkout_menu() {
     'title callback' => 'commerce_checkout_pane_settings_title',
     'title arguments' => array(6),
     'description' => 'Configure the settings for a checkout pane.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_checkout_pane_settings_form', 6),
     'access arguments' => array('administer checkout'),
     'file' => 'includes/commerce_checkout.admin.inc',
@@ -89,7 +89,7 @@ function commerce_checkout_menu() {
     $items['admin/commerce/orders/%commerce_order/edit/checkout'] = array(
       'title' => 'Simulate checkout completion',
       'description' => 'Directly invokes the checkout completion rules on the order.',
-      'page callback' => 'drupal_get_form',
+      'page callback' => 'backdrop_get_form',
       'page arguments' => array('commerce_checkout_complete_form', 3),
       'access callback' => 'commerce_checkout_complete_form_access',
       'access arguments' => array(3),
@@ -108,6 +108,7 @@ function commerce_checkout_menu() {
 function commerce_checkout_complete_form_access($order) {
   // Returns TRUE if the link is enabled via the order settings form and the
   // user has access to update the order.
+  // TODO This variable was probably removed in Backdrop without replacement.
   return variable_get('commerce_order_simulate_checkout_link', TRUE) && commerce_order_access('update', $order);
 }
 
@@ -190,14 +191,27 @@ function commerce_checkout_theme() {
     ),
     'commerce_checkout_help' => array(
       'variables' => array('help' => NULL),
-      'path' => drupal_get_path('module', 'commerce_checkout') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_checkout') . '/theme',
       'template' => 'commerce-checkout-help',
     ),
     'commerce_checkout_errors_message' => array(
-      'variables' => array('label' => NULL, 'message' => NULL),
-      'path' => drupal_get_path('module', 'commerce_checkout') . '/theme',
+      'variables' => array(
+        'label' => NULL,
+        'message' => NULL,
+      ),
+      'path' => backdrop_get_path('module', 'commerce_checkout') . '/theme',
       'template' => 'commerce-checkout-errors-message',
     ),
+  );
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function commerce_checkout_config_info() {
+  $prefixes['commerce_checkout.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
   );
 }
 
@@ -207,7 +221,7 @@ function commerce_checkout_theme() {
 function commerce_checkout_i18n_string_list($group) {
   if ($group == 'commerce') {
     // Allow the checkout completion message to be translated.
-    $message = variable_get('commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+    $message = config_get('commerce_checkout.settings', 'commerce_checkout_completion_message');
     $strings['commerce']['checkout']['complete']['message'] = $message['value'];
 
     return $strings;
@@ -274,6 +288,7 @@ function commerce_checkout_line_item_views_form_submit($form, &$form_state) {
 
   // Skip saving in the status update and manually save here to force a save
   // even when the status doesn't actually change.
+  // TODO This variable was probably removed in Backdrop without replacement.
   if (variable_get('commerce_order_auto_revision', TRUE)) {
     $form_state['order']->revision = TRUE;
     $form_state['order']->log = t('Customer proceeded to checkout using a submit button.');
@@ -294,6 +309,7 @@ function commerce_checkout_line_item_views_form_submit($form, &$form_state) {
  * order edit forms to simulate checkout completion.
  */
 function commerce_checkout_form_commerce_order_settings_form_alter(&$form, &$form_state) {
+  // TODO This variable was probably removed in Backdrop without replacement.
   $form['commerce_order_simulate_checkout_link'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable the local action link on order edit forms to simulate checkout completion.'),
@@ -420,12 +436,12 @@ function commerce_checkout_commerce_checkout_pane_info() {
  *   An associative array of checkout page objects keyed by the page_id.
  */
 function commerce_checkout_pages() {
-  $checkout_pages = &drupal_static(__FUNCTION__);
+  $checkout_pages = &backdrop_static(__FUNCTION__);
 
   // If the checkout pages haven't been defined yet, do so now.
   if (empty($checkout_pages)) {
     $checkout_pages = module_invoke_all('commerce_checkout_page_info');
-    drupal_alter('commerce_checkout_page_info', $checkout_pages);
+    backdrop_alter('commerce_checkout_page_info', $checkout_pages);
 
     $count = 0;
     foreach ($checkout_pages as $page_id => $checkout_page) {
@@ -450,7 +466,7 @@ function commerce_checkout_pages() {
       }
     }
 
-    uasort($checkout_pages, 'drupal_sort_weight');
+    uasort($checkout_pages, 'backdrop_sort_weight');
 
     // Initialize the previous and next pages.
     $previous_page_id = NULL;
@@ -534,7 +550,7 @@ function commerce_checkout_page_load($page_id) {
  */
 function commerce_checkout_panes($conditions = array(), $skip_saved_data = FALSE) {
   if (!$skip_saved_data) {
-    $checkout_panes = &drupal_static(__FUNCTION__);
+    $checkout_panes = &backdrop_static(__FUNCTION__);
   }
 
   // Cache the saved checkout pane data if it hasn't been loaded yet.
@@ -561,7 +577,7 @@ function commerce_checkout_panes($conditions = array(), $skip_saved_data = FALSE
       }
     }
 
-    drupal_alter('commerce_checkout_pane_info', $checkout_panes);
+    backdrop_alter('commerce_checkout_pane_info', $checkout_panes);
 
     // Merge in defaults.
     foreach ($checkout_panes as $pane_id => $checkout_pane) {
@@ -593,7 +609,7 @@ function commerce_checkout_panes($conditions = array(), $skip_saved_data = FALSE
     }
 
     // Sort the panes by their weight value.
-    uasort($checkout_panes, 'drupal_sort_weight');
+    uasort($checkout_panes, 'backdrop_sort_weight');
   }
 
   // Apply conditions to the returned panes if specified.
@@ -629,7 +645,7 @@ function commerce_checkout_panes($conditions = array(), $skip_saved_data = FALSE
  * Resets the cached list of checkout panes.
  */
 function commerce_checkout_panes_reset() {
-  $checkout_panes = &drupal_static('commerce_checkout_panes');
+  $checkout_panes = &backdrop_static('commerce_checkout_panes');
   $checkout_panes = NULL;
 }
 
@@ -640,12 +656,12 @@ function commerce_checkout_panes_reset() {
  *   The fully loaded checkout pane object.
  *
  * @return
- *   The return value of the call to drupal_write_record() to save the checkout
+ *   The return value of the call to backdrop_write_record() to save the checkout
  *     pane, either FALSE on failure or SAVED_NEW or SAVED_UPDATED indicating
  *     the type of query performed to save the checkout pane.
  */
 function commerce_checkout_pane_save($checkout_pane) {
-  return drupal_write_record('commerce_checkout_pane', $checkout_pane, !empty($checkout_pane['saved']) ? 'pane_id' : array());
+  return backdrop_write_record('commerce_checkout_pane', $checkout_pane, !empty($checkout_pane['saved']) ? 'pane_id' : array());
 }
 
 /**
@@ -837,8 +853,7 @@ function commerce_checkout_page_access($checkout_page, $order) {
       }
 
       $current_page = $pages[$prev_page_id];
-    }
-    while ($current_page['page_id'] != $checkout_page['page_id']);
+    } while ($current_page['page_id'] != $checkout_page['page_id']);
   }
   // We've now handled above cases where the user is trying to access a checkout
   // page other than the completion page for an order that is not in a checkout
@@ -990,6 +1005,7 @@ function commerce_checkout_complete($order) {
  */
 function commerce_checkout_create_account($name, $mail, $pass, $status, $notify = FALSE) {
   // Setup the account fields array and save it as a new user.
+  // TODO This variable was probably removed in Backdrop without replacement.
   $fields = array(
     'name' => $name,
     'mail' => $mail,
@@ -1006,7 +1022,7 @@ function commerce_checkout_create_account($name, $mail, $pass, $status, $notify 
   // Send the customer their account details if enabled.
   if ($notify) {
     // Send the e-mail through the user module.
-    drupal_mail('user', 'register_no_approval_required', $mail, NULL, array('account' => $account), commerce_email_from());
+    backdrop_mail('user', 'register_no_approval_required', $mail, NULL, array('account' => $account), commerce_email_from());
   }
 
   return $account;
@@ -1030,4 +1046,12 @@ function commerce_checkout_completion_message_default() {
   }
 
   return array('value' => $value, 'format' => $format);
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_checkout_autoload_info() {
+  return array(
+  );
 }

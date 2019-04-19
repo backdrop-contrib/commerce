@@ -16,13 +16,13 @@ function commerce_order_entity_property_info() {
 
   $properties['order_id'] = array(
     'type' => 'integer',
-    'label' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'label' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'description' => t('The internal numeric ID of the order.'),
     'schema field' => 'order_id',
   );
   $properties['order_number'] = array(
     'type' => 'text',
-    'label' => t('Order number', array(), array('context' => 'a drupal commerce order')),
+    'label' => t('Order number', array(), array('context' => 'a backdrop commerce order')),
     'description' => t('The order number displayed to the customer.'),
     'setter callback' => 'entity_property_verbatim_set',
     'schema field' => 'order_number',
@@ -131,7 +131,7 @@ function commerce_order_entity_property_info() {
 }
 
 /**
- * Implements hook_entity_property_info_alter() on top of the Order module.
+ * Implements hook_entity_property_info_alter() on top of the Order module().
  */
 function commerce_order_entity_property_info_alter(&$info) {
   // Move the line items and order total properties to the order by default; as

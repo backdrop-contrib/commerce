@@ -36,7 +36,7 @@ function commerce_product_reference_commerce_product_uri($product) {
  * fields will then also be present in the node view.
  */
 function commerce_product_reference_field_extra_fields() {
-  $extra = &drupal_static(__FUNCTION__);
+  $extra = &backdrop_static(__FUNCTION__);
 
   if (isset($extra)) {
     return $extra;
@@ -118,7 +118,7 @@ function commerce_product_reference_field_extra_fields() {
 /**
  * Implements hook_field_extra_fields_display_alter().
  *
- * This whole implementation is basically a hack because Drupal core does not
+ * This whole implementation is basically a hack because Backdrop core does not
  * allow you to specify default visibility for extra fields. We don't want any
  * of the Product extra fields to be visible by default in referencing entities,
  * so we have to alter the display settings at this point until such a time as
@@ -361,7 +361,7 @@ function commerce_product_reference_entity_view($entity, $entity_type, $view_mod
   }
 
   // Resolve the product module path for use in the loop below.
-  $product_module_path = drupal_get_path('module', 'commerce_product');
+  $product_module_path = backdrop_get_path('module', 'commerce_product');
 
   // An entity metadata wrapper will be loaded on demand if it is determined
   // this entity has a product reference field instance attached to it.
@@ -461,9 +461,9 @@ function commerce_product_reference_entity_view($entity, $entity_type, $view_mod
               // target the rendered field for AJAX replacement.
               $classes = array(
                 'commerce-product-field',
-                drupal_html_class('commerce-product-field-' . $product_field_name),
-                drupal_html_class('field-' . $product_field_name),
-                drupal_html_class(implode('-', array($entity_type, $id, 'product', $product_field_name))),
+                backdrop_html_class('commerce-product-field-' . $product_field_name),
+                backdrop_html_class('field-' . $product_field_name),
+                backdrop_html_class(implode('-', array($entity_type, $id, 'product', $product_field_name))),
               );
 
               // Add an extra class to distinguish empty product fields.
@@ -514,8 +514,8 @@ function commerce_product_reference_entity_view($entity, $entity_type, $view_mod
               // target the rendered field for AJAX replacement.
               $classes = array(
                 'commerce-product-extra-field',
-                drupal_html_class('commerce-product-extra-field-' . $product_extra_field_name),
-                drupal_html_class(implode('-', array($entity_type, $id, 'product', $product_extra_field_name))),
+                backdrop_html_class('commerce-product-extra-field-' . $product_extra_field_name),
+                backdrop_html_class(implode('-', array($entity_type, $id, 'product', $product_extra_field_name))),
               );
 
               // Add an extra class to distinguish empty fields.
@@ -546,7 +546,7 @@ function commerce_product_reference_entity_view($entity, $entity_type, $view_mod
 function commerce_product_reference_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_product_reference') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_product_reference') . '/includes/views',
   );
 }
 
@@ -559,7 +559,10 @@ function commerce_product_reference_field_info() {
       'label' => t('Product reference'),
       'description' => t('This field stores the ID of a related product as an integer value.'),
       'settings' => array('options_list_limit' => NULL),
-      'instance_settings' => array('referenceable_types' => array(), 'field_injection' => TRUE),
+      'instance_settings' => array(
+        'referenceable_types' => array(),
+        'field_injection' => TRUE,
+      ),
       'default_widget' => 'options_select',
       'default_formatter' => 'commerce_product_reference_title_link',
       'property_type' => 'commerce_product',
@@ -1039,7 +1042,7 @@ function commerce_product_reference_autocomplete_validate($element, &$form_state
   // If a value was entered into the autocomplete...
   if (!empty($element['#value'])) {
     // Translate SKUs into product IDs.
-    $typed_skus = drupal_explode_tags($element['#value']);
+    $typed_skus = backdrop_explode_tags($element['#value']);
 
     $value = array();
 
@@ -1071,6 +1074,16 @@ function commerce_product_reference_field_widget_error($element, $error) {
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function commerce_product_reference_config_info() {
+  $prefixes['commerce_product_reference.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
+  );
+}
+
+/**
  * Implements hook_options_list().
  */
 function commerce_product_reference_options_list($field, $instance = NULL) {
@@ -1086,7 +1099,7 @@ function commerce_product_reference_options_list($field, $instance = NULL) {
     // usually required when product matching has been configured to use an
     // EntityFieldQuery instead of the standard db_select(). Refer to the inline
     // comments in commerce_product_match_products() for more information.
-    $limit = variable_get('commerce_product_reference_default_options_list_limit', NULL);
+    $limit = config_get('commerce_product_reference.settings', 'commerce_product_reference_default_options_list_limit');
   }
 
   // Loop through all product matches.
@@ -1152,7 +1165,6 @@ function commerce_product_reference_entity_info_alter(&$entity_info) {
       foreach ($entity_info[$entity_type]['view modes'] as $view_mode => $view_mode_info) {
         $entity_info['commerce_product']['view modes'][$entity_type . '_' . $view_mode] = array(
           'label' => t('@entity_type: @view_mode', array('@entity_type' => $entity_info[$entity_type]['label'], '@view_mode' => $view_mode_info['label'])),
-
           // UX: Enable the 'Node: teaser' mode by default, if present.
           'custom settings' => $entity_type == 'node' && $view_mode == 'teaser',
         );
@@ -1203,16 +1215,13 @@ function commerce_product_reference_create_instance($field_name, $entity_type, $
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
-
       'label' => $label,
       'required' => TRUE,
       'settings' => array(),
-
       'widget' => array(
         'type' => 'commerce_product_reference_autocomplete',
         'weight' => $weight,
       ),
-
       'display' => array(
         'display' => array(
           'label' => 'hidden',
@@ -1286,12 +1295,10 @@ function commerce_product_line_item_configuration($line_item_type) {
       'label' => t('Display path'),
       'required' => TRUE,
       'settings' => array(),
-
       'widget' => array(
         'type' => 'text_textfield',
         'weight' => 0,
       ),
-
       'display' => array(
         'display' => array(
           'label' => 'hidden',
@@ -1514,7 +1521,7 @@ function commerce_product_reference_node_types() {
   $types = node_type_get_types();
   foreach (field_info_field_map() as $field_name => $field_stub) {
     if ($field_stub['type'] == 'commerce_product_reference' && !empty($field_stub['bundles']['node'])) {
-      foreach($field_stub['bundles']['node'] as $bundle) {
+      foreach ($field_stub['bundles']['node'] as $bundle) {
         $list[$bundle] = $types[$bundle];
       }
     }
@@ -1556,13 +1563,25 @@ function commerce_product_reference_default_product($products) {
   $delta = key($products);
 
   // Allow other modules to specify a different delta value if desired.
-  drupal_alter('commerce_product_reference_default_delta', $delta, $products);
+  backdrop_alter('commerce_product_reference_default_delta', $delta, $products);
 
   return $products[$delta];
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_product_reference_autoload_info() {
+  return array(
+    'CommerceProductReferenceRecursiveRenderingException' => 'commerce_product_reference.module',
+    'commerce_product_reference_handler_filter_node_is_product_display' => 'includes/views/handlers/commerce_product_reference_handler_filter_node_is_product_display.inc',
+    'commerce_product_reference_handler_filter_node_type' => 'includes/views/handlers/commerce_product_reference_handler_filter_node_type.inc',
+    'commerce_product_reference_handler_filter_product_line_item_type' => 'includes/views/handlers/commerce_product_reference_handler_filter_product_line_item_type.inc',
+  );
 }
 
 /**
  * Exception thrown when the referenced product display formatter goes into a
  * potentially infinite loop.
  */
-class CommerceProductReferenceRecursiveRenderingException extends Exception {}
+class CommerceProductReferenceRecursiveRenderingException extends Exception { }

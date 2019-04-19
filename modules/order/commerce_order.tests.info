@@ -1,0 +1,18 @@
+[CommerceOrderRulesTest]
+name = Order Rules
+description = Test the rules provided by the order module.
+group = Drupal Commerce
+file = tests/commerce_order.rules.test
+
+[CommerceOrderCRUDTestCase]
+name = Order CRUD
+description = Test the order CRUD functions.
+group = Drupal Commerce
+file = tests/commerce_order.test
+
+[CommerceOrderUIAdminTest]
+name = Order administration
+description = Test creating, editing and deleting an order through the order administration user interface.
+group = Drupal Commerce
+file = tests/commerce_order_ui.test
+

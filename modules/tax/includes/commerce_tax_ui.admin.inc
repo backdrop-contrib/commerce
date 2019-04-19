@@ -10,7 +10,7 @@
  * Displays an overview of Tax UI defined tax rates.
  */
 function commerce_tax_ui_overview($type) {
-  drupal_add_css(drupal_get_path('module', 'commerce_tax') . '/theme/commerce_tax.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_tax') . '/theme/commerce_tax.admin.css');
 
   // Load the items that will be represented in the overview table.
   if ($type == 'rates') {
@@ -55,7 +55,7 @@ function commerce_tax_ui_overview($type) {
       array(
         'data' => $empty_text,
         'colspan' => 2,
-      )
+      ),
     );
   }
 
@@ -72,6 +72,7 @@ function commerce_tax_ui_overview($type) {
  * @ingroup themeable
  */
 function theme_tax_rate_admin_overview($variables) {
+  // TODO: Should this theme tax_rate_admin_overview be declared in hook_theme()?
   $tax_rate = $variables['tax_rate'];
 
   // Build the description as an array so we can skip the actual tax rate
@@ -102,6 +103,7 @@ function theme_tax_rate_admin_overview($variables) {
  * @ingroup themeable
  */
 function theme_tax_type_admin_overview($variables) {
+  // TODO: Should this theme tax_type_admin_overview be declared in hook_theme()?
   $tax_type = $variables['tax_type'];
 
   $output = check_plain($tax_type['title']);
@@ -116,11 +118,11 @@ function theme_tax_type_admin_overview($variables) {
  */
 function commerce_tax_ui_tax_rate_add_form_wrapper($tax_rate) {
   if (count(commerce_tax_type_titles()) == 0) {
-    drupal_set_message(t('You must define at least one tax type before you can start adding tax rates.'), 'error');
-    drupal_goto('admin/commerce/config/taxes/types');
+    backdrop_set_message(t('You must define at least one tax type before you can start adding tax rates.'), 'error');
+    backdrop_goto('admin/commerce/config/taxes/types');
   }
 
-  return drupal_get_form('commerce_tax_ui_tax_rate_form', $tax_rate);
+  return backdrop_get_form('commerce_tax_ui_tax_rate_form', $tax_rate);
 }
 
 /**
@@ -263,7 +265,7 @@ function commerce_tax_ui_tax_rate_form_submit($form, &$form_state) {
   commerce_tax_ui_tax_rate_save($tax_rate);
 
   // Redirect based on the button clicked.
-  drupal_set_message(t('Tax rate saved.'));
+  backdrop_set_message(t('Tax rate saved.'));
 
   $form_state['redirect'] = 'admin/commerce/config/taxes';
 }
@@ -308,7 +310,7 @@ function commerce_tax_ui_tax_rate_delete_form_submit($form, &$form_state) {
 
   commerce_tax_ui_tax_rate_delete($tax_rate['name']);
 
-  drupal_set_message(t('The tax rate %title has been deleted.', array('%title' => $tax_rate['title'])));
+  backdrop_set_message(t('The tax rate %title has been deleted.', array('%title' => $tax_rate['title'])));
   watchdog('commerce_tax', 'Deleted tax rate %title.', array('%title' => $tax_rate['title']), WATCHDOG_NOTICE);
 
   $form_state['redirect'] = 'admin/commerce/config/taxes';
@@ -450,7 +452,7 @@ function commerce_tax_ui_tax_type_form_submit($form, &$form_state) {
   }
 
   // Redirect based on the button clicked.
-  drupal_set_message(t('Tax type saved.'));
+  backdrop_set_message(t('Tax type saved.'));
 
   $form_state['redirect'] = 'admin/commerce/config/taxes/types';
 }
@@ -487,7 +489,7 @@ function commerce_tax_ui_tax_type_delete_form_wrapper($tax_type) {
   $count = $query->fetchField();
 
   if ($count > 0) {
-    drupal_set_title(t('Cannot delete the %title tax type', array('%title' => $tax_type['title'])), PASS_THROUGH);
+    backdrop_set_title(t('Cannot delete the %title tax type', array('%title' => $tax_type['title'])), PASS_THROUGH);
 
     return format_plural($count,
       'There is a tax rate of this type. It cannot be deleted.',
@@ -495,7 +497,7 @@ function commerce_tax_ui_tax_type_delete_form_wrapper($tax_type) {
     );
   }
 
-  return drupal_get_form('commerce_tax_ui_tax_type_delete_form', $tax_type);
+  return backdrop_get_form('commerce_tax_ui_tax_type_delete_form', $tax_type);
 }
 
 /**
@@ -529,7 +531,7 @@ function commerce_tax_ui_tax_type_delete_form_submit($form, &$form_state) {
 
   commerce_tax_ui_tax_type_delete($tax_type['name']);
 
-  drupal_set_message(t('The tax type %title has been deleted.', array('%title' => $tax_type['title'])));
+  backdrop_set_message(t('The tax type %title has been deleted.', array('%title' => $tax_type['title'])));
   watchdog('commerce_tax', 'Deleted tax type %title.', array('%title' => $tax_type['title']), WATCHDOG_NOTICE);
 
   $form_state['redirect'] = 'admin/commerce/config/taxes/types';

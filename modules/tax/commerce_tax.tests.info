@@ -1,0 +1,6 @@
+[CommerceTaxUIAdminTest]
+name = Tax administration
+description = Test creating, editing and deleting tax rates and tax types using the tax administration user interface.
+group = Drupal Commerce
+file = tests/commerce_tax_ui.test
+

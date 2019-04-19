@@ -41,7 +41,7 @@ function commerce_payment_entity_property_info() {
     'clear' => array('uid'),
   );
   $properties['order_id'] = array(
-    'label' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'label' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'type' => 'integer',
     'description' => t("The unique ID of the order the transaction belongs to."),
     'setter callback' => 'entity_property_verbatim_set',
@@ -50,7 +50,7 @@ function commerce_payment_entity_property_info() {
     'schema field' => 'order_id',
   );
   $properties['order'] = array(
-    'label' => t('Order', array(), array('context' => 'a drupal commerce order')),
+    'label' => t('Order', array(), array('context' => 'a backdrop commerce order')),
     'type' => 'commerce_order',
     'description' => t("The order the transaction belongs to."),
     'getter callback' => 'commerce_payment_transaction_get_properties',

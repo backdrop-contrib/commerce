@@ -29,8 +29,8 @@ class commerce_order_ui_handler_area_view_order_form extends views_handler_area 
       '#type' => 'radios',
       '#title' => t('Order identifier used for redirection'),
       '#options' => array(
-        'order_number' => t('Order number', array(), array('context' => 'a drupal commerce order')),
-        'order_id' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+        'order_number' => t('Order number', array(), array('context' => 'a backdrop commerce order')),
+        'order_id' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
         'select' => t('Let the user select'),
       ),
       '#default_value' => $this->options['identifier'],
@@ -49,7 +49,7 @@ class commerce_order_ui_handler_area_view_order_form extends views_handler_area 
   }
 
   function render($empty = FALSE) {
-    $form = drupal_get_form('commerce_order_ui_redirect_form', $this->options['redirect_page'], $this->options['identifier']);
-    return drupal_render($form);
+    $form = backdrop_get_form('commerce_order_ui_redirect_form', $this->options['redirect_page'], $this->options['identifier']);
+    return backdrop_render($form);
   }
 }

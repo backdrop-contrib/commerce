@@ -2,16 +2,16 @@
 
 /**
  * @file
- * Provides a central controller for Drupal Commerce.
+ * Provides a central controller for Backdrop Commerce.
  *
  * A full fork of Entity API's controller, with support for revisions.
  */
 
 
 /**
- * Interface for the default Drupal Commerce entity controller.
+ * Interface for the default Backdrop Commerce entity controller.
  */
-interface DrupalCommerceEntityControllerInterface extends EntityAPIControllerInterface {
+interface BackdropCommerceEntityControllerInterface extends EntityPlusControllerInterface {
 
   /**
    * Determines whether or not the given entity object was loaded directly from
@@ -28,11 +28,11 @@ interface DrupalCommerceEntityControllerInterface extends EntityAPIControllerInt
 }
 
 /**
- * Default implementation of DrupalCommerceEntityControllerInterface.
+ * Default implementation of BackdropCommerceEntityControllerInterface.
  *
- * Provides base entity controller for Drupal Commerce entities.
+ * Provides base entity controller for Backdrop Commerce entities.
  */
-class DrupalCommerceEntityController extends DrupalDefaultEntityController implements DrupalCommerceEntityControllerInterface {
+class BackdropCommerceEntityController extends EntityPlusController implements BackdropCommerceEntityControllerInterface {
 
   /**
    * Stores our transaction object, necessary for pessimistic locking to work.
@@ -52,7 +52,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
   protected $unchangedEntities = array();
 
   /**
-   * Override of DrupalDefaultEntityController::buildQuery().
+   * Override of BackdropDefaultEntityController::buildQuery().
    *
    * Handle pessimistic locking.
    */
@@ -100,7 +100,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
   }
 
   /**
-   * Implements DrupalCommerceEntityControllerInterface::isUnchanged().
+   * Implements BackdropCommerceEntityControllerInterface::isUnchanged().
    */
   public function isUnchanged($entity) {
     return isset($this->unchangedEntities[$entity->{$this->idKey}]);
@@ -110,7 +110,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
    * Checks the list of tracked locked entities, and if it's empty, commits
    * the transaction in order to remove the acquired locks.
    *
-   * The transaction is not necessarily committed immediately. Drupal will
+   * The transaction is not necessarily committed immediately. Backdrop will
    * commit it as soon as possible given the state of the transaction stack.
    */
   protected function releaseLock() {
@@ -244,23 +244,23 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
         // For new entities, create the row in the base table, then save the
         // revision.
         $op = 'insert';
-        $return = drupal_write_record($this->entityInfo['base table'], $entity);
+        $return = backdrop_write_record($this->entityInfo['base table'], $entity);
         if (!empty($this->revisionKey)) {
-          drupal_write_record($this->entityInfo['revision table'], $entity);
+          backdrop_write_record($this->entityInfo['revision table'], $entity);
           $update_base_table = TRUE;
         }
       }
       else {
         $op = 'update';
-        $return = drupal_write_record($this->entityInfo['base table'], $entity, $this->idKey);
+        $return = backdrop_write_record($this->entityInfo['base table'], $entity, $this->idKey);
 
         if (!empty($this->revisionKey)) {
           if (!empty($entity->revision)) {
-            drupal_write_record($this->entityInfo['revision table'], $entity);
+            backdrop_write_record($this->entityInfo['revision table'], $entity);
             $update_base_table = TRUE;
           }
           else {
-            drupal_write_record($this->entityInfo['revision table'], $entity, $this->revisionKey);
+            backdrop_write_record($this->entityInfo['revision table'], $entity, $this->revisionKey);
           }
         }
       }
@@ -330,7 +330,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
     }
 
     // Allow other modules to alter the created entity.
-    drupal_alter('commerce_entity_create', $this->entityType, $entity);
+    backdrop_alter('commerce_entity_create', $this->entityType, $entity);
 
     return $entity;
   }
@@ -456,7 +456,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
       );
 
       // Allow modules to modify the structured entity.
-      drupal_alter(array($this->entityType . '_view', 'entity_view'), $build, $this->entityType);
+      backdrop_alter(array($this->entityType . '_view', 'entity_view'), $build, $this->entityType);
       $view[$this->entityType][$key] = $build;
     }
 

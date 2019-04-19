@@ -1,0 +1,5 @@
+{
+    "_config_name": "commerce_payment.settings",
+    "commerce_payment_pane_require_method": "FALSE",
+    "commerce_payment_pane_no_method_behavior": "COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE"
+}

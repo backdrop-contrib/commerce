@@ -14,8 +14,9 @@
  *     with only a profile type defined.
  */
 function commerce_customer_customer_profile_form($form, &$form_state, $profile) {
+  $config = config('commerce_customer.settings');
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_customer') . '/includes/commerce_customer_profile.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_customer') . '/includes/commerce_customer_profile.forms.inc';
 
   // Ensure the owner name is accessible if the uid is set.
   if (!empty($profile->uid) && $owner = user_load($profile->uid)) {
@@ -44,10 +45,10 @@ function commerce_customer_customer_profile_form($form, &$form_state, $profile) 
     '#group' => 'additional_settings',
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'commerce_customer') . '/commerce_customer.js',
+        backdrop_get_path('module', 'commerce_customer') . '/commerce_customer.js',
         array(
           'type' => 'setting',
-          'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+          'data' => array('anonymous' => config_get('system.performance', 'anonymous')),
         ),
       ),
     ),
@@ -56,7 +57,7 @@ function commerce_customer_customer_profile_form($form, &$form_state, $profile) 
   $form['user']['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Owned by'),
-    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => config_get('system.performance', 'anonymous'))),
     '#maxlength' => 60,
     '#autocomplete_path' => 'user/autocomplete',
     '#default_value' => !empty($profile->name) ? $profile->name : '',
@@ -72,7 +73,7 @@ function commerce_customer_customer_profile_form($form, &$form_state, $profile) 
     '#group' => 'additional_settings',
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'commerce_customer') . '/commerce_customer.js',
+        backdrop_get_path('module', 'commerce_customer') . '/commerce_customer.js',
       ),
     ),
     '#weight' => 30,
@@ -162,7 +163,7 @@ function commerce_customer_customer_profile_form_submit($form, &$form_state) {
   commerce_customer_profile_save($profile);
 
   // Redirect based on the button clicked.
-  drupal_set_message(t('Profile saved.'));
+  backdrop_set_message(t('Profile saved.'));
 }
 
 /**
@@ -177,7 +178,7 @@ function commerce_customer_customer_profile_delete_form($form, &$form_state, $pr
   $form_state['customer_profile'] = $profile;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_customer') . '/includes/commerce_customer_profile.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_customer') . '/includes/commerce_customer_profile.forms.inc';
 
   $form['#submit'][] = 'commerce_customer_customer_profile_delete_form_submit';
 
@@ -200,10 +201,10 @@ function commerce_customer_customer_profile_delete_form_submit($form, &$form_sta
   $profile = $form_state['customer_profile'];
 
   if (commerce_customer_profile_delete($profile->profile_id)) {
-    drupal_set_message(t('The profile has been deleted.'));
+    backdrop_set_message(t('The profile has been deleted.'));
     watchdog('commerce_customer_profile', 'Deleted customer profile @profile_id.', array('@profile_id' => $profile->profile_id), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('The profile could not be deleted.'), 'error');
+    backdrop_set_message(t('The profile could not be deleted.'), 'error');
   }
 }

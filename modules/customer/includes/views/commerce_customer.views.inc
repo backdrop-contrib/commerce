@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Export Drupal Commerce customer profiles to Views.
+ * Export Backdrop Commerce customer profiles to Views.
  */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
  */
 function commerce_customer_views_data() {
   $data = array();
@@ -277,7 +277,10 @@ function commerce_customer_field_views_data($field) {
     $bundles[] = $entity . ' (' . implode(', ', $entity_bundles) . ')';
   }
 
-  $replacements = array('!field_name' => $field['field_name'], '@bundles' => implode(', ', $bundles));
+  $replacements = array(
+    '!field_name' => $field['field_name'],
+    '@bundles' => implode(', ', $bundles),
+  );
 
   foreach ($data as $table_name => $table_data) {
     foreach ($table_data as $field_name => $field_data) {

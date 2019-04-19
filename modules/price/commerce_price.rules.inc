@@ -32,7 +32,10 @@ class RulesDataUICommercePrice extends RulesDataUI implements RulesDataDirectInp
   }
 
   public static function inputForm($name, $info, $settings, RulesPlugin $element) {
-    $settings += array($name => isset($info['default value']) ? $info['default value'] : array('amount' => NULL, 'currency_code' => NULL));
+    $settings += array($name => isset($info['default value']) ? $info['default value'] : array(
+        'amount' => NULL,
+        'currency_code' => NULL,
+      ));
     $value = $settings[$name];
 
     // Legacy data stored price amount as a scalar value, so we convert it here
@@ -103,7 +106,7 @@ class RulesDataUICommercePrice extends RulesDataUI implements RulesDataDirectInp
       );
     }
     else {
-      $form[$name]['#attached']['css'][] = drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
+      $form[$name]['#attached']['css'][] = backdrop_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
       $form[$name]['amount']['#prefix'] = '<div class="commerce-price-full">';
 
       $form[$name]['currency_code'] = array(

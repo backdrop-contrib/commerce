@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_product_reference module.
+ *
+ */
+
 
 /**
  * Implements hook_field_schema().
@@ -33,4 +39,20 @@ function commerce_product_reference_uninstall() {
   // Delete any product reference fields.
   module_load_include('module', 'commerce');
   commerce_delete_fields('commerce_product_reference');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_product_reference_update_1000() {
+  $config = config('commerce_product_reference.settings');
+  $config->set('commerce_product_reference_default_options_list_limit', update_variable_get('commerce_product_reference_default_options_list_limit', 'NULL'));
+  update_variable_del('commerce_product_reference_default_options_list_limit');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_product_reference_install() {
+  // Dynamically generated variable data was detected.
 }

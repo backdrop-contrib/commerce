@@ -1,0 +1,6 @@
+[CommerceProductReferenceAdminTest]
+name = Product reference
+description = Test adding and configuring product reference fields.
+group = Drupal Commerce
+file = tests/commerce_product_reference.test
+

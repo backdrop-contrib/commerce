@@ -57,7 +57,7 @@ function commerce_price_field_info() {
       'default_formatter' => 'commerce_price_formatted_amount',
       'property_type' => 'commerce_price',
       'property_callbacks' => array('commerce_price_property_info_callback'),
-      'default_token_formatter' => 'commerce_price_formatted_amount'
+      'default_token_formatter' => 'commerce_price_formatted_amount',
     ),
   );
 }
@@ -228,7 +228,7 @@ function commerce_price_field_attach_update($entity_type, $entity) {
 }
 
 /**
- * Implements of hook_field_is_empty().
+ * Implements hook_field_is_empty().
  */
 function commerce_price_field_is_empty($item, $field) {
   return !isset($item['amount']) || (string) $item['amount'] == '';
@@ -280,11 +280,9 @@ function commerce_price_create_instance($field_name, $entity_type, $bundle, $lab
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle,
-
       'label' => $label,
       'required' => TRUE,
       'settings' => array(),
-
       // Because this widget is locked, we need it to use the full price widget
       // since the currency option can't be adjusted at the moment.
       'widget' => array(
@@ -294,7 +292,6 @@ function commerce_price_create_instance($field_name, $entity_type, $bundle, $lab
           'currency_code' => 'default',
         ),
       ),
-
       'display' => array(),
     );
 
@@ -424,7 +421,7 @@ function commerce_price_field_formatter_prepare_view($entity_type, $entities, $f
   // can enforce prices displaying with components as not being altered.
 
   // Allow other modules to prepare the item values prior to formatting.
-  foreach(module_implements('commerce_price_field_formatter_prepare_view') as $module) {
+  foreach (module_implements('commerce_price_field_formatter_prepare_view') as $module) {
     $function = $module . '_commerce_price_field_formatter_prepare_view';
     $function($entity_type, $entities, $field, $instances, $langcode, $items, $displays);
   }
@@ -494,10 +491,10 @@ function commerce_price_field_formatter_view($entity_type, $entity, $field, $ins
         );
 
         // Allow other modules to alter the components.
-        drupal_alter('commerce_price_formatted_components', $components, $item, $entity);
+        backdrop_alter('commerce_price_formatted_components', $components, $item, $entity);
 
         // Sort the components by weight.
-        uasort($components, 'drupal_sort_weight');
+        uasort($components, 'backdrop_sort_weight');
 
         // Format the prices for display.
         foreach ($components as $key => &$component) {
@@ -526,7 +523,7 @@ function commerce_price_field_formatter_view($entity_type, $entity, $field, $ins
  */
 function theme_commerce_price_formatted_components($variables) {
   // Add the CSS styling to the table.
-  drupal_add_css(drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css');
 
   // Build table rows out of the components.
   $rows = array();
@@ -543,7 +540,7 @@ function theme_commerce_price_formatted_components($variables) {
           'class' => array('component-total'),
         ),
       ),
-      'class' => array(drupal_html_class('component-type-' . $name)),
+      'class' => array(backdrop_html_class('component-type-' . $name)),
     );
   }
 
@@ -611,7 +608,7 @@ function commerce_price_field_widget_form(&$form, &$form_state, $field, $instanc
   }
 
   // If a price has already been set for this instance prepare default values.
-  if (isset($items[$delta]['amount']) && $items[$delta]['amount'] !== '') {
+  if (isset($items[$delta]['amount'])) {
     $currency = commerce_currency_load($items[$delta]['currency_code']);
 
     // Convert the price amount to a user friendly decimal value.
@@ -630,7 +627,7 @@ function commerce_price_field_widget_form(&$form, &$form_state, $field, $instanc
   // Load the default currency for this instance.
   $default_currency = commerce_currency_load($default_currency_code);
 
-  $element['#attached']['css'][] = drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
+  $element['#attached']['css'][] = backdrop_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
 
   // Build the form based on the type of price widget.
   switch ($instance['widget']['type']) {
@@ -656,7 +653,7 @@ function commerce_price_field_widget_form(&$form, &$form_state, $field, $instanc
       );
       break;
 
-    // The full widget is a textfield with a currency select list.
+      // The full widget is a textfield with a currency select list.
     case 'commerce_price_full':
       $element['amount'] = array(
         '#type' => 'textfield',
@@ -817,7 +814,7 @@ function commerce_price_field_data_property_info($name = NULL) {
 }
 
 /**
- * Property getter callback returning the amount (as a decimal).
+ * Property getter callback returing the amount (as a decimal).
  */
 function commerce_price_amount_decimal_get($data, array $options, $name, $type, $info) {
   return commerce_currency_amount_to_decimal($data['amount'], $data['currency_code']);
@@ -877,7 +874,7 @@ function commerce_price_commerce_price_component_type_info() {
  */
 function commerce_price_component_types() {
   // First check the static cache for a components array.
-  $component_types = &drupal_static(__FUNCTION__);
+  $component_types = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the types now.
   if (!isset($component_types)) {
@@ -894,7 +891,7 @@ function commerce_price_component_types() {
     }
 
     // Allow the info to be altered by other modules.
-    drupal_alter('commerce_price_component_type_info', $component_types);
+    backdrop_alter('commerce_price_component_type_info', $component_types);
   }
 
   return $component_types;
@@ -1105,7 +1102,7 @@ function commerce_price_component_total($price, $name = NULL) {
 function commerce_price_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_price') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_price') . '/includes/views',
   );
 }
 
@@ -1113,7 +1110,7 @@ function commerce_price_views_api() {
  * Validates data entered via a price input form in a Rules condition or action.
  */
 function _commerce_price_rules_data_ui_element_validate($element, &$form_state, $form) {
-  $value = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+  $value = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
 
   $value['amount'] = trim($value['amount']);
   $currency = commerce_currency_load($value['currency_code']);
@@ -1140,4 +1137,15 @@ function _commerce_price_rules_data_ui_element_validate($element, &$form_state, 
   else {
     form_error($element, t('Price amount must be numeric.'));
   }
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_price_autoload_info() {
+  return array(
+    'RulesDataUICommercePrice' => 'commerce_price.rules.inc',
+    'commerce_price_handler_field_commerce_price' => 'includes/views/handlers/commerce_price_handler_field_commerce_price.inc',
+    'commerce_price_handler_filter_commerce_price_amount' => 'includes/views/handlers/commerce_price_handler_filter_commerce_price_amount.inc',
+  );
 }

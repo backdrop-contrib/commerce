@@ -53,7 +53,7 @@ define('COMMERCE_CREDIT_CREDIT', 'credit');
 define('COMMERCE_CREDIT_VOID', 'void');
 
 /**
- * Implements of hook_entity_info().
+ * Implements hook_entity_info().
  */
 function commerce_payment_entity_info() {
   $return = array(
@@ -92,7 +92,6 @@ function commerce_payment_entity_info() {
         'singular' => t('payment transaction'),
         'plural' => t('payment transactions'),
       ),
-
       // Prevent Redirect alteration of the payment transaction form.
       'redirect' => FALSE,
     ),
@@ -149,7 +148,7 @@ function commerce_payment_hook_info() {
       'group' => 'commerce',
     ),
     'commerce_payment_transaction_uri' => array(
-      'group' => 'commerce'
+      'group' => 'commerce',
     ),
     'commerce_transaction_view' => array(
       'group' => 'commerce',
@@ -228,7 +227,7 @@ function commerce_payment_theme() {
     ),
     'commerce_payment_totals' => array(
       'variables' => array('rows' => array(), 'form' => NULL, 'totals' => array(), 'view' => NULL),
-      'path' => drupal_get_path('module', 'commerce_payment') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_payment') . '/theme',
       'template' => 'commerce-payment-totals',
     ),
   );
@@ -238,7 +237,7 @@ function commerce_payment_theme() {
  * Adds the necessary CSS for the line item summary template.
  */
 function template_preprocess_commerce_payment_totals(&$variables) {
-  drupal_add_css(drupal_get_path('module', 'commerce_payment') . '/theme/commerce_payment.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_payment') . '/theme/commerce_payment.admin.css');
 }
 
 /**
@@ -383,8 +382,14 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
 
       $rows[] = array(
         'data' => array(
-          array('data' => t('Order balance'), 'class' => array('label')),
-          array('data' => commerce_currency_format($balance['amount'], $balance['currency_code']), 'class' => array('balance')),
+          array(
+            'data' => t('Order balance'),
+            'class' => array('label'),
+          ),
+          array(
+            'data' => commerce_currency_format($balance['amount'], $balance['currency_code']),
+            'class' => array('balance'),
+          ),
         ),
         'class' => array('order-balance'),
         'weight' => 10,
@@ -398,8 +403,14 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
     // Add a row for the total amount paid.
     $rows[] = array(
       'data' => array(
-        array('data' => t('Total paid'), 'class' => array('label')),
-        array('data' => commerce_currency_format($totals[$currency_code], $currency_code), 'class' => array('total')),
+        array(
+          'data' => t('Total paid'),
+          'class' => array('label'),
+        ),
+        array(
+          'data' => commerce_currency_format($totals[$currency_code], $currency_code),
+          'class' => array('total'),
+        ),
       ),
       'class' => array('total-paid'),
       'weight' => 0,
@@ -412,8 +423,14 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
 
       $rows[] = array(
         'data' => array(
-          array('data' => t('Order balance'), 'class' => array('label')),
-          array('data' => commerce_currency_format($balance['amount'], $balance['currency_code']), 'class' => array('balance')),
+          array(
+            'data' => t('Order balance'),
+            'class' => array('label'),
+          ),
+          array(
+            'data' => commerce_currency_format($balance['amount'], $balance['currency_code']),
+            'class' => array('balance'),
+          ),
         ),
         'class' => array('order-balance'),
         'weight' => 10,
@@ -426,8 +443,14 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
     foreach ($totals as $currency_code => $amount) {
       $rows[] = array(
         'data' => array(
-          array('data' => t('Total paid (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
-          array('data' => commerce_currency_format($amount, $currency_code), 'class' => array('total')),
+          array(
+            'data' => t('Total paid (@currency_code)', array('@currency_code' => $currency_code)),
+            'class' => array('label'),
+          ),
+          array(
+            'data' => commerce_currency_format($amount, $currency_code),
+            'class' => array('total'),
+          ),
         ),
         'class' => array('total-paid', 'total-' . $currency_code),
         'weight' => $weight++,
@@ -447,9 +470,7 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
 function commerce_payment_commerce_payment_transaction_insert($transaction) {
   // If the inserted transaction was marked as a success and placed against a
   // valid order...
-  $transaction_statuses = commerce_payment_transaction_statuses();
-
-  if (!empty($transaction_statuses[$transaction->status]['total']) &&
+  if ($transaction->status == COMMERCE_PAYMENT_STATUS_SUCCESS &&
     $order = commerce_order_load($transaction->order_id)) {
     // Then check to make sure the event hasn't been invoked for this order.
     if (empty($order->data['commerce_payment_order_paid_in_full_invoked'])) {
@@ -457,13 +478,6 @@ function commerce_payment_commerce_payment_transaction_insert($transaction) {
       $balance = commerce_payment_order_balance($order);
 
       if (!empty($balance) && $balance['amount'] <= 0) {
-        // If automatic order revisions are enabled site-wide, create a new
-        // revision now with a log message identifying the payment event.
-        if (variable_get('commerce_order_auto_revision', TRUE)) {
-          $order->revision = TRUE;
-          $order->log = t('Order updated to reflect the order has just been paid in full.');
-        }
-
         // Invoke the event including a hook of the same name.
         rules_invoke_all('commerce_payment_order_paid_in_full', $order, $transaction);
 
@@ -489,24 +503,12 @@ function commerce_payment_commerce_payment_transaction_update($transaction) {
 }
 
 /**
- * Implements hook_commerce_order_delete().
- *
- * Make sure all payment transactions are deleted whenever the
- * order they are associated with is deleted.
- */
-function commerce_payment_commerce_order_delete($order) {
-  foreach (commerce_payment_transaction_load_multiple(array(), array('order_id' => $order->order_id)) as $transaction) {
-    commerce_payment_transaction_delete($transaction->transaction_id);
-  }
-}
-
-/**
  * Implements hook_views_api().
  */
 function commerce_payment_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_payment') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_payment') . '/includes/views',
   );
 }
 
@@ -517,7 +519,7 @@ function commerce_payment_views_api() {
  *   An associative array of payment method objects keyed by the method_id.
  */
 function commerce_payment_methods() {
-  $payment_methods = &drupal_static(__FUNCTION__);
+  $payment_methods = &backdrop_static(__FUNCTION__);
 
   // If the payment methods haven't been defined yet, do so now.
   if (!isset($payment_methods)) {
@@ -533,7 +535,7 @@ function commerce_payment_methods() {
       }
     }
 
-    drupal_alter('commerce_payment_method_info', $payment_methods);
+    backdrop_alter('commerce_payment_method_info', $payment_methods);
 
     foreach ($payment_methods as $method_id => &$payment_method) {
       $defaults = array(
@@ -586,7 +588,7 @@ function commerce_payment_methods() {
  * Resets the cached list of payment methods.
  */
 function commerce_payment_methods_reset() {
-  $payment_methods = &drupal_static('commerce_payment_methods');
+  $payment_methods = &backdrop_static('commerce_payment_methods');
   $payment_methods = NULL;
   entity_info_cache_clear();
 }
@@ -769,7 +771,7 @@ function commerce_payment_method_instance_load($instance_id) {
  * used in another module's implementation of the info hook.
  */
 function commerce_payment_transaction_statuses() {
-  $transaction_statuses = &drupal_static(__FUNCTION__);
+  $transaction_statuses = &backdrop_static(__FUNCTION__);
 
   // If the statuses haven't been defined yet, do so now.
   if (!isset($transaction_statuses)) {
@@ -779,19 +781,19 @@ function commerce_payment_transaction_statuses() {
       COMMERCE_PAYMENT_STATUS_PENDING => array(
         'status' => COMMERCE_PAYMENT_STATUS_PENDING,
         'title' => t('Pending'),
-        'icon' => drupal_get_path('module', 'commerce_payment') . '/theme/icon-pending.png',
+        'icon' => backdrop_get_path('module', 'commerce_payment') . '/theme/icon-pending.png',
         'total' => FALSE,
       ),
       COMMERCE_PAYMENT_STATUS_SUCCESS => array(
         'status' => COMMERCE_PAYMENT_STATUS_SUCCESS,
         'title' => t('Success'),
-        'icon' => drupal_get_path('module', 'commerce_payment') . '/theme/icon-success.png',
+        'icon' => backdrop_get_path('module', 'commerce_payment') . '/theme/icon-success.png',
         'total' => TRUE,
       ),
       COMMERCE_PAYMENT_STATUS_FAILURE => array(
         'status' => COMMERCE_PAYMENT_STATUS_FAILURE,
         'title' => t('Failure'),
-        'icon' => drupal_get_path('module', 'commerce_payment') . '/theme/icon-failure.png',
+        'icon' => backdrop_get_path('module', 'commerce_payment') . '/theme/icon-failure.png',
         'total' => FALSE,
       ),
     );
@@ -807,7 +809,7 @@ function commerce_payment_transaction_status_options_list() {
   // Build an array of payment transaction status options.
   $options = array();
 
-  foreach(commerce_payment_transaction_statuses() as $payment_transaction_status) {
+  foreach (commerce_payment_transaction_statuses() as $payment_transaction_status) {
     $options[$payment_transaction_status['status']] = $payment_transaction_status['title'];
   }
 
@@ -819,7 +821,7 @@ function commerce_payment_transaction_status_options_list() {
  */
 function theme_commerce_payment_transaction_status_icon($variables) {
   $transaction_status = $variables['transaction_status'];
-  return theme('image', array('path' => $transaction_status['icon'], 'alt' => $transaction_status['title'], 'title' => $transaction_status['title'], 'attributes' => array('class' => array(drupal_html_class($transaction_status['status'])))));
+  return theme('image', array('path' => $transaction_status['icon'], 'alt' => $transaction_status['title'], 'title' => $transaction_status['title'], 'attributes' => array('class' => array(backdrop_html_class($transaction_status['status'])))));
 }
 
 /**
@@ -828,7 +830,7 @@ function theme_commerce_payment_transaction_status_icon($variables) {
 function theme_commerce_payment_transaction_status_text($variables) {
   $transaction_status = $variables['transaction_status'];
 
-  return '<span class="' . drupal_html_class($transaction_status['status']) . '">' . $variables['text'] . '</span>';
+  return '<span class="' . backdrop_html_class($transaction_status['status']) . '">' . $variables['text'] . '</span>';
 }
 
 /**
@@ -996,7 +998,7 @@ function commerce_payment_transaction_order_access($op, $order, $account = NULL)
       }
       break;
 
-    // Viewing payment transactions.
+      // Viewing payment transactions.
     case 'view':
       if (user_access('view payments', $account)) {
         if (commerce_order_access('view', $order, $account)) {
@@ -1139,10 +1141,10 @@ function commerce_payment_order_balance($order, $totals = array()) {
 function commerce_payment_totals_rows($totals, $order) {
   // Retrieve rows defined by the hook and allow other modules to alter them.
   $rows = module_invoke_all('commerce_payment_totals_row_info', $totals, $order);
-  drupal_alter('commerce_payment_totals_row_info', $rows, $totals, $order);
+  backdrop_alter('commerce_payment_totals_row_info', $rows, $totals, $order);
 
   // Sort the rows by weight and return the array.
-  uasort($rows, 'drupal_sort_weight');
+  uasort($rows, 'backdrop_sort_weight');
 
   return $rows;
 }
@@ -1165,59 +1167,6 @@ function commerce_payment_transaction_get_properties($transaction, array $option
       else {
         return '';
       }
-  }
-}
-
-/**
- * Checks if the order has any associated payment transactions.
- *
- * @param $order
- *   A commerce_order object.
- *
- * @return bool
- *   TRUE if payment transactions exist.
- */
-function commerce_payment_order_has_payments($order) {
-  $query = new EntityFieldQuery();
-
-  $query
-    ->entityCondition('entity_type', 'commerce_payment_transaction')
-    ->propertyCondition('order_id', $order->order_id, '=')
-    ->propertyCondition('status', COMMERCE_PAYMENT_STATUS_FAILURE, '!=')
-    ->count();
-
-  return $query->execute() == 1;
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- *
- * Makes sure the user deleting an order has permissions to delete
- * associated payment transactions if they exist on the order
- * being deleted. Prevents deletion of the order if the user
- * does not have access.
- */
-function commerce_payment_form_commerce_order_ui_order_delete_form_alter(&$form, &$form_state) {
-  if (commerce_payment_order_has_payments($form_state['order'])) {
-
-    if (user_access('administer payments')) {
-      // Add a required checkbox to force user to confirm
-      // deletion of attached payments as well.
-      $form['delete_order_payments'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Confirm deletion of order and all of its related payment transactions.'),
-        '#required' => TRUE,
-      );
-      $form['actions']['submit']['#states']['visible'][] = array(
-          ':input[name="delete_order_payments"]' => array('checked' => TRUE),
-      );
-    }
-    else {
-      // Inform the user they cannot delete the order due
-      // to attached payments.
-      $form['description']['#markup'] = '<p>' . t('This order has payment transactions attached to it. You do not have sufficient permissions to delete it.');
-      $form['actions']['submit']['#access'] = FALSE;
-    }
   }
 }
 
@@ -1263,6 +1212,7 @@ function commerce_payment_entity_load($entities, $type) {
       if (is_callable(array($action, 'getElementName')) && strpos($action->getElementName(), 'commerce_payment_enable_') === 0) {
         if (is_array($action->settings['payment_method']) && !empty($action->settings['payment_method']['settings'])) {
           $instance_id = commerce_payment_method_instance_id($action->settings['payment_method']['method_id'], $entity);
+          // TODO This variable was probably removed in Backdrop without replacement.
           $settings = variable_get($instance_id, array());
 
           if (!empty($settings) && is_array($settings)) {
@@ -1288,6 +1238,7 @@ function commerce_payment_form_rules_ui_edit_element_alter(&$form, &$form_state)
   $rule = reset($form_state['build_info']['args']);
   $payment_method = &$form['parameter']['payment_method']['settings']['payment_method'];
   $instance_id = commerce_payment_method_instance_id($payment_method['method_id']['#value'], $rule);
+  // TODO This variable was probably removed in Backdrop without replacement.
   $settings = variable_get($instance_id, array());
 
   if (!empty($settings) && is_array($settings)) {
@@ -1304,7 +1255,31 @@ function commerce_payment_form_rules_ui_edit_element_alter(&$form, &$form_state)
     // Display a warning message to warn the user about the settings
     // that are overridden.
     if ($display_override_message) {
-      drupal_set_message(t('Disabled fields below have been configured in code and cannot be changed here.'), 'warning');
+      backdrop_set_message(t('Disabled fields below have been configured in code and cannot be changed here.'), 'warning');
     }
   }
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_payment_autoload_info() {
+  return array(
+    'RulesDataUIPaymentSettings' => 'commerce_payment.rules.inc',
+    'CommercePaymentCreditCard' => 'includes/commerce_payment.credit_card.inc',
+    'CommercePaymentTransactionEntityController' => 'includes/commerce_payment_transaction.controller.inc',
+    'commerce_payment_handler_area_totals' => 'includes/views/handlers/commerce_payment_handler_area_totals.inc',
+    'commerce_payment_handler_field_amount' => 'includes/views/handlers/commerce_payment_handler_field_amount.inc',
+    'commerce_payment_handler_field_balance' => 'includes/views/handlers/commerce_payment_handler_field_balance.inc',
+    'commerce_payment_handler_field_currency_code' => 'includes/views/handlers/commerce_payment_handler_field_currency_code.inc',
+    'commerce_payment_handler_field_message' => 'includes/views/handlers/commerce_payment_handler_field_message.inc',
+    'commerce_payment_handler_field_payment_method' => 'includes/views/handlers/commerce_payment_handler_field_payment_method.inc',
+    'commerce_payment_handler_field_payment_transaction_link' => 'includes/views/handlers/commerce_payment_handler_field_payment_transaction_link.inc',
+    'commerce_payment_handler_field_payment_transaction_link_delete' => 'includes/views/handlers/commerce_payment_handler_field_payment_transaction_link_delete.inc',
+    'commerce_payment_handler_field_payment_transaction_operations' => 'includes/views/handlers/commerce_payment_handler_field_payment_transaction_operations.inc',
+    'commerce_payment_handler_field_status' => 'includes/views/handlers/commerce_payment_handler_field_status.inc',
+    'commerce_payment_handler_filter_currency_code' => 'includes/views/handlers/commerce_payment_handler_filter_currency_code.inc',
+    'commerce_payment_handler_filter_payment_method' => 'includes/views/handlers/commerce_payment_handler_filter_payment_method.inc',
+    'commerce_payment_handler_filter_payment_transaction_status' => 'includes/views/handlers/commerce_payment_handler_filter_payment_transaction_status.inc',
+  );
 }

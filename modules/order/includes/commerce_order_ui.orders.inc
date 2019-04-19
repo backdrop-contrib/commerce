@@ -10,18 +10,20 @@
  * Form callback: edit the global order settings.
  */
 function commerce_order_settings_form($form, &$form_state) {
+  $config = config('commerce_order.settings');
+  $form['#config'] = 'commerce_order.settings';
   $form['commerce_order_help_text'] = array(
     '#type' => 'textarea',
     '#title' => t('Order creation help text'),
     '#description' => t('Supply an optional help message to be displayed above the order add form.'),
-    '#default_value' => variable_get('commerce_order_help_text', ''),
+    '#default_value' => $config->get('commerce_order_help_text'),
     '#weight' => -10,
   );
   $form['commerce_order_auto_revision'] = array(
     '#type' => 'checkbox',
     '#title' => t('Create new revisions when orders are updated by default.'),
     '#description' => t('This default may be overridden on the order edit form but will always be respected for other order status updates.'),
-    '#default_value' => variable_get('commerce_order_auto_revision', TRUE),
+    '#default_value' => $config->get('commerce_order_auto_revision'),
     '#weight' => 0,
   );
 
@@ -45,7 +47,7 @@ function commerce_order_ui_order_form_wrapper($order = NULL, $account = NULL) {
 
   // Set the page title and a default customer if necessary.
   if (empty($order->order_id)) {
-    drupal_set_title(t('Create an order'));
+    backdrop_set_title(t('Create an order'));
 
     if (!empty($account)) {
       $order->uid = $account->uid;
@@ -54,7 +56,7 @@ function commerce_order_ui_order_form_wrapper($order = NULL, $account = NULL) {
 
   // Include the forms file from the Order module.
   module_load_include('inc', 'commerce_order', 'includes/commerce_order.forms');
-  return drupal_get_form('commerce_order_ui_order_form', $order);
+  return backdrop_get_form('commerce_order_ui_order_form', $order);
 }
 
 /**
@@ -68,5 +70,5 @@ function commerce_order_ui_order_form_wrapper($order = NULL, $account = NULL) {
 function commerce_order_ui_order_delete_form_wrapper($order) {
   // Include the forms file from the Order module.
   module_load_include('inc', 'commerce_order', 'includes/commerce_order.forms');
-  return drupal_get_form('commerce_order_ui_order_delete_form', $order);
+  return backdrop_get_form('commerce_order_ui_order_delete_form', $order);
 }

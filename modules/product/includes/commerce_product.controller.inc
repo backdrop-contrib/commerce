@@ -11,7 +11,7 @@
  * Mainly relies on the EntityAPIController class provided by the Entity
  * module, just overrides specific features.
  */
-class CommerceProductEntityController extends DrupalCommerceEntityController {
+class CommerceProductEntityController extends BackdropCommerceEntityController {
 
   /**
    * Create a default product.
@@ -91,7 +91,7 @@ class CommerceProductEntityController extends DrupalCommerceEntityController {
     elseif (empty($product->log)) {
       // If we are updating an existing product without adding a new revision,
       // we need to make sure $entity->log is unset whenever it is empty. As
-      // long as $entity->log is unset, drupal_write_record() will not attempt
+      // long as $entity->log is unset, backdrop_write_record() will not attempt
       // to update the existing database column when re-saving the revision.
       unset($product->log);
     }
@@ -117,7 +117,7 @@ class CommerceProductEntityController extends DrupalCommerceEntityController {
     }
 
     // Reset load by SKU static cache.
-    drupal_static_reset('commerce_product_load_by_sku');
+    backdrop_static_reset('commerce_product_load_by_sku');
 
     return parent::save($product, $transaction);
   }
@@ -189,7 +189,7 @@ class CommerceProductEntityController extends DrupalCommerceEntityController {
   public function buildContent($product, $view_mode = 'full', $langcode = NULL, $content = array()) {
     // Prepare a reusable array representing the CSS file to attach to the view.
     $attached = array(
-      'css' => array(drupal_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'),
+      'css' => array(backdrop_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'),
     );
 
     // Add the default fields inherent to the product entity.

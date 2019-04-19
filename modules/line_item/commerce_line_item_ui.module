@@ -19,15 +19,6 @@ function commerce_line_item_ui_menu() {
     'file' => 'includes/commerce_line_item_ui.types.inc',
   );
 
-  $items['admin/commerce/config/orphaned-line-items'] = array(
-    'title' => 'Orphaned line items',
-    'description' => 'Delete line items that are not attached to any order.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_line_item_ui_orphaned_line_items_form'),
-    'access arguments' => array('administer line items'),
-    'file' => 'includes/commerce_line_item_ui.admin.inc',
-  );
-
   foreach (commerce_line_item_types() as $type => $line_item_type) {
     // Convert underscores to hyphens for the menu item argument.
     $type_arg = strtr($type, '_', '-');
@@ -47,7 +38,7 @@ function commerce_line_item_ui_menu() {
  * Redirects a line item type URL to its fields management page.
  */
 function commerce_line_item_ui_line_item_type_redirect($type) {
-  drupal_goto('admin/commerce/config/line-items/' . $type . '/fields');
+  backdrop_goto('admin/commerce/config/line-items/' . $type . '/fields');
 }
 
 /**
@@ -99,7 +90,7 @@ function commerce_line_item_ui_form_alter(&$form, &$form_state, $form_id) {
       // Load the line item type being modified for this form.
       $line_item_type = commerce_line_item_type_load($form['#bundle']);
 
-      drupal_set_title($line_item_type['name']);
+      backdrop_set_title($line_item_type['name']);
     }
   }
 }
@@ -120,4 +111,21 @@ function commerce_line_item_ui_help($path, $arg) {
     case 'admin/commerce/config/line-items':
       return '<p>' . t('Line items represent anything on an order that affects the order total. Each line item must be of one of the line item types listed below, which define how these items interact with Add to Cart forms, the shopping cart, the order edit page, and more. Line item types are defined by modules, with some modules also allowing you to clone line item types through this interface.') . '</p>';
   }
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_line_item_ui_autoload_info() {
+  return array(
+    'CommerceLineItemEntityController' => 'includes/commerce_line_item.controller.inc',
+    'commerce_line_item_handler_area_line_item_summary' => 'includes/views/handlers/commerce_line_item_handler_area_line_item_summary.inc',
+    'commerce_line_item_handler_argument_line_item_line_item_id' => 'includes/views/handlers/commerce_line_item_handler_argument_line_item_line_item_id.inc',
+    'commerce_line_item_handler_field_edit_delete' => 'includes/views/handlers/commerce_line_item_handler_field_edit_delete.inc',
+    'commerce_line_item_handler_field_edit_quantity' => 'includes/views/handlers/commerce_line_item_handler_field_edit_quantity.inc',
+    'commerce_line_item_handler_field_line_item_title' => 'includes/views/handlers/commerce_line_item_handler_field_line_item_title.inc',
+    'commerce_line_item_handler_field_line_item_type' => 'includes/views/handlers/commerce_line_item_handler_field_line_item_type.inc',
+    'commerce_line_item_handler_filter_line_item_is_referenced' => 'includes/views/handlers/commerce_line_item_handler_filter_line_item_is_referenced.inc',
+    'commerce_line_item_handler_filter_line_item_type' => 'includes/views/handlers/commerce_line_item_handler_filter_line_item_type.inc',
+  );
 }

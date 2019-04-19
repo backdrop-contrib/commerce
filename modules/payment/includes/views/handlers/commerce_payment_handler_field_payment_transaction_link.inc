@@ -14,7 +14,10 @@ class commerce_payment_handler_field_payment_transaction_link extends views_hand
   function option_definition() {
     $options = parent::option_definition();
 
-    $options['text'] = array('default' => '', 'translatable' => TRUE);
+    $options['text'] = array(
+      'default' => '',
+      'translatable' => TRUE,
+    );
 
     return $options;
   }

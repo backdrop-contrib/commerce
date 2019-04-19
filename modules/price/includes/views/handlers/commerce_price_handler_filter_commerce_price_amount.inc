@@ -13,7 +13,7 @@ class commerce_price_handler_filter_commerce_price_amount extends views_handler_
     return $operators;
   }
 
-  function option_definition(){
+  function option_definition() {
     $options = parent::option_definition();
 
     $options['currency'] = array('default' => commerce_default_currency());

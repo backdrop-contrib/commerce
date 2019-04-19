@@ -8,3 +8,11 @@ function commerce_product_crud_test_commerce_product_update($entity) {
   $product = commerce_product_load($entity->product_id);
   $commerce_product_crud_tests['hook_update_identical_uid'] = $entity->uid === $product->uid;
 }
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_product_crud_test_autoload_info() {
+  return array(
+  );
+}

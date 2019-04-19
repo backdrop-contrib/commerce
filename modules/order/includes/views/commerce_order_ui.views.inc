@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Export Drupal Commerce orders to Views.
+ * Export Backdrop Commerce orders to Views.
  */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
  */
 function commerce_order_ui_views_data() {
   $data = array();
@@ -15,7 +15,7 @@ function commerce_order_ui_views_data() {
     'title' => t('View order form'),
     'help' => t('Display a form that redirects to the view page for an order.'),
     'area' => array(
-      'handler' => 'commerce_order_ui_handler_area_view_order_form'
+      'handler' => 'commerce_order_ui_handler_area_view_order_form',
     ),
   );
 

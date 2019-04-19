@@ -107,7 +107,7 @@ function commerce_line_item_tokens($type, $tokens, array $data = array(), array 
           $replacements[$original] = $sanitize ? check_plain($line_item->quantity) : $line_item->quantity;
           break;
 
-        // Default values for the chained tokens handled below.
+          // Default values for the chained tokens handled below.
         case 'order':
           if ($line_item->order_id) {
             $order = commerce_order_load($line_item->order_id);

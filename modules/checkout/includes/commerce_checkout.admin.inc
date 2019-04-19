@@ -15,7 +15,10 @@ function commerce_checkout_builder_form($form, &$form_state) {
   $checkout_pages = commerce_checkout_pages();
 
   // Add a "disabled" pseudo-page.
-  $checkout_pages['disabled'] = array('page_id' => 'disabled', 'name' => t('Disabled'));
+  $checkout_pages['disabled'] = array(
+    'page_id' => 'disabled',
+    'name' => t('Disabled'),
+  );
 
   $form['checkout_pages'] = array(
     '#type' => 'value',
@@ -55,7 +58,7 @@ function commerce_checkout_builder_form($form, &$form_state) {
       '#type' => 'select',
       '#options' => $checkout_pages_options,
       '#default_value' => $checkout_pane['page'],
-      '#attributes' => array('class' => array('checkout-pane-page checkout-pane-page-'. $checkout_pane['page'])),
+      '#attributes' => array('class' => array('checkout-pane-page checkout-pane-page-' . $checkout_pane['page'])),
     );
 
     // Add the select field for the pane's weight.
@@ -63,12 +66,12 @@ function commerce_checkout_builder_form($form, &$form_state) {
       '#type' => 'weight',
       '#delta' => 20,
       '#default_value' => $checkout_pane['weight'],
-      '#attributes' => array('class' => array('checkout-pane-weight checkout-pane-weight-'. $checkout_pane['page'])),
+      '#attributes' => array('class' => array('checkout-pane-weight checkout-pane-weight-' . $checkout_pane['page'])),
     );
 
     // Add a configuration link for the pane.
     $form['page'][$page_id]['panes'][$pane_id]['ops'] = array(
-      '#markup' => l(t('configure'), 'admin/commerce/config/checkout/form/pane/'. $pane_id),
+      '#markup' => l(t('configure'), 'admin/commerce/config/checkout/form/pane/' . $pane_id),
     );
   }
 
@@ -111,10 +114,10 @@ function commerce_checkout_builder_form_validate(&$form, &$form_state) {
       $element = &$form['page'][$saved_panes[$pane_id]['page']]['panes'][$pane_id]['page'];
 
       if ($panes[$pane_id]['page'] == 'disabled') {
-        drupal_set_message(t('%pane must be configured before it can be enabled. It has been moved back to a disabled position.', array('%pane' => $panes[$pane_id]['title'])), 'warning');
+        backdrop_set_message(t('%pane must be configured before it can be enabled. It has been moved back to a disabled position.', array('%pane' => $panes[$pane_id]['title'])), 'warning');
       }
       else {
-        drupal_set_message(t('%pane is locked in the code to the %page page and was repositioned accordingly.', array('%pane' => $panes[$pane_id]['title'], '%page' => $pages[$panes[$pane_id]['page']]['name'])), 'warning');
+        backdrop_set_message(t('%pane is locked in the code to the %page page and was repositioned accordingly.', array('%pane' => $panes[$pane_id]['title'], '%page' => $pages[$panes[$pane_id]['page']]['name'])), 'warning');
       }
 
       form_set_value($element, $panes[$pane_id]['page'], $form_state);
@@ -147,7 +150,7 @@ function commerce_checkout_builder_form_save_submit($form, &$form_state) {
     }
   }
 
-  drupal_set_message(t('Checkout pane positions saved.'));
+  backdrop_set_message(t('Checkout pane positions saved.'));
 }
 
 /**
@@ -156,7 +159,7 @@ function commerce_checkout_builder_form_save_submit($form, &$form_state) {
 function commerce_checkout_builder_form_reset_submit($form, &$form_state) {
   // Empty the checkout pane table of configuration data.
   db_truncate('commerce_checkout_pane')->execute();
-  drupal_set_message(t('Checkout pane positions reset.'));
+  backdrop_set_message(t('Checkout pane positions reset.'));
 }
 
 /**
@@ -165,8 +168,8 @@ function commerce_checkout_builder_form_reset_submit($form, &$form_state) {
 function theme_commerce_checkout_builder_form($variables) {
   $form = $variables['form'];
 
-  drupal_add_css(drupal_get_path('module', 'commerce_checkout') .'/theme/commerce_checkout.admin.css');
-  drupal_add_js(drupal_get_path('module', 'commerce_checkout') .'/commerce_checkout_admin.js');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_checkout') . '/theme/commerce_checkout.admin.css');
+  backdrop_add_js(backdrop_get_path('module', 'commerce_checkout') . '/commerce_checkout_admin.js');
 
   // Build the full table header; Page and Weight will be hidden by tabledrag.
   $header = array(t('Checkout pane'), t('Page'), t('Weight'), t('Operations'));
@@ -176,15 +179,21 @@ function theme_commerce_checkout_builder_form($variables) {
   // Loop through each page array in the form.
   foreach ($form['checkout_pages']['#value'] as $page_id => $checkout_page) {
     // Initialize the tabledrag for this page.
-    drupal_add_tabledrag('panes', 'match', 'sibling', 'checkout-pane-page', 'checkout-pane-page-'. $page_id);
-    drupal_add_tabledrag('panes', 'order', 'sibling', 'checkout-pane-weight', 'checkout-pane-weight-'. $page_id);
+    backdrop_add_tabledrag('panes', 'match', 'sibling', 'checkout-pane-page', 'checkout-pane-page-' . $page_id);
+    backdrop_add_tabledrag('panes', 'order', 'sibling', 'checkout-pane-weight', 'checkout-pane-weight-' . $page_id);
 
     // Add a non-draggable header row for each checkout page.
     $row = array(
-      array('data' => $checkout_page['name'], 'colspan' => 4),
+      array(
+        'data' => $checkout_page['name'],
+        'colspan' => 4,
+      ),
     );
 
-    $rows[] = array('data' => $row, 'class' => array('page-header'));
+    $rows[] = array(
+      'data' => $row,
+      'class' => array('page-header'),
+    );
 
     // Determine whether the page currently has any panes in it.
     $class = count(element_children($form['page'][$page_id]['panes'])) == 0 ? 'page-empty' : 'page-populated';
@@ -193,21 +202,27 @@ function theme_commerce_checkout_builder_form($variables) {
     // placeholder for pages that do not have any panes.
     $rows[] = array(
       'data' => array(
-        array('data' => $page_id != 'disabled' ? t('No panes on this page.') : t('No disabled panes.'), 'colspan' => 4),
+        array(
+          'data' => $page_id != 'disabled' ? t('No panes on this page.') : t('No disabled panes.'),
+          'colspan' => 4,
+        ),
       ),
-      'class' => array('page-message page-'. $page_id .'-message', $class),
+      'class' => array('page-message page-' . $page_id . '-message', $class),
     );
 
     // Loop through each checkout pane currently assigned to this page.
     foreach (element_children($form['page'][$page_id]['panes']) as $pane_id) {
       $row = array(
-        drupal_render($form['page'][$page_id]['panes'][$pane_id]['name']),
-        drupal_render($form['page'][$page_id]['panes'][$pane_id]['page']),
-        drupal_render($form['page'][$page_id]['panes'][$pane_id]['weight']),
-        drupal_render($form['page'][$page_id]['panes'][$pane_id]['ops']),
+        backdrop_render($form['page'][$page_id]['panes'][$pane_id]['name']),
+        backdrop_render($form['page'][$page_id]['panes'][$pane_id]['page']),
+        backdrop_render($form['page'][$page_id]['panes'][$pane_id]['weight']),
+        backdrop_render($form['page'][$page_id]['panes'][$pane_id]['ops']),
       );
 
-      $rows[] = array('data' => $row, 'class' => array('draggable'));
+      $rows[] = array(
+        'data' => $row,
+        'class' => array('draggable'),
+      );
     }
   }
 
@@ -217,7 +232,7 @@ function theme_commerce_checkout_builder_form($variables) {
     'attributes' => array('id' => 'panes'),
   );
 
-  return theme('table', $variables) . drupal_render_children($form);
+  return theme('table', $variables) . backdrop_render_children($form);
 }
 
 /**
@@ -238,7 +253,7 @@ function commerce_checkout_pane_settings_form($form, &$form_state, $checkout_pan
   $form['display']['collapsibility'] = array(
     '#type' => 'radios',
     '#title' => t('Checkout form fieldset display'),
-    '#description' => t('Checkout panes are rendered on the checkout form in individual fieldsets.') .'<br />'. t('Specify here how the fieldset for this pane will appear.'),
+    '#description' => t('Checkout panes are rendered on the checkout form in individual fieldsets.') . '<br />' . t('Specify here how the fieldset for this pane will appear.'),
     '#options' => array(
       'default' => t('Display this pane in a non-collapsible fieldset.'),
       'collapsible' => t('Display this pane in a collapsible fieldset.'),
@@ -331,18 +346,20 @@ function commerce_checkout_pane_settings_form_save_submit($form, &$form_state) {
         if (in_array($form['settings'][$field]['#type'], array('container', 'fieldset'))) {
           foreach (element_children($form['settings'][$field]) as $nested_field) {
             if (isset($form_state['values'][$nested_field])) {
+              // TODO This variable was probably removed in Backdrop without replacement.
               variable_set($nested_field, $form_state['values'][$nested_field]);
             }
           }
         }
         elseif (isset($form_state['values'][$field])) {
+          // TODO This variable was probably removed in Backdrop without replacement.
           variable_set($field, $form_state['values'][$field]);
         }
       }
     }
   }
 
-  drupal_set_message(t('Checkout pane saved.'));
+  backdrop_set_message(t('Checkout pane saved.'));
 
   // Redirect to the main checkout form builder page on save.
   $form_state['redirect'] = 'admin/commerce/config/checkout/form';
@@ -361,16 +378,18 @@ function commerce_checkout_pane_settings_form_reset_submit($form, &$form_state) 
       // Provide support for containers one level deep.
       if (in_array($form['settings'][$field]['#type'], array('container', 'fieldset'))) {
         foreach (element_children($form['settings'][$field]) as $nested_field) {
+          // TODO This variable was probably removed in Backdrop without replacement.
           variable_del($nested_field);
         }
       }
       else {
+        // TODO This variable was probably removed in Backdrop without replacement.
         variable_del($field);
       }
     }
   }
 
-  drupal_set_message(t('Checkout pane reset.'));
+  backdrop_set_message(t('Checkout pane reset.'));
 }
 
 /**
@@ -382,7 +401,11 @@ function commerce_checkout_complete_rules() {
 
   $content['enabled']['title']['#markup'] = '<h3>' . t('Enabled checkout completion rules') . '</h3>';
 
-  $conditions = array('event' => 'commerce_checkout_complete', 'plugin' => 'reaction rule', 'active' => TRUE);
+  $conditions = array(
+    'event' => 'commerce_checkout_complete',
+    'plugin' => 'reaction rule',
+    'active' => TRUE,
+  );
   $content['enabled']['rules'] = RulesPluginUI::overviewTable($conditions, $options);
   $content['enabled']['rules']['#empty'] = t('There are no active checkout completion rules.');
 
@@ -440,11 +463,11 @@ function commerce_checkout_complete_form($form, &$form_state, $order) {
 function commerce_checkout_complete_form_submit($form, &$form_state) {
   if ($order = commerce_order_load($form_state['values']['order_id'])) {
     commerce_checkout_complete($order);
-    drupal_set_message(t('Checkout completion rules have been executed for the order.'));
+    backdrop_set_message(t('Checkout completion rules have been executed for the order.'));
     $form_state['redirect'] = 'admin/commerce/orders/' . $order->order_id . '/edit';
   }
   else {
-    drupal_set_message(t('Order not found.'), 'error');
+    backdrop_set_message(t('Order not found.'), 'error');
     $form_state['redirect'] = 'admin/commerce/orders';
   }
 }

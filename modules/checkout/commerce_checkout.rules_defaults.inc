@@ -22,14 +22,14 @@ function commerce_checkout_default_rules_configuration() {
 
   $rule->label = t('Set the order created date to the checkout completion date');
   $rule->tags = array('Commerce Checkout');
-  $rule->active = variable_get('enable_commerce_checkout_order_created_date_update', FALSE);
+  $rule->active = config_get('commerce_checkout.settings', 'enable_commerce_checkout_order_created_date_update');
 
   $rule
     ->event('commerce_checkout_complete')
     ->action('data_set', array(
-      'data:select' => 'commerce-order:created',
-      'value:select' => 'site:current-date',
-    ));
+    'data:select' => 'commerce-order:created',
+    'value:select' => 'site:current-date',
+  ));
 
   $rule->weight = -10;
 
@@ -46,9 +46,9 @@ function commerce_checkout_default_rules_configuration() {
   $rule
     ->event('commerce_checkout_complete')
     ->action('commerce_order_update_state', array(
-      'commerce_order:select' => 'commerce-order',
-      'order_state' => 'pending',
-    ));
+    'commerce_order:select' => 'commerce-order',
+    'order_state' => 'pending',
+  ));
 
   $rules['commerce_checkout_order_status_update'] = $rule;
 
@@ -63,28 +63,28 @@ function commerce_checkout_default_rules_configuration() {
   $rule
     ->event('commerce_checkout_complete')
     ->condition('data_is', array(
-      'data:select' => 'commerce-order:uid',
-      'op' => '==',
-      'value' => '0',
-    ))
+    'data:select' => 'commerce-order:uid',
+    'op' => '==',
+    'value' => '0',
+  ))
     ->condition('entity_exists', array(
-      'type' => 'user',
-      'property' => 'mail',
-      'value:select' => 'commerce-order:mail',
-    ))
+    'type' => 'user',
+    'property' => 'mail',
+    'value:select' => 'commerce-order:mail',
+  ))
     ->condition('data_is', array(
-      'data:select' => 'commerce-order:type',
-      'op' => '==',
-      'value' => 'commerce_order',
-    ))
+    'data:select' => 'commerce-order:type',
+    'op' => '==',
+    'value' => 'commerce_order',
+  ))
     ->action('entity_query', array(
-      'type' => 'user',
-      'property' => 'mail',
-      'value:select' => 'commerce-order:mail',
-      'limit' => 1,
-      'entity_fetched:label' => t('Fetched account'),
-      'entity_fetched:var' => 'account_fetched',
-    ));
+    'type' => 'user',
+    'property' => 'mail',
+    'value:select' => 'commerce-order:mail',
+    'limit' => 1,
+    'entity_fetched:label' => t('Fetched account'),
+    'entity_fetched:var' => 'account_fetched',
+  ));
 
   // Build a loop that updates the order and customer profile uids with the uid
   // from the fetched user account.
@@ -95,9 +95,9 @@ function commerce_checkout_default_rules_configuration() {
     'item:type' => 'user',
   ))
     ->action('data_set', array(
-      'data:select' => 'commerce-order:uid',
-      'value:select' => 'list-item:uid',
-    ));
+    'data:select' => 'commerce-order:uid',
+    'value:select' => 'list-item:uid',
+  ));
 
   // Accommodate any profile types referenced by the order.
   foreach ($customer_profile_entity_info['bundles'] as $type => $data) {
@@ -106,9 +106,9 @@ function commerce_checkout_default_rules_configuration() {
     if (!empty($instance)) {
       $loop
         ->action('data_set', array(
-          'data:select' => 'commerce-order:' . strtr('commerce-customer-' . $type, '_', '-') . ':uid',
-          'value:select' => 'list-item:uid',
-        ));
+        'data:select' => 'commerce-order:' . strtr('commerce-customer-' . $type, '_', '-') . ':uid',
+        'value:select' => 'list-item:uid',
+      ));
     }
   }
 
@@ -135,43 +135,43 @@ function commerce_checkout_default_rules_configuration() {
   $rule
     ->event('commerce_checkout_complete')
     ->condition('data_is', array(
-      'data:select' => 'commerce-order:uid',
-      'op' => '==',
-      'value' => '0',
-    ))
+    'data:select' => 'commerce-order:uid',
+    'op' => '==',
+    'value' => '0',
+  ))
     ->condition(rules_condition('entity_exists', array(
-      'type' => 'user',
-      'property' => 'mail',
-      'value:select' => 'commerce-order:mail',
-    ))->negate())
+    'type' => 'user',
+    'property' => 'mail',
+    'value:select' => 'commerce-order:mail',
+  ))->negate())
     ->condition('data_is', array(
-      'data:select' => 'commerce-order:type',
-      'op' => '==',
-      'value' => 'commerce_order',
-    ))
+    'data:select' => 'commerce-order:type',
+    'op' => '==',
+    'value' => 'commerce_order',
+  ))
     ->action('entity_create', array(
-      'type' => 'user',
-      'param_name:select' => 'commerce-order:mail-username',
-      'param_mail:select' => 'commerce-order:mail',
-      'entity_created:label' => t('Created account'),
-      'entity_created:var' => 'account_created',
-    ))
+    'type' => 'user',
+    'param_name:select' => 'commerce-order:mail-username',
+    'param_mail:select' => 'commerce-order:mail',
+    'entity_created:label' => t('Created account'),
+    'entity_created:var' => 'account_created',
+  ))
     ->action('data_set', array(
-      'data:select' => 'account-created:status',
-      'value' => 1,
-    ))
+    'data:select' => 'account-created:status',
+    'value' => 1,
+  ))
     ->action('entity_save', array(
-      'data:select' => 'account-created',
-      'immediate' => 1,
-    ))
+    'data:select' => 'account-created',
+    'immediate' => 1,
+  ))
     ->action('entity_query', array(
-      'type' => 'user',
-      'property' => 'mail',
-      'value:select' => 'commerce-order:mail',
-      'limit' => 1,
-      'entity_fetched:label' => t('Fetched account'),
-      'entity_fetched:var' => 'account_fetched',
-    ));
+    'type' => 'user',
+    'property' => 'mail',
+    'value:select' => 'commerce-order:mail',
+    'limit' => 1,
+    'entity_fetched:label' => t('Fetched account'),
+    'entity_fetched:var' => 'account_fetched',
+  ));
 
   // Build a loop that send the account notification e-mail and updates the
   // order and customer profile uids with the uid from the fetched user account.
@@ -182,13 +182,13 @@ function commerce_checkout_default_rules_configuration() {
     'item:type' => 'user',
   ))
     ->action('send_account_email', array(
-      'account:select' => 'list-item',
-      'email_type' => 'register_admin_created',
-    ))
+    'account:select' => 'list-item',
+    'email_type' => 'register_admin_created',
+  ))
     ->action('data_set', array(
-      'data:select' => 'commerce-order:uid',
-      'value:select' => 'list-item:uid',
-    ));
+    'data:select' => 'commerce-order:uid',
+    'value:select' => 'list-item:uid',
+  ));
 
   // Accommodate any profile types referenced by the order.
   foreach ($customer_profile_entity_info['bundles'] as $type => $data) {
@@ -197,9 +197,9 @@ function commerce_checkout_default_rules_configuration() {
     if (!empty($instance)) {
       $loop
         ->action('data_set', array(
-          'data:select' => 'commerce-order:' . strtr('commerce-customer-' . $type, '_', '-') . ':uid',
-          'value:select' => 'list-item:uid',
-        ));
+        'data:select' => 'commerce-order:' . strtr('commerce-customer-' . $type, '_', '-') . ':uid',
+        'value:select' => 'list-item:uid',
+      ));
     }
   }
 
@@ -222,11 +222,11 @@ function commerce_checkout_default_rules_configuration() {
   $rule
     ->event('commerce_checkout_complete')
     ->action('mail', array(
-      'to:select' => 'commerce-order:mail',
-      'subject' => t('Order [commerce-order:order-number] at [site:name]'),
-      'message' => t("Thanks for your order [commerce-order:order-number] at [site:name].\n\nIf this is your first order with us, you will receive a separate e-mail with login instructions. You can view your order history with us at any time by logging into our website at:\n\n[site:login-url]\n\nYou can find the status of your current order at:\n\n[commerce-order:customer-url]\n\nPlease contact us if you have any questions about your order."),
-      'from' => '',
-    ));
+    'to:select' => 'commerce-order:mail',
+    'subject' => t('Order [commerce-order:order-number] at [site:name]'),
+    'message' => t("Thanks for your order [commerce-order:order-number] at [site:name].\n\nIf this is your first order with us, you will receive a separate e-mail with login instructions. You can view your order history with us at any time by logging into our website at:\n\n[site:login-url]\n\nYou can find the status of your current order at:\n\n[commerce-order:customer-url]\n\nPlease contact us if you have any questions about your order."),
+    'from' => '',
+  ));
 
   // Adjust the weight so this rule executes after the order has been updated to
   // the proper user account.

@@ -1,0 +1,6 @@
+[CommerceCheckoutTestProcess]
+name = Checkout process
+description = Test the entire checkout process. Including anonymous checkout and checkout panes functionality.
+group = Drupal Commerce
+file = tests/commerce_checkout.test
+

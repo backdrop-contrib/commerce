@@ -20,3 +20,11 @@ function commerce_customer_profile_dummy_type_commerce_customer_profile_type_inf
 
   return $profile_types;
 }
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_customer_profile_dummy_type_autoload_info() {
+  return array(
+  );
+}

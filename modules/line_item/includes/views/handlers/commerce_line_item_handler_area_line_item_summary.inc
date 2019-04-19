@@ -18,9 +18,9 @@ class commerce_line_item_handler_area_line_item_summary extends views_handler_ar
 
     // Define an option to control the info displayed in the summary.
     $options['info'] = array('default' => array(
-      'quantity' => 1,
-      'total' => 1,
-    ));
+        'quantity' => 1,
+        'total' => 1,
+      ));
 
     return $options;
   }
@@ -49,7 +49,10 @@ class commerce_line_item_handler_area_line_item_summary extends views_handler_ar
       '#type' => 'checkboxes',
       '#title' => t('Info'),
       '#description' => t('Select what info you want displayed in the summary.'),
-      '#options' => array('quantity' => t('Item quantity'), 'total' => t('Total')),
+      '#options' => array(
+        'quantity' => t('Item quantity'),
+        'total' => t('Total'),
+      ),
       '#default_value' => $this->options['info'],
     );
   }

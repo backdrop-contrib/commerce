@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_checkout module.
+ *
+ */
+
 
 /**
  * Implements hook_schema().
@@ -75,69 +81,45 @@ function commerce_checkout_schema() {
  * Implements hook_uninstall().
  */
 function commerce_checkout_uninstall() {
-  variable_del('commerce_checkout_completion_message');
+  config_clear('commerce_checkout.settings', 'commerce_checkout_completion_message');
+}
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_checkout_update_7100() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_checkout_update_7101() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_checkout_update_7102() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_checkout_update_7103(&$sandbox) { }
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_checkout_update_last_removed() {
+  return 7103;
 }
 
 /**
- * Delete the deprecated checkout completion message override variable.
+ * Implements hook_update_N().
  */
-function commerce_checkout_update_7100() {
-  variable_del('commerce_checkout_completion_message_override');
+function commerce_checkout_update_1000() {
+  $config = config('commerce_checkout.settings');
+  $config->set('commerce_checkout_run_update_7103', update_variable_get('commerce_checkout_run_update_7103', 'FALSE'));
+  $config->set('commerce_checkout_completion_message', update_variable_get('commerce_checkout_completion_message', 'dynamic value in file /commerce/modules/checkout/includes/commerce_checkout.checkout_pane.inc line 95'));
+  $config->set('enable_commerce_checkout_order_created_date_update', update_variable_get('enable_commerce_checkout_order_created_date_update', 'FALSE'));
+  update_variable_del('commerce_checkout_run_update_7103');
+  update_variable_del('commerce_checkout_completion_message');
+  update_variable_del('enable_commerce_checkout_order_created_date_update');
 }
 
 /**
- * Disable the new local action to simulate checkout completion for an order.
+ * Implements hook_install().
  */
-function commerce_checkout_update_7101() {
-  variable_set('commerce_order_simulate_checkout_link', FALSE);
-  return t('A new local action link on order edit forms for simulating checkout completion for an order has been disabled by default; enable it on the order settings form if desired.');
-}
-
-/**
- * Disable the new checkout completion rule that updates order created dates to
- * the checkout completion date.
- */
-function commerce_checkout_update_7102() {
-  variable_set('enable_commerce_checkout_order_created_date_update', FALSE);
-  return t('A new core checkout completion rule has been added that updates order creation timestamps to the time of checkout completion. It has been disabled by default to not interfere with existing order workflows, but you may enable it in your checkout settings if desired.');
-}
-
-/**
- * If the variable commerce_checkout_run_update_7103 is set, change all user
- * names that contain @ and look like an e-mail address to prevent the
- * disclosure of e-mail addresses to non-trusted users. Refer to the release
- * notes for Commerce 1.10 for instructions on how to set this variable.
- * Otherwise you are responsible to clean the usernames on your own.
- */
-function commerce_checkout_update_7103(&$sandbox) {
-  // Every site may not want to disrupt all their account usernames with this
-  // update, so we require sites to set a variable explicitly to run the update.
-  // Sites that do not must do their own handling of the security issue.
-  if (!variable_get('commerce_checkout_run_update_7103', FALSE)) {
-    return t('Skipped update 7103 because the variable commerce_checkout_run_update_7103 is not set. You must make sure usernames are not valid e-mail adresses on your own.');
-  }
-
-  if (!isset($sandbox['progress'])) {
-    $sandbox['progress'] = 0;
-    $sandbox['max'] = db_query("SELECT COUNT(*) FROM {users} WHERE name LIKE '%@%'")->fetchField();
-  }
-
-  // Update 100 user names at a time.
-  $names = db_query("SELECT uid, name FROM {users} WHERE name LIKE '%@%' LIMIT 100")->fetchAllKeyed();
-  $order = new stdClass();
-  foreach ($names as $uid => $name) {
-    $order->mail = $name;
-    $new_name = commerce_order_get_properties($order, array(), 'mail_username');
-    db_update('users')
-      ->fields(array(
-        'name' => $new_name,
-      ))
-      ->condition('uid', $uid)
-      ->execute();
-    $sandbox['progress']++;
-  }
-
-  $sandbox['#finished'] = empty($names) ? 1 : ($sandbox['progress'] / $sandbox['max']);
-
-  return t('Usernames resembling e-mail addresses have been cleaned.');
+function commerce_checkout_install() {
+  // Dynamically generated variable data was detected.
+  // /commerce/modules/checkout/includes/commerce_checkout.checkout_pane.inc line 95
 }

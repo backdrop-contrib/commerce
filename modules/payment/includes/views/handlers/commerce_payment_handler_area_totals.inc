@@ -103,8 +103,8 @@ class commerce_payment_handler_area_totals extends views_handler_area {
     if ($this->options['add_payment_form'] && $order) {
       module_load_include('inc', 'commerce_payment', 'includes/commerce_payment.forms');
 
-      $content = drupal_get_form('commerce_payment_order_transaction_add_form', $order);
-      $form = drupal_render($content);
+      $content = backdrop_get_form('commerce_payment_order_transaction_add_form', $order);
+      $form = backdrop_render($content);
     }
     else {
       $form = NULL;

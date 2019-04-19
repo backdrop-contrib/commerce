@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_product_pricing module.
+ *
+ */
+
 
 /**
  * Deletes Product Pricing data on uninstallation.
@@ -9,18 +15,34 @@
  * Implements hook_uninstall().
  */
 function commerce_product_pricing_uninstall() {
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_del('commerce_product_sell_price_pre_calculation');
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_del('commerce_product_sell_price_pre_calculation_rules_bypass');
 }
 
-/**
- * Provide a default language value for pre-calculated prices if necessary.
- */
-function commerce_product_pricing_update_7100() {
-  db_update('commerce_calculated_price')
-    ->fields(array('language' => LANGUAGE_NONE))
-    ->condition('language', '')
-    ->execute();
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_product_pricing_update_7100() { }
 
-  return t('Pre-calculated price records have been updated.');
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_product_pricing_update_last_removed() {
+  return 7100;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_product_pricing_update_1000() {
+  $config = config('commerce_product_pricing.settings');
+  $config->set('commerce_product_pricing_callback', update_variable_get('commerce_product_pricing_callback', 'rules_invoke_event'));
+  update_variable_del('commerce_product_pricing_callback');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_product_pricing_install() {
+  // Dynamically generated variable data was detected.
 }

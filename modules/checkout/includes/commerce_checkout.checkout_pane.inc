@@ -55,7 +55,7 @@ function commerce_checkout_review_pane_checkout_form($form, &$form_state, $check
 function commerce_checkout_completion_message_pane_settings_form($checkout_pane) {
   $form = array();
 
-  $message = variable_get('commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+  $message = config_get('commerce_checkout.settings', 'commerce_checkout_completion_message');
 
   $form['container'] = array(
     '#type' => 'container',
@@ -92,7 +92,7 @@ function commerce_checkout_completion_message_pane_checkout_form($form, &$form_s
   $pane_form = array();
 
   // Load the completion message.
-  $message = variable_get('commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+  $message = config_get('commerce_checkout.settings', 'commerce_checkout_completion_message');
 
   // Perform translation.
   $message['value'] = commerce_i18n_string('commerce:checkout:complete:message', $message['value'], array('sanitize' => FALSE));

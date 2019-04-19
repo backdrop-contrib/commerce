@@ -21,8 +21,8 @@ function commerce_cart_default_rules_configuration() {
   $rule
     ->event('commerce_cart_product_add')
     ->action('commerce_cart_add_to_cart_message', array(
-      'commerce_product:select' => 'commerce-product',
-    ));
+    'commerce_product:select' => 'commerce-product',
+  ));
 
   $rules['commerce_cart_add_to_cart_message'] = $rule;
 
@@ -38,9 +38,9 @@ function commerce_cart_default_rules_configuration() {
     ->event('commerce_cart_product_add')
     ->event('commerce_cart_product_remove')
     ->action('commerce_order_update_status', array(
-      'commerce_order:select' => 'commerce-order',
-      'order_status' => 'cart',
-    ));
+    'commerce_order:select' => 'commerce-order',
+    'order_status' => 'cart',
+  ));
 
   $rules['commerce_cart_order_status_reset'] = $rule;
 
@@ -56,20 +56,20 @@ function commerce_cart_default_rules_configuration() {
   $rule
     ->event('commerce_product_calculate_sell_price')
     ->condition(rules_condition('data_is_empty', array(
-      'data:select' => 'commerce-line-item:line-item-id',
-    ))->negate())
+    'data:select' => 'commerce-line-item:line-item-id',
+  ))->negate())
     ->condition('entity_has_field', array(
-      'entity:select' => 'commerce-line-item',
-      'field' => 'commerce_product',
-    ))
+    'entity:select' => 'commerce-line-item',
+    'field' => 'commerce_product',
+  ))
     ->condition('data_is', array(
-      'data:select' => 'commerce-line-item:commerce-product:status',
-      'op' => '==',
-      'value' => '0',
-    ))
+    'data:select' => 'commerce-line-item:commerce-product:status',
+    'op' => '==',
+    'value' => '0',
+  ))
     ->action('data_set', array(
-      'data:select' => 'commerce-line-item:commerce-unit-price:amount',
-    ));
+    'data:select' => 'commerce-line-item:commerce-unit-price:amount',
+  ));
 
   $rules['commerce_cart_unset_disabled_products'] = $rule;
 

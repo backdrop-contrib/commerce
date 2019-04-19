@@ -9,7 +9,7 @@
  * Menu callback: display an overview of available types.
  */
 function commerce_customer_ui_customer_profile_types_overview() {
-  drupal_add_css(drupal_get_path('module', 'commerce_customer') . '/theme/commerce_customer.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_customer') . '/theme/commerce_customer.admin.css');
 
   $header = array(
     t('Name'),
@@ -37,7 +37,7 @@ function commerce_customer_ui_customer_profile_types_overview() {
       array(
         'data' => t('There are no customer profile types defined on this site.'),
         'colspan' => 2,
-      )
+      ),
     );
   }
 
@@ -54,6 +54,7 @@ function commerce_customer_ui_customer_profile_types_overview() {
  * @ingroup themeable
  */
 function theme_customer_profile_type_admin_overview($variables) {
+  // TODO: Should this theme customer_profile_type_admin_overview be declared in hook_theme()?
   $profile_type = $variables['profile_type'];
 
   $output = check_plain($profile_type['name']);

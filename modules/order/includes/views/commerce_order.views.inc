@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Export Drupal Commerce orders to Views.
+ * Export Backdrop Commerce orders to Views.
  */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
  */
 function commerce_order_views_data() {
   $data = array();
@@ -29,7 +29,7 @@ function commerce_order_views_data() {
 
   // Expose the order ID.
   $data['commerce_order']['order_id'] = array(
-    'title' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'title' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'help' => t('The unique internal identifier of the order.'),
     'field' => array(
       'handler' => 'commerce_order_handler_field_order',
@@ -51,7 +51,7 @@ function commerce_order_views_data() {
 
   // Expose the order number.
   $data['commerce_order']['order_number'] = array(
-    'title' => t('Order number', array(), array('context' => 'a drupal commerce order')),
+    'title' => t('Order number', array(), array('context' => 'a backdrop commerce order')),
     'help' => t('The unique customer facing number of the order.'),
     'field' => array(
       'handler' => 'commerce_order_handler_field_order',
@@ -70,7 +70,7 @@ function commerce_order_views_data() {
 
   // Expose the order type.
   $data['commerce_order']['type'] = array(
-    'title' => t('Order type', array(), array('context' => 'a drupal commerce order')),
+    'title' => t('Order type', array(), array('context' => 'a backdrop commerce order')),
     'help' => t('The type of the order.'),
     'field' => array(
       'handler' => 'commerce_order_handler_field_order_type',
@@ -447,7 +447,7 @@ function commerce_order_views_data() {
     'commerce_order' => array(
       'left_field' => 'revision_id',
       'field' => 'revision_id',
-    )
+    ),
   );
 
   $data['commerce_order_revision']['table']['default_relationship'] = array(
@@ -459,7 +459,7 @@ function commerce_order_views_data() {
 
   // Expose the revision order ID
   $data['commerce_order_revision']['order_id'] = array(
-    'title' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'title' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'help' => t('The unique internal identifier of the order.'),
     'field' => array(
       'handler' => 'commerce_order_handler_field_order',
@@ -480,7 +480,7 @@ function commerce_order_views_data() {
 
   // Expose the revision order number
   $data['commerce_order_revision']['order_number'] = array(
-    'title' => t('Order number', array(), array('context' => 'a drupal commerce order')),
+    'title' => t('Order number', array(), array('context' => 'a backdrop commerce order')),
     'help' => t('The customer facing number of the order.'),
     'field' => array(
       'handler' => 'commerce_order_handler_field_order',
@@ -578,7 +578,7 @@ function commerce_order_views_data() {
     'help' => t('The log message entered when the revision was created.'),
     'field' => array(
       'handler' => 'views_handler_field_xss',
-     ),
+    ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
@@ -604,7 +604,7 @@ function commerce_order_views_data() {
 }
 
 /**
- * Implements hook_views_plugins
+ * Implements hook_views_plugins().
  */
 function commerce_order_views_plugins() {
   return array(

@@ -17,7 +17,7 @@ function commerce_payment_dummy_offsite_commerce_payment_method_info() {
     'description' => t('Dummy Payment Method with offsite enabled'),
     'terminal' => FALSE,
     'offsite' => TRUE,
-  	'active' => TRUE,
+    'active' => TRUE,
   );
 
   return $payment_methods;
@@ -34,4 +34,12 @@ function commerce_payment_dummy_offsite_redirect_form($form, &$form_state, $orde
   );
 
   return $form;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_payment_dummy_offsite_autoload_info() {
+  return array(
+  );
 }

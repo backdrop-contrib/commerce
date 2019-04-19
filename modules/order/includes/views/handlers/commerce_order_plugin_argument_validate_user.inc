@@ -34,7 +34,7 @@ class commerce_order_plugin_argument_validate_user extends views_plugin_argument
 
     // If the argument is an integer and we're accepting the argument as a uid...
     if (is_numeric($argument) && $argument == (int) $argument && $argument > 0
-      && ($type == 'uid' || $type == 'either')) {
+       && ($type == 'uid' || $type == 'either')) {
       // Build the where clause for the argument.
       $where = 'uid = :argument';
 

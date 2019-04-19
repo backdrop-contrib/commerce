@@ -21,6 +21,6 @@ class commerce_order_handler_field_order_link_edit extends commerce_order_handle
     }
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('edit');
-    return l($text, 'admin/commerce/orders/' . $order->order_id . '/edit', array('query' => drupal_get_destination()));
+    return l($text, 'admin/commerce/orders/' . $order->order_id . '/edit', array('query' => backdrop_get_destination()));
   }
 }

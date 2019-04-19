@@ -11,7 +11,7 @@
  */
 function commerce_order_token_info() {
   $type = array(
-    'name' => t('Orders', array(), array('context' => 'a drupal commerce order')),
+    'name' => t('Orders', array(), array('context' => 'a backdrop commerce order')),
     'description' => t('Tokens related to individual orders.'),
     'needs-data' => 'commerce-order',
   );
@@ -20,11 +20,11 @@ function commerce_order_token_info() {
   $order = array();
 
   $order['order-id'] = array(
-    'name' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'name' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'description' => t('The unique numeric ID of the order.'),
   );
   $order['order-number'] = array(
-    'name' => t('Order number', array(), array('context' => 'a drupal commerce order')),
+    'name' => t('Order number', array(), array('context' => 'a backdrop commerce order')),
     'description' => t('The order number displayed to the customer.'),
   );
   $order['revision-id'] = array(
@@ -156,10 +156,10 @@ function commerce_order_tokens($type, $tokens, array $data = array(), array $opt
           break;
 
 
-        // Default values for the chained tokens handled below.
+          // Default values for the chained tokens handled below.
         case 'owner':
           if ($order->uid == 0) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = config_get('system.performance', 'anonymous');
           }
           else {
             $account = user_load($order->uid);

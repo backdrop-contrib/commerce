@@ -9,7 +9,7 @@
  * Menu callback: display an overview of available types.
  */
 function commerce_product_ui_types_overview() {
-  drupal_add_css(drupal_get_path('module', 'commerce_product') . '/theme/commerce_product.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_product') . '/theme/commerce_product.admin.css');
 
   $header = array(
     t('Name'),
@@ -37,7 +37,7 @@ function commerce_product_ui_types_overview() {
       array(
         'data' => t('There are no product types yet. <a href="@link">Add product type</a>.', array('@link' => url('admin/commerce/products/types/add'))),
         'colspan' => 2,
-      )
+      ),
     );
   }
 
@@ -54,6 +54,7 @@ function commerce_product_ui_types_overview() {
  * @ingroup themeable
  */
 function theme_product_type_admin_overview($variables) {
+  // TODO: Should this theme product_type_admin_overview be declared in hook_theme()?
   $product_type = $variables['product_type'];
 
   $output = check_plain($product_type['name']);
@@ -88,7 +89,7 @@ function commerce_product_ui_product_type_form_wrapper($type) {
   // Include the forms file from the Product module.
   module_load_include('inc', 'commerce_product_ui', 'includes/commerce_product_ui.forms');
 
-  return drupal_get_form('commerce_product_ui_product_type_form', $product_type);
+  return backdrop_get_form('commerce_product_ui_product_type_form', $product_type);
 }
 
 /**
@@ -123,7 +124,7 @@ function commerce_product_ui_product_type_delete_form_wrapper($type) {
   $count = $query->execute();
 
   if ($count > 0) {
-    drupal_set_title(t('Cannot delete the %name product type', array('%name' => $product_type['name'])), PASS_THROUGH);
+    backdrop_set_title(t('Cannot delete the %name product type', array('%name' => $product_type['name'])), PASS_THROUGH);
 
     return format_plural($count,
       'There is 1 product of this type. It cannot be deleted.',
@@ -134,5 +135,5 @@ function commerce_product_ui_product_type_delete_form_wrapper($type) {
   // Include the forms file from the Product module.
   module_load_include('inc', 'commerce_product_ui', 'includes/commerce_product_ui.forms');
 
-  return drupal_get_form('commerce_product_ui_product_type_delete_form', $product_type);
+  return backdrop_get_form('commerce_product_ui_product_type_delete_form', $product_type);
 }

@@ -9,7 +9,7 @@
  * The controller class for line items contains methods for the line item CRUD
  * operations. The load method is inherited from the default controller.
  */
-class CommerceLineItemEntityController extends DrupalCommerceEntityController {
+class CommerceLineItemEntityController extends BackdropCommerceEntityController {
 
   /**
    * Create a default line item.

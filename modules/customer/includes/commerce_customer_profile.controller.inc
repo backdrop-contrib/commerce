@@ -9,7 +9,7 @@
  * The controller class for customer profiles contains methods for the profile
  * CRUD operations. The load method is inherited from the default controller.
  */
-class CommerceCustomerProfileEntityController extends DrupalCommerceEntityController {
+class CommerceCustomerProfileEntityController extends BackdropCommerceEntityController {
 
   /**
    * Create a default customer profile.
@@ -97,7 +97,7 @@ class CommerceCustomerProfileEntityController extends DrupalCommerceEntityContro
       elseif (empty($profile->log)) {
         // If we are updating an existing profile without adding a new revision,
         // we need to make sure $profile->log is unset whenever it is empty. As
-        // long as $profile->log is unset, drupal_write_record() will not attempt
+        // long as $profile->log is unset, backdrop_write_record() will not attempt
         // to update the existing database column when re-saving the revision.
         unset($profile->log);
       }

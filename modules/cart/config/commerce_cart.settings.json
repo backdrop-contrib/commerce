@@ -1,0 +1,8 @@
+{
+    "_config_name": "commerce_cart.settings",
+    "commerce_cart_provider": "COMMERCE_CART_DEFAULT_PROVIDER",
+    "commerce_cart_refresh_mode": "COMMERCE_CART_REFRESH_OWNER_ONLY",
+    "commerce_cart_refresh_frequency": "COMMERCE_CART_REFRESH_DEFAULT_FREQUENCY",
+    "commerce_cart_refresh_force": "TRUE",
+    "commerce_cart_contents_pane_view": "commerce_cart_summary|default"
+}

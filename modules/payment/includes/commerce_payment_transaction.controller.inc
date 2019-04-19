@@ -10,7 +10,7 @@
  * transaction CRUD operations. The load method is inherited from the default
  * controller.
  */
-class CommercePaymentTransactionEntityController extends DrupalCommerceEntityController {
+class CommercePaymentTransactionEntityController extends BackdropCommerceEntityController {
 
   /**
    * Create a default payment transaction.
@@ -109,7 +109,7 @@ class CommercePaymentTransactionEntityController extends DrupalCommerceEntityCon
       elseif (empty($transaction->log)) {
         // If we are updating an existing transaction without adding a new
         // revision, we need to make sure $transaction->log is unset whenever it
-        // is empty.  As long as $transaction->log is unset, drupal_write_record()
+        // is empty.  As long as $transaction->log is unset, backdrop_write_record()
         // will not attempt to update the existing database column when re-saving
         // the revision.
         unset($transaction->log);
@@ -176,7 +176,7 @@ class CommercePaymentTransactionEntityController extends DrupalCommerceEntityCon
 
     $rows = array(
       array(t('Transaction ID'), $transaction->transaction_id),
-      array(t('Order', array(), array('context' => 'a drupal commerce order')), l(check_plain($order->order_number), 'admin/commerce/orders/' . $order->order_id)),
+      array(t('Order', array(), array('context' => 'a backdrop commerce order')), l(check_plain($order->order_number), 'admin/commerce/orders/' . $order->order_id)),
       array(t('Payment method'), $title),
       array(t('Remote ID'), check_plain($transaction->remote_id)),
       array(t('Message'), t($transaction->message, $transaction->message_variables)),
@@ -199,7 +199,7 @@ class CommercePaymentTransactionEntityController extends DrupalCommerceEntityCon
     $content['transaction_table'] = array(
       '#attached' => array(
         'css' => array(
-          drupal_get_path('module', 'commerce_payment') . '/theme/commerce_payment.admin.css',
+          backdrop_get_path('module', 'commerce_payment') . '/theme/commerce_payment.admin.css',
         ),
       ),
       '#markup' => theme('table', array('rows' => $rows, 'attributes' => array('class' => array('payment-transaction')))),

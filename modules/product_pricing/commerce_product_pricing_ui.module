@@ -35,10 +35,10 @@ function commerce_product_pricing_ui_menu() {
   $items['admin/commerce/config/product-pricing/rules/add'] = array(
     'title' => 'Add a pricing rule',
     'description' => 'Adds an additional sell price calculation rule configuration.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_product_pricing_ui_add_pricing_rule_form', 'admin/commerce/config/product-pricing/rules'),
     'access arguments' => array('administer product pricing'),
-    'file path' => drupal_get_path('module', 'rules_admin'),
+    'file path' => backdrop_get_path('module', 'rules_admin'),
     'file' => 'rules_admin.inc',
   );
 
@@ -47,7 +47,7 @@ function commerce_product_pricing_ui_menu() {
   $items['admin/commerce/config/product-pricing/pre-calculation'] = array(
     'title' => 'Pre-calculation',
     'description' => 'Configure the price pre-calculation settings.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_product_pre_calculation_settings_form'),
     'access arguments' => array('administer product pricing'),
     'weight' => 5,
@@ -108,6 +108,7 @@ function commerce_product_pricing_ui_help($path, $arg) {
  */
 function commerce_product_pricing_ui_commerce_product_valid_pre_calculation_rule($rule) {
   // If the given rule has been marked to be bypassed, return FALSE.
+  // TODO This variable was probably removed in Backdrop without replacement.
   $bypass = variable_get('commerce_product_sell_price_pre_calculation_rules_bypass', array());
 
   if (!empty($bypass[$rule->name]) && $bypass[$rule->name] == $rule->name) {

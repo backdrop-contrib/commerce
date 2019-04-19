@@ -100,7 +100,7 @@ class commerce_order_handler_area_order_total extends views_handler_area {
                 $field['#title'] = $this->options['label_custom'];
               }
 
-              return '<div class="commerce-order-handler-area-order-total">' . drupal_render($field) . '</div>';
+              return '<div class="commerce-order-handler-area-order-total">' . backdrop_render($field) . '</div>';
             }
           }
         }

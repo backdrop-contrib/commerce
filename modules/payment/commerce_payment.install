@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Installation functions for Drupal Commerce Payment.
+ * Installation functions for Backdrop Commerce Payment.
  */
 
 
@@ -130,12 +130,11 @@ function commerce_payment_schema() {
       'payment_method' => array('payment_method'),
       'uid' => array('uid'),
       'order_id' => array('order_id'),
-      'remote_id' => array('remote_id'),
     ),
     'foreign keys' => array(
       'payment_transaction_revision' => array(
         'table' => 'commerce_payment_transaction_revision',
-        'columns'=> array('revision_id' => 'revision_id'),
+        'columns' => array('revision_id' => 'revision_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -143,7 +142,7 @@ function commerce_payment_schema() {
       ),
       'order_id' => array(
         'table' => 'commerce_order',
-        'columns'=> array('order_id' => 'order_id'),
+        'columns' => array('order_id' => 'order_id'),
       ),
     ),
   );
@@ -235,13 +234,12 @@ function commerce_payment_schema() {
     ),
     'indexes' => array(
       'transaction_id' => array('transaction_id'),
-      'remote_id' => array('remote_id'),
     ),
     'primary key' => array('revision_id'),
     'foreign keys' => array(
       'payment_transaction' => array(
         'table' => 'commerce_payment_transaction',
-        'columns'=> array('transaction_id' => 'transaction_id'),
+        'columns' => array('transaction_id' => 'transaction_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -253,75 +251,39 @@ function commerce_payment_schema() {
   return $schema;
 }
 
-/**
- * Add an index to the commerce_payment_transaction_revision table on transaction_id.
- */
-function commerce_payment_update_7100() {
-  if (db_index_exists('commerce_payment_transaction_revision', 'transaction_id')) {
-    db_drop_index('commerce_payment_transaction_revision', 'transaction_id');
-  }
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_payment_update_7100() { }
 
-  db_add_index('commerce_payment_transaction_revision', 'transaction_id', array('transaction_id'));
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_payment_update_7101() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_payment_update_7102() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_payment_update_7103() { }
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_payment_update_last_removed() {
+  return 7103;
 }
 
 /**
- * Add indexes to the commerce_payment_transaction table on order_id and uid.
+ * Implements hook_update_N().
  */
-function commerce_payment_update_7101() {
-  if (db_index_exists('commerce_payment_transaction', 'uid')) {
-    db_drop_index('commerce_payment_transaction', 'uid');
-  }
-
-  if (db_index_exists('commerce_payment_transaction', 'order_id')) {
-    db_drop_index('commerce_payment_transaction', 'order_id');
-  }
-
-  db_add_index('commerce_payment_transaction', 'uid', array('uid'));
-  db_add_index('commerce_payment_transaction', 'order_id', array('order_id'));
-
-  return t('Database indexes added to the uid and order_id columns of the commerce_payment_transaction table.');
+function commerce_payment_update_1000() {
+  $config = config('commerce_payment.settings');
+  $config->set('commerce_payment_pane_require_method', update_variable_get('commerce_payment_pane_require_method', 'FALSE'));
+  $config->set('commerce_payment_pane_no_method_behavior', update_variable_get('commerce_payment_pane_no_method_behavior', 'COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE'));
+  update_variable_del('commerce_payment_pane_require_method');
+  update_variable_del('commerce_payment_pane_no_method_behavior');
 }
 
 /**
- * Allow NULL values for revision_id on {commerce_payment_transaction} to avoid locking issues.
+ * Implements hook_install().
  */
-function commerce_payment_update_7102() {
-  db_change_field('commerce_payment_transaction', 'revision_id', 'revision_id', array(
-    'description' => 'The current {commerce_payment_transaction_revision}.revision_id version identifier.',
-    'type' => 'int',
-    'unsigned' => TRUE,
-    'not null' => FALSE,
-  ));
-
-  return t('Schema for the commerce_payment_transaction table has been updated.');
-}
-
-/**
- * Disable the payment checkout pane on the review form to preserve prior behavior.
- */
-function commerce_payment_update_7103() {
-  if (!db_table_exists('commerce_checkout_pane')) {
-    return t('Checkout module is disabled, skipping update.');
-  }
-
-  db_update('commerce_checkout_pane')
-    ->fields(array('review' => 0))
-    ->condition('pane_id', 'commerce_payment')
-    ->execute();
-
-  return t('Payment checkout pane disabled on the review form; enable it if desired in the Payment checkout pane settings form.');
-}
-
-/**
- * Add an index on the remote_id field for payment transaction revisions.
- */
-function commerce_payment_update_7104() {
-  if (!db_index_exists('commerce_payment_transaction', 'remote_id')) {
-    db_add_index('commerce_payment_transaction', 'remote_id', array('remote_id'));
-  }
-  if (!db_index_exists('commerce_payment_transaction_revision', 'remote_id')) {
-    db_add_index('commerce_payment_transaction_revision', 'remote_id', array('remote_id'));
-  }
-
-  return t('Schema for the commerce_payment_transaction and commerce_payment_transaction_revision tables have been updated.');
+function commerce_payment_install() {
+  // Dynamically generated variable data was detected.
 }

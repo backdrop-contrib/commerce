@@ -12,7 +12,7 @@
 function commerce_order_entity_info() {
   $return = array(
     'commerce_order' => array(
-      'label' => t('Commerce Order', array(), array('context' => 'a drupal commerce order')),
+      'label' => t('Commerce Order', array(), array('context' => 'a backdrop commerce order')),
       'controller class' => 'CommerceOrderEntityController',
       'locking mode' => 'pessimistic',
       'base table' => 'commerce_order',
@@ -31,7 +31,7 @@ function commerce_order_entity_info() {
       ),
       'bundles' => array(
         'commerce_order' => array(
-          'label' => t('Order', array(), array('context' => 'a drupal commerce order')),
+          'label' => t('Order', array(), array('context' => 'a backdrop commerce order')),
         ),
       ),
       'view modes' => array(
@@ -55,7 +55,6 @@ function commerce_order_entity_info() {
         'singular' => t('order'),
         'plural' => t('orders'),
       ),
-
       // // Prevent Redirect alteration of the order form.
       'redirect' => FALSE,
     ),
@@ -265,6 +264,7 @@ function commerce_order_configure_customer_profile_type($customer_profile_type, 
 
     field_create_instance($instance);
 
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('commerce_customer_profile_' . $customer_profile_type . '_field', $field_name);
   }
 }
@@ -306,7 +306,7 @@ function commerce_order_configure_order_fields($modules = NULL) {
 function commerce_order_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_order') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_order') . '/includes/views',
   );
 }
 
@@ -599,7 +599,7 @@ function commerce_order_form_commerce_customer_customer_profile_form_alter(&$for
  */
 function commerce_order_customer_profile_form_submit($form, &$form_state) {
   if ($form_state['original_profile_id'] != $form_state['customer_profile']->profile_id) {
-    drupal_set_message(t('The customer profile was cloned to prevent data loss on orders referencing the profile. It is now profile @profile_id.', array('@profile_id' => $form_state['customer_profile']->profile_id)));
+    backdrop_set_message(t('The customer profile was cloned to prevent data loss on orders referencing the profile. It is now profile @profile_id.', array('@profile_id' => $form_state['customer_profile']->profile_id)));
   }
 }
 
@@ -660,7 +660,7 @@ function commerce_order_form_commerce_customer_customer_profile_delete_form_alte
  * Returns the name of the specified order type or all names keyed by type if no
  *   type is specified.
  *
- * For Drupal Commerce 1.0, the decision was made to support order types at the
+ * For Backdrop Commerce 1.0, the decision was made to support order types at the
  * database level but not to introduce their complexity into the UI. To that end
  * order "types" (i.e. bundles) may only be defined by altering the entity info.
  *
@@ -1000,16 +1000,16 @@ function commerce_order_validate_number_unique($order_number, $order_id) {
  */
 function commerce_order_states() {
   // First check the static cache for an order states array.
-  $order_states = &drupal_static(__FUNCTION__);
+  $order_states = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the statuses now.
   if (empty($order_states)) {
     $order_states = module_invoke_all('commerce_order_state_info');
 
     // Give other modules a chance to alter the order states.
-    drupal_alter('commerce_order_state_info', $order_states);
+    backdrop_alter('commerce_order_state_info', $order_states);
 
-    uasort($order_states, 'drupal_sort_weight');
+    uasort($order_states, 'backdrop_sort_weight');
   }
 
   return $order_states;
@@ -1019,7 +1019,7 @@ function commerce_order_states() {
  * Resets the cached list of order states.
  */
 function commerce_order_states_reset() {
-  $order_states = &drupal_static('commerce_order_states');
+  $order_states = &backdrop_static('commerce_order_states');
   $order_states = NULL;
 }
 
@@ -1096,7 +1096,7 @@ function commerce_order_state_options_list() {
  */
 function commerce_order_statuses($conditions = array()) {
   // First check the static cache for an order statuses array.
-  $order_statuses = &drupal_static(__FUNCTION__);
+  $order_statuses = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the statuses now.
   if (!isset($order_statuses)) {
@@ -1116,9 +1116,9 @@ function commerce_order_statuses($conditions = array()) {
     }
 
     // Give other modules a chance to alter the order statuses.
-    drupal_alter('commerce_order_status_info', $order_statuses);
+    backdrop_alter('commerce_order_status_info', $order_statuses);
 
-    uasort($order_statuses, 'drupal_sort_weight');
+    uasort($order_statuses, 'backdrop_sort_weight');
   }
 
   // Apply conditions to the returned statuses if specified.
@@ -1154,7 +1154,7 @@ function commerce_order_statuses($conditions = array()) {
  * Resets the cached list of order statuses.
  */
 function commerce_order_statuses_reset() {
-  $order_statuses = &drupal_static('commerce_order_statuses');
+  $order_statuses = &backdrop_static('commerce_order_statuses');
   $order_statuses = NULL;
 }
 
@@ -1228,6 +1228,16 @@ function commerce_order_status_options_list() {
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function commerce_order_config_info() {
+  $prefixes['commerce_order.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
+  );
+}
+
+/**
  * Updates the status of an order to the specified status.
  *
  * While there is no explicit Rules event or hook devoted to an order status
@@ -1256,7 +1266,7 @@ function commerce_order_status_options_list() {
  */
 function commerce_order_status_update($order, $name, $skip_save = FALSE, $revision = NULL, $log = '') {
   if (!isset($revision)) {
-    $revision = variable_get('commerce_order_auto_revision', TRUE);
+    $revision = config_get('commerce_order.settings', 'commerce_order_auto_revision');
   }
 
   // Do not update the status if the order is already at it.
@@ -1399,7 +1409,7 @@ function commerce_order_get_properties($order, array $options, $name) {
       // @see user_validate_name()
       $username = preg_replace('/[^\x{80}-\x{F7} a-z0-9@_.\'-]/i', '-', trim($order->mail));
       // Remove the e-mail host name so usernames are not valid email adresses.
-      // Since usernames are considered public information in Drupal, we must
+      // Since usernames are considered public information in Backdrop, we must
       // not leak e-mail adresses through usernames.
       $username = preg_replace('/@.*$/', '', $username);
       $username = substr($username, 0, USERNAME_MAX_LENGTH);
@@ -1511,4 +1521,30 @@ function commerce_order_preprocess_views_view(&$vars) {
  */
 function commerce_order_mail_validate($element, &$form_state, $form) {
   form_set_value($element, trim($element['#value']), $form_state);
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_order_autoload_info() {
+  return array(
+    'CommerceOrderEntityController' => 'includes/commerce_order.controller.inc',
+    'commerce_order_handler_area_empty_text' => 'includes/views/handlers/commerce_order_handler_area_empty_text.inc',
+    'commerce_order_handler_area_order_total' => 'includes/views/handlers/commerce_order_handler_area_order_total.inc',
+    'commerce_order_handler_argument_order_order_id' => 'includes/views/handlers/commerce_order_handler_argument_order_order_id.inc',
+    'commerce_order_handler_field_order' => 'includes/views/handlers/commerce_order_handler_field_order.inc',
+    'commerce_order_handler_field_order_link' => 'includes/views/handlers/commerce_order_handler_field_order_link.inc',
+    'commerce_order_handler_field_order_link_delete' => 'includes/views/handlers/commerce_order_handler_field_order_link_delete.inc',
+    'commerce_order_handler_field_order_link_edit' => 'includes/views/handlers/commerce_order_handler_field_order_link_edit.inc',
+    'commerce_order_handler_field_order_mail' => 'includes/views/handlers/commerce_order_handler_field_order_mail.inc',
+    'commerce_order_handler_field_order_operations' => 'includes/views/handlers/commerce_order_handler_field_order_operations.inc',
+    'commerce_order_handler_field_order_state' => 'includes/views/handlers/commerce_order_handler_field_order_state.inc',
+    'commerce_order_handler_field_order_status' => 'includes/views/handlers/commerce_order_handler_field_order_status.inc',
+    'commerce_order_handler_field_order_type' => 'includes/views/handlers/commerce_order_handler_field_order_type.inc',
+    'commerce_order_handler_filter_order_state' => 'includes/views/handlers/commerce_order_handler_filter_order_state.inc',
+    'commerce_order_handler_filter_order_status' => 'includes/views/handlers/commerce_order_handler_filter_order_status.inc',
+    'commerce_order_handler_filter_order_type' => 'includes/views/handlers/commerce_order_handler_filter_order_type.inc',
+    'commerce_order_plugin_argument_validate_user' => 'includes/views/handlers/commerce_order_plugin_argument_validate_user.inc',
+    'commerce_order_ui_handler_area_view_order_form' => 'includes/views/handlers/commerce_order_ui_handler_area_view_order_form.inc',
+  );
 }

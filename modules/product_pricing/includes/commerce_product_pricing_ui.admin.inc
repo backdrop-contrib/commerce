@@ -15,7 +15,11 @@ function commerce_product_pricing_ui_sell_price_rules() {
 
   $content['enabled']['title']['#markup'] = '<h3>' . t('Enabled sell price calculation rules') . '</h3>';
 
-  $conditions = array('event' => 'commerce_product_calculate_sell_price', 'plugin' => 'reaction rule', 'active' => TRUE);
+  $conditions = array(
+    'event' => 'commerce_product_calculate_sell_price',
+    'plugin' => 'reaction rule',
+    'active' => TRUE,
+  );
   $content['enabled']['rules'] = RulesPluginUI::overviewTable($conditions, $options);
   $content['enabled']['rules']['#empty'] = t('There are no active sell price calculation rules.');
 
@@ -48,6 +52,7 @@ function commerce_product_pre_calculation_settings_form($form, &$form_state) {
 
   // If there are rows in the table or price pre-calculation is enabled, show
   // the management fieldset with its action buttons.
+  // TODO This variable was probably removed in Backdrop without replacement.
   if ($count > 0 || variable_get('commerce_product_sell_price_pre_calculation', 'disabled') != 'disabled') {
     // Build a description for the fieldset indicating how many rows are in the
     // table and when they were last processed.
@@ -80,8 +85,9 @@ function commerce_product_pre_calculation_settings_form($form, &$form_state) {
     }
   }
   // Retrieve the current Product pricing callback currently configured.
-  $product_pricing_callback = variable_get('commerce_product_pricing_callback', 'rules_invoke_event');
+  $product_pricing_callback = config_get('commerce_product_pricing.settings', 'commerce_product_pricing_callback');
 
+  // TODO This variable was probably removed in Backdrop without replacement.
   $form['commerce_product_sell_price_pre_calculation'] = array(
     '#type' => 'radios',
     '#title' => t('Sell price pre-calculation method'),
@@ -89,7 +95,6 @@ function commerce_product_pre_calculation_settings_form($form, &$form_state) {
     '#options' => array(
       'disabled' => t('Disabled'),
       'manual_batch' => t('Manual batch calculation'),
-
       // TODO: Support automated re-calculation when Rules or Products that have
       // pre-calculated prices are updated.
       // 'automated_batch' => t('Manual batch pre-calculation with automated updates'),
@@ -99,6 +104,7 @@ function commerce_product_pre_calculation_settings_form($form, &$form_state) {
   );
 
   // If price pre-calculation is enabled, prevent options to bypass rules.
+  // TODO This variable was probably removed in Backdrop without replacement.
   if (variable_get('commerce_product_sell_price_pre_calculation', 'disabled') != 'disabled') {
     // Build an options list of all valid pricing rules and keep track of those
     // that are invalid.
@@ -117,6 +123,7 @@ function commerce_product_pre_calculation_settings_form($form, &$form_state) {
     }
 
     if (!empty($options)) {
+      // TODO This variable was probably removed in Backdrop without replacement.
       $form['commerce_product_sell_price_pre_calculation_rules_bypass'] = array(
         '#type' => 'checkboxes',
         '#title' => t('Bypass these rules when pre-calculating sell prices'),
@@ -178,19 +185,21 @@ function commerce_product_pre_calculation_settings_form_submit($form, &$form_sta
   $values = $form_state['values'];
 
   // Save variables on the form regardless of the button pressed.
+  // TODO This variable was probably removed in Backdrop without replacement.
   variable_set('commerce_product_sell_price_pre_calculation', $values['commerce_product_sell_price_pre_calculation']);
 
   if (!empty($values['commerce_product_sell_price_pre_calculation_rules_bypass'])) {
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('commerce_product_sell_price_pre_calculation_rules_bypass', $values['commerce_product_sell_price_pre_calculation_rules_bypass']);
   }
   if (!empty($values['commerce_product_pricing_callback'])) {
     if ($values['commerce_product_sell_price_pre_calculation'] == 'disabled') {
-      variable_set('commerce_product_pricing_callback', $values['commerce_product_pricing_callback']);
+      config_set('commerce_product_pricing.settings', 'commerce_product_pricing_callback', $values['commerce_product_pricing_callback']);
     }
     else {
       // If the pre calculation is enabled, revert the Product pricing process
       // to default.
-      variable_del('commerce_product_pricing_callback');
+      config_clear('commerce_product_pricing.settings', 'commerce_product_pricing_callback');
     }
   }
 

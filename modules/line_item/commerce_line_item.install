@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_line_item module.
+ *
+ */
+
 
 /**
  * Implements hook_schema().
@@ -70,7 +76,7 @@ function commerce_line_item_schema() {
     'foreign keys' => array(
       'order_id' => array(
         'table' => 'commerce_order',
-        'columns'=> array('order_id' => 'order_id'),
+        'columns' => array('order_id' => 'order_id'),
       ),
     ),
   );
@@ -117,25 +123,8 @@ function commerce_line_item_uninstall() {
   commerce_delete_fields('commerce_line_item_reference');
 }
 
-/**
- * Update Rules using unit price manipulation actions to set a default value for
- * the rounding mode to use on the updated unit price amount.
- */
-function commerce_line_item_update_7000() {
-  drupal_flush_all_caches();
-
-  // Loop over all defined Rules configurations.
-  foreach (rules_config_load_multiple(FALSE) as $rule) {
-    if ($rule instanceof RulesContainerPlugin) {
-      _commerce_line_item_update_rule_container_round_mode($rule);
-    }
-    else {
-      _commerce_line_item_update_rule_round_mode($rule);
-    }
-  }
-
-  return t('Rules updated to set a default rounding mode actions that manipulate unit prices.');
-}
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_line_item_update_7000() { }
 
 /**
  * Iterates over a container's children to recursively find non-container
@@ -176,24 +165,5 @@ function _commerce_line_item_update_rule_round_mode($rule) {
   }
 }
 
-/**
- * Add indexes to the commerce_line_item table on order_id and type.
- */
-function commerce_line_item_update_7101() {
-  if (db_index_exists('commerce_line_item', 'order_id')) {
-    db_drop_index('commerce_line_item', 'order_id');
-  }
-
-  if (db_index_exists('commerce_line_item', 'type')) {
-    db_drop_index('commerce_line_item', 'type');
-  }
-
-  if (db_index_exists('commerce_line_item', 'line_item_type')) {
-    db_drop_index('commerce_line_item', 'line_item_type');
-  }
-
-  db_add_index('commerce_line_item', 'order_id', array('order_id'));
-  db_add_index('commerce_line_item', 'line_item_type', array('type'));
-
-  return t('Database indexes added to the order_id and type columns of the commerce_line_item table.');
-}
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_line_item_update_7101() { }

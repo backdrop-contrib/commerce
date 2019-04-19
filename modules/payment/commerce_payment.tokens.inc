@@ -10,7 +10,7 @@
  */
 function commerce_payment_token_info() {
   $type = array(
-    'name' => t('Payment transactions', array(), array('context' => 'a drupal commerce payment transaction')),
+    'name' => t('Payment transactions', array(), array('context' => 'a backdrop commerce payment transaction')),
     'description' => t('Tokens related to payment transactions.'),
     'needs-data' => 'commerce-payment-transaction',
   );
@@ -209,7 +209,7 @@ function commerce_payment_tokens($type, $tokens, array $data = array(), array $o
           $replacements[$original] = $sanitize ? check_plain($transaction->remote_status) : $transaction->remote_status;
           break;
 
-        // Default values for the chained tokens handled below.
+          // Default values for the chained tokens handled below.
         case 'order':
           if ($transaction->order_id) {
             $order = commerce_order_load($transaction->order_id);
@@ -219,7 +219,7 @@ function commerce_payment_tokens($type, $tokens, array $data = array(), array $o
 
         case 'creator':
           if ($transaction->uid == 0) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = config_get('system.performance', 'anonymous');
           }
           else {
             $creator = user_load($transaction->uid);

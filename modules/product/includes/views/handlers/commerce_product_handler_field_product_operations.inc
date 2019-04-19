@@ -43,11 +43,11 @@ class commerce_product_handler_field_product_operations extends views_handler_fi
       // Add the destination to the links if specified.
       if ($this->options['add_destination']) {
         foreach ($links as $id => &$link) {
-          $link['query'] = drupal_get_destination();
+          $link['query'] = backdrop_get_destination();
         }
       }
 
-      drupal_add_css(drupal_get_path('module', 'commerce_product') . '/theme/commerce_product.admin.css');
+      backdrop_add_css(backdrop_get_path('module', 'commerce_product') . '/theme/commerce_product.admin.css');
       return theme('links', array('links' => $links, 'attributes' => array('class' => array('links', 'inline', 'operations'))));
     }
   }

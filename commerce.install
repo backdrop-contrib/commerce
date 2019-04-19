@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce module.
+ *
+ */
+
 
 /**
  * Performs database updates and uninstallation cleanup for the Commerce module.
@@ -20,41 +26,21 @@ function commerce_install() {
     ->fields(array('weight' => $weight + 1))
     ->condition('name', 'commerce', '=')
     ->execute();
+  // Dynamically generated variable data was detected on the following lines.
+  // /commerce/includes/commerce_ui.admin.inc line 45
 }
 
 /**
  * Implements hook_uninstall().
  */
 function commerce_uninstall() {
-  variable_del('commerce_default_currency');
-  variable_del('commerce_enabled_currencies');
-  variable_del('commerce_password_length');
+  config_clear('commerce.settings', 'commerce_default_currency');
+  config_clear('commerce.settings', 'commerce_enabled_currencies');
+  config_clear('commerce.settings', 'commerce_password_length');
 }
 
-/**
- * Update Rules to use new prefixed parameter names and tokens.
- */
-function commerce_update_7100() {
-  drupal_flush_all_caches();
-
-  // Loop over all defined Rules configurations.
-  foreach (rules_config_load_multiple(FALSE) as $rule) {
-    $events = FALSE;
-
-    if ($rule instanceof RulesContainerPlugin) {
-      if ($rule instanceof RulesReactionRule) {
-        $events = $rule->events();
-      }
-
-      _commerce_update_rule_container_tokens($rule, $events);
-    }
-    else {
-      _commerce_update_rule_tokens($rule, $events);
-    }
-  }
-
-  return t('Rules updated to match new parameter names and token names.');
-}
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_update_7100() { }
 
 /**
  * Iterates over a container's children to recursively find non-container
@@ -298,28 +284,26 @@ function commerce_update_rename_permissions($map) {
   }
 }
 
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_update_7101() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_update_7102() { }
+
 /**
- * Clear the cache of currency data so it can be rebuilt to include new
- * formatting parameters.
+ * Implements hook_update_last_removed().
  */
-function commerce_update_7101() {
-  cache_clear_all('commerce_currencies:', 'cache', TRUE);
-  return t('Cached currency data has been deleted and will be rebuilt to include new formatting parameters.');
+function commerce_update_last_removed() {
+  return 7102;
 }
 
 /**
- * Give commerce.module a higher weight than field.module so we can use
- * hook_system_info_alter() to remove the dependencies it adds.
+ * Implements hook_update_N().
  */
-function commerce_update_7102() {
-  $weight = db_select('system', 's')
-              ->fields('s', array('weight'))
-              ->condition('name', 'field', '=')
-              ->execute()
-              ->fetchField();
-  db_update('system')
-    ->fields(array('weight' => $weight + 1))
-    ->condition('name', 'commerce', '=')
-    ->execute();
-  return t('The module weight for Commerce has been increased.');
+function commerce_update_1000() {
+  $config = config('commerce.settings');
+  $config->set('commerce_default_currency', update_variable_get('commerce_default_currency', 'USD'));
+  $config->set('commerce_enabled_currencies', update_variable_get('commerce_enabled_currencies', 'dynamic value in file /commerce/includes/commerce_ui.admin.inc line 45'));
+  update_variable_del('commerce_default_currency');
+  update_variable_del('commerce_enabled_currencies');
 }

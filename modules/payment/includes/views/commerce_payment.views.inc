@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Export Drupal Commerce Payment transactions to Views.
+ * Export Backdrop Commerce Payment transactions to Views.
  */
 
 /**
- * Implements hook_views_data()
+ * Implements hook_views_data().
  */
 function commerce_payment_views_data() {
   $data = array();
@@ -72,7 +72,7 @@ function commerce_payment_views_data() {
 
   // Expose the order ID.
   $data['commerce_payment_transaction']['order_id'] = array(
-    'title' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'title' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'help' => t('The unique internal identifier of the associated order.'),
     'field' => array(
       'handler' => 'commerce_order_handler_field_order',
@@ -94,7 +94,7 @@ function commerce_payment_views_data() {
       'handler' => 'views_handler_relationship',
       'base' => 'commerce_order',
       'field' => 'order_id',
-      'label' => t('Order', array(), array('context' => 'a drupal commerce order')),
+      'label' => t('Order', array(), array('context' => 'a backdrop commerce order')),
     ),
   );
 
@@ -399,7 +399,7 @@ function commerce_payment_views_data() {
 
 
 /**
- * Implements hook_views_data_alter()
+ * Implements hook_views_data_alter().
  */
 function commerce_payment_views_data_alter(&$data) {
   $data['commerce_order']['balance']['field'] = array(
@@ -421,20 +421,20 @@ function commerce_payment_views_data_alter(&$data) {
     'base' => 'commerce_payment_transaction',
     'base field' => 'order_id',
     'field' => 'order_id',
-    'label' => t('Transaction', array(), array('context' => 'a drupal commerce transaction')),
+    'label' => t('Transaction', array(), array('context' => 'a backdrop commerce transaction')),
   );
 
   $data['commerce_order']['payment_transaction_representative']['relationship'] = array(
     'title' => t('Representative payment transaction'),
-    'label'  => t('Representative payment transaction'),
+    'label' => t('Representative payment transaction'),
     'help' => t('Obtains a single representative payment transaction for each order, according to a chosen sort criterion.'),
     'handler' => 'views_handler_relationship_groupwise_max',
     'relationship field' => 'order_id',
     'outer field' => 'commerce_order.order_id',
     'argument table' => 'commerce_order',
-    'argument field' =>  'order_id',
-    'base'   => 'commerce_payment_transaction',
-    'field'  => 'transaction_id',
+    'argument field' => 'order_id',
+    'base' => 'commerce_payment_transaction',
+    'field' => 'transaction_id',
   );
 
 }

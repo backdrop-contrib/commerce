@@ -56,7 +56,7 @@ function commerce_hook_info() {
 /**
  * Implements hook_system_info_alter().
  *
- * Drupal's Field module doesn't allow field type providing modules to be
+ * Backdrop's Field module doesn't allow field type providing modules to be
  * disabled while fields and instances of those types exist in the system.
  * See http://drupal.org/node/943772 for further explanation.
  *
@@ -232,6 +232,7 @@ function commerce_delete_instances($entity_type, $bundle = NULL) {
   if (!empty($bundle)) {
     $params['bundle'] = $bundle;
     // Delete this bundle's field bundle settings.
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_del('field_bundle_settings_' . $entity_type . '__' . $bundle);
   }
   else {
@@ -313,14 +314,14 @@ function _commerce_unrequire_element(&$value, $key) {
  * @return
  *   A string containing the form's callback function name.
  *
- * @see drupal_retrieve_form()
+ * @see backdrop_retrieve_form()
  * @see hook_forms()
  */
 function commerce_form_callback($form_id, $form_state) {
   // If a function named after the $form_id does not exist, look for its
   // definition in hook_forms().
   if (!function_exists($form_id)) {
-    $forms = &drupal_static(__FUNCTION__);
+    $forms = &backdrop_static(__FUNCTION__);
 
     // In cases where many form_ids need to share a central builder function,
     // such as the product editing form, modules can implement hook_forms(). It
@@ -381,7 +382,7 @@ function commerce_embed_view($view_id, $display_id, $arguments, $override_url = 
  * store's physical address and contact information.
  */
 function commerce_email_from() {
-  return variable_get('site_mail', ini_get('sendmail_from'));
+  return config_get('system.performance', 'site_mail');
 }
 
 /**
@@ -419,7 +420,7 @@ function commerce_i18n_object($type, $object, $options = array()) {
  */
 function commerce_i18n_string_info() {
   $groups['commerce'] = array(
-    'title' => t('Drupal Commerce'),
+    'title' => t('Backdrop Commerce'),
     'format' => TRUE,
   );
   return $groups;
@@ -467,11 +468,21 @@ function commerce_i18n_string($name, $default, $options = array()) {
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function commerce_config_info() {
+  $prefixes['commerce.settings'] = array(
+    'label' => t('Module name settings'),
+    'group' => t('Configuration'),
+  );
+}
+
+/**
  * Returns the currency code of the site's default currency.
  */
 function commerce_default_currency() {
-  $currency_code = variable_get('commerce_default_currency', 'USD');
-  drupal_alter('commerce_default_currency', $currency_code);
+  $currency_code = config_get('commerce.settings', 'commerce_default_currency');
+  backdrop_alter('commerce_default_currency', $currency_code);
   return $currency_code;
 }
 
@@ -509,7 +520,7 @@ function commerce_currency_load($currency_code = NULL) {
  */
 function commerce_currencies($enabled = FALSE, $reset = FALSE) {
   global $language;
-  $currencies = &drupal_static(__FUNCTION__);
+  $currencies = &backdrop_static(__FUNCTION__);
 
   // If there is no static cache for currencies yet or a reset was specified...
   if (!isset($currencies) || $reset) {
@@ -529,9 +540,9 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
         'thousands_separator' => ',',
         'decimal_separator' => '.',
         'symbol_placement' => 'hidden',
-        'symbol_spacer' => "\xC2\xA0",
+        'symbol_spacer' => ' ',
         'code_placement' => 'after',
-        'code_spacer' => "\xC2\xA0",
+        'code_spacer' => ' ',
         'format_callback' => '',
         'conversion_callback' => '',
         'conversion_rate' => 1,
@@ -540,7 +551,7 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
       // Include the currency file and invoke the currency info hook.
       module_load_include('inc', 'commerce', 'includes/commerce.currency');
       $currencies['all'] = module_invoke_all('commerce_currency_info');
-      drupal_alter('commerce_currency_info', $currencies['all'], $language->language);
+      backdrop_alter('commerce_currency_info', $currencies['all'], $language->language);
 
       // Add default values if they don't exist.
       foreach ($currencies['all'] as $currency_code => $currency) {
@@ -555,8 +566,8 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
 
     // Form an array of enabled currencies based on the variable set by the
     // checkboxes element on the currency settings form.
-    $enabled_currencies = array_diff(array_values(variable_get('commerce_enabled_currencies', array('USD' => 'USD'))), array(0));
-    $currencies['enabled'] = array_intersect_key($currencies['all'], drupal_map_assoc($enabled_currencies));
+    $enabled_currencies = array_diff(array_values(config_get('commerce.settings', 'commerce_enabled_currencies')), array(0));
+    $currencies['enabled'] = array_intersect_key($currencies['all'], backdrop_map_assoc($enabled_currencies));
   }
 
   return $enabled ? $currencies['enabled'] : $currencies['all'];
@@ -569,7 +580,7 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
  *   Boolean indicating whether or not to include only enabled currencies.
  */
 function commerce_currency_get_code($enabled = FALSE) {
-  return drupal_map_assoc(array_keys(commerce_currencies($enabled)));
+  return backdrop_map_assoc(array_keys(commerce_currencies($enabled)));
 }
 
 /**
@@ -652,19 +663,11 @@ function commerce_currency_format($amount, $currency_code, $object = NULL, $conv
     '@symbol_after' => $currency['symbol_placement'] == 'after' ? $currency['symbol'] : '',
     '@code_after' => $currency['code_placement'] == 'after' ? $currency['code'] : '',
     '@negative' => $amount < 0 ? '-' : '',
-    '@symbol_spacer_before' => $currency['symbol_placement'] == 'before' ? $currency['symbol_spacer'] : '',
-    '@symbol_spacer' => $currency['symbol_placement'] == 'after' ? $currency['symbol_spacer'] : '',
+    '@symbol_spacer' => $currency['symbol_spacer'],
     '@code_spacer' => $currency['code_spacer'],
   );
 
-  // We switched from using trim() after token replacement because it couldn't
-  // adequately trim non-breaking space characters while supporting certain
-  // currency symbols like the GBP £. preg_replace() it slightly slower, but
-  // the difference should be negligible on almost any site. If it becomes an
-  // issue, we can introduce an if statement here to use trim() by default and
-  // maintain an array of currency codes for which we must use preg_replace().
-  $pattern = '/^\s+|\s+$/us';
-  return preg_replace($pattern, '', t('@code_before@code_spacer@negative@symbol_before@symbol_spacer_before@price@symbol_spacer@symbol_after@code_spacer@code_after', $replacements));
+  return trim(t('@code_before@code_spacer@negative@symbol_before@price@symbol_spacer@symbol_after@code_spacer@code_after', $replacements));
 }
 
 /**
@@ -824,7 +827,7 @@ function commerce_months() {
  * Returns an array of numerical comparison operators for use in Rules.
  */
 function commerce_numeric_comparison_operator_options_list() {
-  return drupal_map_assoc(array('<', '<=', '=', '>=', '>'));
+  return backdrop_map_assoc(array('<', '<=', '=', '>=', '>'));
 }
 
 /**
@@ -873,8 +876,8 @@ function commerce_round($round_mode, $number) {
       $number = round($number);
       break;
 
-    // PHP < 5.3.0 does not support rounding the half down, so we compare the
-    // decimal value and use floor() / ceil() directly.
+      // PHP < 5.3.0 does not support rounding the half down, so we compare the
+      // decimal value and use floor() / ceil() directly.
     case COMMERCE_ROUND_HALF_DOWN:
       if ($decimal <= .5) {
         $number = floor($number);
@@ -884,8 +887,8 @@ function commerce_round($round_mode, $number) {
       }
       break;
 
-    // PHP < 5.3.0 does not support rounding to the nearest even number, so we
-    // determine it ourselves if the decimal is .5.
+      // PHP < 5.3.0 does not support rounding to the nearest even number, so we
+      // determine it ourselves if the decimal is .5.
     case COMMERCE_ROUND_HALF_EVEN:
       if ($decimal == .5) {
         if (floor($number) % 2 == 0) {
@@ -900,8 +903,8 @@ function commerce_round($round_mode, $number) {
       }
       break;
 
-    // PHP < 5.3.0 does not support rounding to the nearest odd number, so we
-    // determine it ourselves if the decimal is .5.
+      // PHP < 5.3.0 does not support rounding to the nearest odd number, so we
+      // determine it ourselves if the decimal is .5.
     case COMMERCE_ROUND_HALF_ODD:
       if ($decimal == .5) {
         if (floor($number) % 2 == 0) {
@@ -966,7 +969,7 @@ function commerce_simplexml_add_children(&$simplexml_element, $child_data) {
 }
 
 /**
- * Generic access control for Drupal Commerce entities.
+ * Generic access control for Backdrop Commerce entities.
  *
  * @param $op
  *   The operation being performed. One of 'view', 'update', 'create' or
@@ -1141,7 +1144,7 @@ function commerce_entity_access_permissions($entity_type) {
 }
 
 /**
- * Generic implementation of hook_query_alter() for Drupal Commerce entities.
+ * Generic implementation of hook_query_alter() for Backdrop Commerce entities.
  */
 function commerce_entity_access_query_alter($query, $entity_type, $base_table = NULL, $account = NULL) {
   global $user;
@@ -1153,7 +1156,7 @@ function commerce_entity_access_query_alter($query, $entity_type, $base_table = 
 
   // Do not apply any conditions for users with administrative view permissions.
   if (user_access('administer ' . $entity_type . ' entities', $account)
-    || user_access('view any ' . $entity_type . ' entity', $account)) {
+      || user_access('view any ' . $entity_type . ' entity', $account)) {
     return;
   }
 
@@ -1245,18 +1248,18 @@ function commerce_entity_access_query_alter($query, $entity_type, $base_table = 
   // data for the current query.
   $hooks = array(
     'commerce_entity_access_condition_' . $entity_type,
-    'commerce_entity_access_condition'
+    'commerce_entity_access_condition',
   );
 
   $context = array(
     'account' => $account,
     'entity' => $query->getMetaData('entity'),
     'entity_type' => $entity_type,
-    'base_table' => $base_table
+    'base_table' => $base_table,
   );
 
   // Allow other modules to add conditions to the array as necessary.
-  drupal_alter($hooks, $conditions, $context);
+  backdrop_alter($hooks, $conditions, $context);
 
   // If we have more than one condition based on the entity access permissions
   // and any hook implementations...
@@ -1285,7 +1288,7 @@ function commerce_options_list_limit_validate($element, &$form_state, $form) {
  *
  * The Entity API theme function template_preprocess_entity() assumes the
  * presence of a path key in an entity URI array, which isn't strictly required
- * by Drupal core itself. Until this is fixed in the Entity API code, we replace
+ * by Backdrop core itself. Until this is fixed in the Entity API code, we replace
  * that function with a Commerce specific version.
  *
  * @todo Remove when https://drupal.org/node/1934382 is resolved.
@@ -1293,7 +1296,7 @@ function commerce_options_list_limit_validate($element, &$form_state, $form) {
 function commerce_theme_registry_alter(&$theme_registry) {
   // Copy the preprocess functions array and remove the core preprocess function
   // along with the Entity API's and this module's.
-  $functions = drupal_map_assoc($theme_registry['entity']['preprocess functions']);
+  $functions = backdrop_map_assoc($theme_registry['entity']['preprocess functions']);
   unset($functions['template_preprocess'], $functions['template_preprocess_entity'], $functions['commerce_preprocess_entity']);
 
   // Unshift the core preprocess function and the Commerce specific function so
@@ -1345,12 +1348,12 @@ function commerce_preprocess_entity(&$variables) {
   list(, , $bundle) = entity_extract_ids($entity_type, $entity);
 
   // Gather css classes.
-  $variables['classes_array'][] = drupal_html_class('entity-' . $entity_type);
-  $variables['classes_array'][] = drupal_html_class($entity_type . '-' . $bundle);
+  $variables['classes_array'][] = backdrop_html_class('entity-' . $entity_type);
+  $variables['classes_array'][] = backdrop_html_class($entity_type . '-' . $bundle);
 
   // Add RDF type and about URI.
   if (module_exists('rdf')) {
-    $variables['attributes_array']['about'] = empty($uri['path']) ? NULL: url($uri['path']);
+    $variables['attributes_array']['about'] = empty($uri['path']) ? NULL : url($uri['path']);
     $variables['attributes_array']['typeof'] = empty($entity->rdf_mapping['rdftype']) ? NULL : $entity->rdf_mapping['rdftype'];
   }
 
@@ -1377,4 +1380,14 @@ function commerce_preprocess_entity(&$variables) {
  */
 function commerce_entity_is_unchanged($entity_type, $entity) {
   return entity_get_controller($entity_type)->isUnchanged($entity);
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_autoload_info() {
+  return array(
+    'BackdropCommerceEntityControllerInterface' => 'includes/commerce.controller.inc',
+    'BackdropCommerceEntityController' => 'includes/commerce.controller.inc',
+  );
 }

@@ -1,17 +1,17 @@
 (function($) {
 
-Drupal.behaviors.customerFieldsetSummaries = {
+Backdrop.behaviors.customerFieldsetSummaries = {
   attach: function (context, settings) {
-    $('fieldset#edit-user', context).drupalSetSummary(function (context) {
-      var name = $('#edit-name').val() || Drupal.settings.anonymous;
+    $('fieldset#edit-user', context).backdropSetSummary(function (context) {
+      var name = $('#edit-name').val() || Backdrop.settings.anonymous;
 
-      return Drupal.t('Owned by @name', { '@name': name });
+      return Backdrop.t('Owned by @name', { '@name': name });
     });
 
-    $('fieldset#edit-profile-status', context).drupalSetSummary(function (context) {
+    $('fieldset#edit-profile-status', context).backdropSetSummary(function (context) {
       return ($('input[@name=status]:checked').val() == 0) ?
-        Drupal.t('Disabled') :
-        Drupal.t('Active');
+        Backdrop.t('Disabled') :
+        Backdrop.t('Active');
     });
   }
 };

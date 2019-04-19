@@ -1,0 +1,6 @@
+{
+    "_config_name": "commerce_checkout.settings",
+    "commerce_checkout_run_update_7103": "FALSE",
+    "commerce_checkout_completion_message": "dynamic value in file /commerce/modules/checkout/includes/commerce_checkout.checkout_pane.inc line 95",
+    "enable_commerce_checkout_order_created_date_update": "FALSE"
+}

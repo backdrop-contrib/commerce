@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Credit-card helper functions for Drupal commerce.
+ * Credit-card helper functions for Backdrop commerce.
  */
 
 /**
@@ -49,7 +49,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
   $form['credit_card'] = array(
     '#tree' => TRUE,
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'commerce_payment') . '/theme/commerce_payment.theme.css'),
+      'css' => array(backdrop_get_path('module', 'commerce_payment') . '/theme/commerce_payment.theme.css'),
     ),
   );
 
@@ -58,7 +58,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
     $form['credit_card']['type'] = array(
       '#type' => 'select',
       '#title' => t('Card type'),
-      '#options' => array_intersect_key(commerce_payment_credit_card_types(), drupal_map_assoc((array) $fields['type'])),
+      '#options' => array_intersect_key(commerce_payment_credit_card_types(), backdrop_map_assoc((array) $fields['type'])),
       '#default_value' => $default['type'],
     );
     $form['credit_card']['valid_types'] = array(
@@ -102,7 +102,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
     $form['credit_card']['start_month'] = array(
       '#type' => 'select',
       '#title' => t('Start date'),
-      '#options' => drupal_map_assoc(array_keys(commerce_months())),
+      '#options' => backdrop_map_assoc(array_keys(commerce_months())),
       '#default_value' => strlen($default['start_month']) == 1 ? '0' . $default['start_month'] : $default['start_month'],
       '#required' => TRUE,
       '#prefix' => '<div class="commerce-credit-card-start">',
@@ -128,7 +128,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
   $form['credit_card']['exp_month'] = array(
     '#type' => 'select',
     '#title' => t('Expiration'),
-    '#options' => drupal_map_assoc(array_keys(commerce_months())),
+    '#options' => backdrop_map_assoc(array_keys(commerce_months())),
     '#default_value' => strlen($default['exp_month']) == 1 ? '0' . $default['exp_month'] : $default['exp_month'],
     '#required' => TRUE,
     '#prefix' => '<div class="commerce-credit-card-expiration">',
@@ -211,14 +211,8 @@ function commerce_payment_credit_card_validate($details, $settings) {
   $prefix = implode('][', $settings['form_parents']) . '][';
   $valid = TRUE;
 
-  // Validate the credit card number.
-  if (!commerce_payment_validate_credit_card_number($details['number'])) {
-    form_set_error($prefix . 'number', t('You have entered an invalid credit card number.'));
-    $valid = FALSE;
-  }
-
-  // Validate the credit card type if the credit card number is valid.
-  elseif (!empty($details['valid_types'])) {
+  // Validate the credit card type.
+  if (!empty($details['valid_types'])) {
     $type = commerce_payment_validate_credit_card_type($details['number'], $details['valid_types']);
 
     if ($type === FALSE) {
@@ -229,6 +223,12 @@ function commerce_payment_credit_card_validate($details, $settings) {
       form_set_error($prefix . 'number', t('You have entered a credit card number that does not match the type selected.'));
       $valid = FALSE;
     }
+  }
+
+  // Validate the credit card number.
+  if (!commerce_payment_validate_credit_card_number($details['number'])) {
+    form_set_error($prefix . 'number', t('You have entered an invalid credit card number.'));
+    $valid = FALSE;
   }
 
   // Validate the expiration date.
@@ -300,11 +300,6 @@ function commerce_payment_validate_credit_card_type($number, array $card_types =
  */
 function commerce_payment_validate_credit_card_number($number) {
   $type = CommercePaymentCreditCard::detectType($number);
-
-  if (!$type || !is_array($type)) {
-    return FALSE;
-  }
-
   return CommercePaymentCreditCard::validateNumber($number, $type);
 }
 
@@ -386,11 +381,6 @@ function commerce_payment_validate_credit_card_issue($issue) {
  */
 function commerce_payment_validate_credit_card_security_code($number, $code) {
   $type = CommercePaymentCreditCard::detectType($number);
-
-  if (!$type || !is_array($type)) {
-    return FALSE;
-  }
-
   return CommercePaymentCreditCard::validateSecurityCode($code, $type);
 }
 
@@ -425,18 +415,28 @@ final class CommercePaymentCreditCard {
         'id' => 'visa',
         'label' => t('Visa'),
         'number_prefixes' => array('4'),
-        'number_lengths' => array(16, 18, 19),
       ),
       'mastercard' => array(
         'id' => 'mastercard',
-        'label' => t('Mastercard'),
+        'label' => t('MasterCard'),
         'number_prefixes' => array('51-55', '222100-272099'),
       ),
       'maestro' => array(
         'id' => 'maestro',
         'label' => t('Maestro'),
         'number_prefixes' => array(
-          '5018', '502', '503', '506', '56', '58', '639', '6220', '67',
+          '5018',
+          '5020',
+          '5038',
+          '5612',
+          '5893',
+          '6304',
+          '6759',
+          '6761',
+          '6762',
+          '6763',
+          '0604',
+          '6390',
         ),
         'number_lengths' => array(12, 13, 14, 15, 16, 17, 18, 19),
       ),
@@ -451,7 +451,7 @@ final class CommercePaymentCreditCard {
         'id' => 'dc',
         'label' => t('Diners Club'),
         'number_prefixes' => array('300-305', '309', '36', '38', '39'),
-        'number_lengths' => array(14, 16, 19),
+        'number_lengths' => array(14),
       ),
       'discover' => array(
         'id' => 'discover',
@@ -463,7 +463,6 @@ final class CommercePaymentCreditCard {
         'id' => 'jcb',
         'label' => t('JCB'),
         'number_prefixes' => array('3528-3589'),
-        'number_lengths' => array(16, 17, 18, 19),
       ),
       'unionpay' => array(
         'id' => 'unionpay',

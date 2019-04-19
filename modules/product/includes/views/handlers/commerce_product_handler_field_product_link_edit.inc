@@ -24,6 +24,6 @@ class commerce_product_handler_field_product_link_edit extends commerce_product_
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('edit');
 
-    return l($text, 'admin/commerce/products/' . $product->product_id . '/edit', array('query' => drupal_get_destination()));
+    return l($text, 'admin/commerce/products/' . $product->product_id . '/edit', array('query' => backdrop_get_destination()));
   }
 }

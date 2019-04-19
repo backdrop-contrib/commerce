@@ -113,7 +113,7 @@ function commerce_product_entity_property_info() {
 }
 
 /**
- * Implements hook_entity_property_info_alter() on top of the Product module.
+ * Implements hook_entity_property_info_alter() on top of the Product module().
  */
 function commerce_product_entity_property_info_alter(&$info) {
   // Move the default price property to the product by default; as it is a

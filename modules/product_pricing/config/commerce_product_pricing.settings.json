@@ -1,0 +1,4 @@
+{
+    "_config_name": "commerce_product_pricing.settings",
+    "commerce_product_pricing_callback": "rules_invoke_event"
+}

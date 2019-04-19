@@ -13,7 +13,10 @@ class commerce_product_handler_field_product_link extends views_handler_field {
   function option_definition() {
     $options = parent::option_definition();
 
-    $options['text'] = array('default' => '', 'translatable' => TRUE);
+    $options['text'] = array(
+      'default' => '',
+      'translatable' => TRUE,
+    );
 
     return $options;
   }

@@ -55,7 +55,7 @@ function commerce_tax_hook_info() {
  */
 function commerce_tax_types() {
   // First check the static cache for a tax types array.
-  $tax_types = &drupal_static(__FUNCTION__);
+  $tax_types = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the types now.
   if (!isset($tax_types)) {
@@ -80,7 +80,7 @@ function commerce_tax_types() {
     }
 
     // Last allow the info to be altered by other modules.
-    drupal_alter('commerce_tax_type_info', $tax_types);
+    backdrop_alter('commerce_tax_type_info', $tax_types);
   }
 
   return $tax_types;
@@ -90,7 +90,7 @@ function commerce_tax_types() {
  * Resets the cached list of tax types.
  */
 function commerce_tax_types_reset() {
-  $tax_types = &drupal_static('commerce_tax_types');
+  $tax_types = &backdrop_static('commerce_tax_types');
   $tax_types = NULL;
 }
 
@@ -146,7 +146,7 @@ function commerce_tax_commerce_price_component_type_info() {
  */
 function commerce_tax_rates() {
   // First check the static cache for a tax rates array.
-  $tax_rates = &drupal_static(__FUNCTION__);
+  $tax_rates = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the types now.
   if (!isset($tax_rates)) {
@@ -174,7 +174,7 @@ function commerce_tax_rates() {
     }
 
     // Last allow the info to be altered by other modules.
-    drupal_alter('commerce_tax_rate_info', $tax_rates);
+    backdrop_alter('commerce_tax_rate_info', $tax_rates);
   }
 
   return $tax_rates;
@@ -184,7 +184,7 @@ function commerce_tax_rates() {
  * Resets the cached list of tax rates.
  */
 function commerce_tax_rates_reset() {
-  $tax_rates = &drupal_static('commerce_tax_rates');
+  $tax_rates = &backdrop_static('commerce_tax_rates');
   $tax_rates = NULL;
 }
 
@@ -352,7 +352,7 @@ function commerce_tax_rate_round_amount($tax_rate, $amount) {
  * Implements hook_field_widget_form_alter().
  *
  * Alter price widgets on the product form to have tax inclusive price entry.
- * This hook was added in Drupal 7.8, so entering prices including VAT will
+ * This hook was added in Backdrop 7.8, so entering prices including VAT will
  * require at least that version.
  */
 function commerce_tax_field_widget_form_alter(&$element, &$form_state, $context) {
@@ -402,7 +402,7 @@ function commerce_tax_field_widget_form_alter(&$element, &$form_state, $context)
         '#empty_value' => '',
         '#suffix' => '<div class="commerce-price-tax-included-clearfix"></div>',
         '#attached' => array(
-          'css' => array(drupal_get_path('module', 'commerce_tax') . '/theme/commerce_tax.theme.css'),
+          'css' => array(backdrop_get_path('module', 'commerce_tax') . '/theme/commerce_tax.theme.css'),
         ),
       );
     }
@@ -638,4 +638,12 @@ function commerce_tax_components($components) {
   }
 
   return $tax_components;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_tax_autoload_info() {
+  return array(
+  );
 }

@@ -98,10 +98,10 @@ function commerce_customer_tokens($type, $tokens, array $data = array(), array $
           $replacements[$original] = commerce_customer_profile_type_get_name($profile->type);
           break;
 
-        // Default values for the chained tokens handled below.
+          // Default values for the chained tokens handled below.
         case 'owner':
           if ($profile->uid == 0) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = config_get('system.performance', 'anonymous');
           }
           else {
             $account = user_load($profile->uid);

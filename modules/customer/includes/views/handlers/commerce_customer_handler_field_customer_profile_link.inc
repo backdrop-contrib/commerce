@@ -13,7 +13,10 @@ class commerce_customer_handler_field_customer_profile_link extends views_handle
   function option_definition() {
     $options = parent::option_definition();
 
-    $options['text'] = array('default' => '', 'translatable' => TRUE);
+    $options['text'] = array(
+      'default' => '',
+      'translatable' => TRUE,
+    );
 
     return $options;
   }

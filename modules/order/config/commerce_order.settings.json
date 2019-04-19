@@ -1,0 +1,7 @@
+{
+    "_config_name": "commerce_order.settings",
+    "commerce_order_auto_revision": "TRUE",
+    "commerce_order_help_text": "",
+    "commerce_order_account_pane_mail_double_entry": "FALSE",
+    "commerce_order_account_pane_auth_display": "FALSE"
+}

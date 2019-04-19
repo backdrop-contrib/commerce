@@ -21,7 +21,7 @@ function commerce_line_item_entity_property_info() {
     'schema field' => 'line_item_id',
   );
   $properties['order_id'] = array(
-    'label' => t('Order ID', array(), array('context' => 'a drupal commerce order')),
+    'label' => t('Order ID', array(), array('context' => 'a backdrop commerce order')),
     'type' => 'integer',
     'description' => t('The unique ID of the order the line item belongs to.'),
     'setter callback' => 'entity_property_verbatim_set',
@@ -30,7 +30,7 @@ function commerce_line_item_entity_property_info() {
     'schema field' => 'order_id',
   );
   $properties['order'] = array(
-    'label' => t('Order', array(), array('context' => 'a drupal commerce order')),
+    'label' => t('Order', array(), array('context' => 'a backdrop commerce order')),
     'type' => 'commerce_order',
     'description' => t('The order the line item belongs to.'),
     'getter callback' => 'commerce_line_item_get_properties',
@@ -92,7 +92,7 @@ function commerce_line_item_entity_property_info() {
 }
 
 /**
- * Implements hook_entity_property_info_alter() on top of the Line Item module.
+ * Implements hook_entity_property_info_alter() on top of the Line Item module().
  */
 function commerce_line_item_entity_property_info_alter(&$info) {
   // Move the price properties to the line item by default; as they are required

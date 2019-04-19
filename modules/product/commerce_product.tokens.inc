@@ -107,10 +107,10 @@ function commerce_product_tokens($type, $tokens, array $data = array(), array $o
           $replacements[$original] = $sanitize ? check_plain($product->title) : $product->title;
           break;
 
-        // Default values for the chained tokens handled below.
+          // Default values for the chained tokens handled below.
         case 'creator':
           if (!$product->uid) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = config_get('system.performance', 'anonymous');
           }
           else {
             $creator = user_load($product->uid);

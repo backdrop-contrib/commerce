@@ -20,7 +20,7 @@ function commerce_checkout_rules_event_info() {
     'variables' => array(
       'commerce_order' => array(
         'type' => 'commerce_order',
-        'label' => t('Completed order', array(), array('context' => 'a drupal commerce order')),
+        'label' => t('Completed order', array(), array('context' => 'a backdrop commerce order')),
       ),
     ),
     'access callback' => 'commerce_order_rules_access',

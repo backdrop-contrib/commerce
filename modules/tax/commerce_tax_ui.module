@@ -45,7 +45,7 @@ function commerce_tax_ui_menu() {
         'title callback' => 'commerce_tax_ui_tax_rate_title',
         'title arguments' => array($name),
         'description' => 'Edit a tax rate.',
-        'page callback' => 'drupal_get_form',
+        'page callback' => 'backdrop_get_form',
         'page arguments' => array('commerce_tax_ui_tax_rate_form', $tax_rate),
         'access arguments' => array('administer taxes'),
         'file' => 'includes/commerce_tax_ui.admin.inc',
@@ -71,7 +71,7 @@ function commerce_tax_ui_menu() {
         'title callback' => 'commerce_tax_ui_tax_rate_title',
         'title arguments' => array($name),
         'description' => 'Redirect to the tax rate list.',
-        'page callback' => 'drupal_goto',
+        'page callback' => 'backdrop_goto',
         'page arguments' => array('admin/commerce/config/taxes/rates'),
         'access arguments' => array('administer taxes'),
       );
@@ -81,7 +81,7 @@ function commerce_tax_ui_menu() {
       $items['admin/commerce/config/taxes/rates/' . $name_arg . '/component'] = array(
         'title' => 'Configure component',
         'description' => 'Add conditions to the Rules component used to apply this tax to products.',
-        'page callback' => 'drupal_goto',
+        'page callback' => 'backdrop_goto',
         'page arguments' => array('admin/config/workflow/rules/components/manage/' . $tax_rate['rules_component']),
         'access arguments' => array('administer rules'),
         'type' => MENU_LOCAL_TASK,
@@ -104,7 +104,7 @@ function commerce_tax_ui_menu() {
   $items['admin/commerce/config/taxes/types/add'] = array(
     'title' => 'Add a tax type',
     'description' => 'Create a new tax type.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_tax_ui_tax_type_form', commerce_tax_ui_tax_type_new()),
     'access arguments' => array('administer taxes'),
     'type' => MENU_LOCAL_ACTION,
@@ -119,7 +119,7 @@ function commerce_tax_ui_menu() {
         'title callback' => 'commerce_tax_ui_tax_type_title',
         'title arguments' => array($name),
         'description' => 'Edit a tax type.',
-        'page callback' => 'drupal_get_form',
+        'page callback' => 'backdrop_get_form',
         'page arguments' => array('commerce_tax_ui_tax_type_form', $tax_type),
         'access arguments' => array('administer taxes'),
         'file' => 'includes/commerce_tax_ui.admin.inc',
@@ -146,7 +146,7 @@ function commerce_tax_ui_menu() {
         'title callback' => 'commerce_tax_ui_tax_type_title',
         'title arguments' => array($name),
         'description' => 'Redirect to the tax type list.',
-        'page callback' => 'drupal_goto',
+        'page callback' => 'backdrop_goto',
         'page arguments' => array('admin/commerce/config/taxes/types'),
         'access arguments' => array('administer taxes'),
       );
@@ -156,7 +156,7 @@ function commerce_tax_ui_menu() {
       $items['admin/commerce/config/taxes/types/' . $name_arg . '/rule'] = array(
         'title' => 'Configure rule',
         'description' => 'Add conditions to the rule used to apply taxes of this type to products.',
-        'page callback' => 'drupal_goto',
+        'page callback' => 'backdrop_goto',
         'page arguments' => array('admin/config/workflow/rules/reaction/manage/' . $tax_type['rule']),
         'access arguments' => array('administer rules'),
         'type' => MENU_LOCAL_TASK,
@@ -280,12 +280,12 @@ function commerce_tax_ui_tax_type_new() {
  *   costly in terms of performance.
  *
  * @return
- *   The return value of the call to drupal_write_record() to save the tax type,
+ *   The return value of the call to backdrop_write_record() to save the tax type,
  *   either FALSE on failure or SAVED_NEW or SAVED_UPDATED indicating the type
  *   of query performed to save the tax type.
  */
 function commerce_tax_ui_tax_type_save($tax_type, $skip_reset = FALSE) {
-  $op = drupal_write_record('commerce_tax_type', $tax_type, empty($tax_type['is_new']) ? 'name' : array());
+  $op = backdrop_write_record('commerce_tax_type', $tax_type, empty($tax_type['is_new']) ? 'name' : array());
   commerce_tax_types_reset();
 
   // If this is a new tax type and the insert did not fail...
@@ -302,6 +302,7 @@ function commerce_tax_ui_tax_type_save($tax_type, $skip_reset = FALSE) {
   if (!$skip_reset) {
     entity_defaults_rebuild();
     rules_clear_cache(TRUE);
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
   }
 
@@ -333,6 +334,7 @@ function commerce_tax_ui_tax_type_delete($name, $skip_reset = FALSE) {
   if (!$skip_reset) {
     entity_defaults_rebuild();
     rules_clear_cache();
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
   }
 
@@ -398,12 +400,12 @@ function commerce_tax_ui_tax_rate_new($type = '') {
  *   costly in terms of performance.
  *
  * @return
- *   The return value of the call to drupal_write_record() to save the tax rate,
+ *   The return value of the call to backdrop_write_record() to save the tax rate,
  *   either FALSE on failure or SAVED_NEW or SAVED_UPDATED indicating the rate
  *   of query performed to save the tax rate.
  */
 function commerce_tax_ui_tax_rate_save($tax_rate, $skip_reset = FALSE) {
-  $op = drupal_write_record('commerce_tax_rate', $tax_rate, empty($tax_rate['is_new']) ? 'name' : array());
+  $op = backdrop_write_record('commerce_tax_rate', $tax_rate, empty($tax_rate['is_new']) ? 'name' : array());
   commerce_tax_rates_reset();
 
   // If this is a new tax rate and the insert did not fail...
@@ -420,6 +422,7 @@ function commerce_tax_ui_tax_rate_save($tax_rate, $skip_reset = FALSE) {
   if (!$skip_reset) {
     entity_defaults_rebuild();
     rules_clear_cache(TRUE);
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
   }
 
@@ -451,9 +454,18 @@ function commerce_tax_ui_tax_rate_delete($name, $skip_reset = FALSE) {
   if (!$skip_reset) {
     entity_defaults_rebuild();
     rules_clear_cache(TRUE);
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
   }
 
   // Notify other modules that this tax rate has been deleted.
   module_invoke_all('commerce_tax_rate_delete', $tax_rate, $skip_reset);
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_tax_ui_autoload_info() {
+  return array(
+  );
 }

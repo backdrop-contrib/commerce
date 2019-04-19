@@ -2,5 +2,7 @@ name = "Commerce payment offsite test"
 description = "Support module for customer payment related testing."
 package = Testing
 version = VERSION
-core = 7.x
+backdrop = 1.x
+type = module
 hidden = TRUE
+

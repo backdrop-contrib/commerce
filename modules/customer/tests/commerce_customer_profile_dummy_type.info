@@ -2,5 +2,7 @@ name = "Commerce Customer Dummy Profile"
 description = Defines a dummy customer profile type for use in certain Customer module tests.
 package = Testing
 version = VERSION
-core = 7.x
+backdrop = 1.x
+type = module
 hidden = TRUE
+

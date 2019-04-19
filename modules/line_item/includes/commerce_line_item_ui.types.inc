@@ -4,7 +4,7 @@
  * Menu callback: display an overview of available types.
  */
 function commerce_line_item_ui_types_overview() {
-  drupal_add_css(drupal_get_path('module', 'commerce_line_item') .'/theme/commerce_line_item.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.admin.css');
 
   $header = array(
     t('Name'),
@@ -33,7 +33,7 @@ function commerce_line_item_ui_types_overview() {
       array(
         'data' => t('There are no line item types defined by enabled modules.'),
         'colspan' => 2,
-      )
+      ),
     );
   }
 
@@ -50,6 +50,7 @@ function commerce_line_item_ui_types_overview() {
  * @ingroup themeable
  */
 function theme_line_item_type_admin_overview($variables) {
+  // TODO: Should this theme line_item_type_admin_overview be declared in hook_theme()?
   $line_item_type = $variables['line_item_type'];
 
   $output = check_plain($line_item_type['name']);

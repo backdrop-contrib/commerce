@@ -18,7 +18,10 @@ function commerce_product_reference_field_views_data($field) {
     $bundles[] = $entity . ' (' . implode(', ', $entity_bundles) . ')';
   }
 
-  $replacements = array('!field_name' => $field['field_name'], '@bundles' => implode(', ', $bundles));
+  $replacements = array(
+    '!field_name' => $field['field_name'],
+    '@bundles' => implode(', ', $bundles),
+  );
 
   foreach ($data as $table_name => $table_data) {
     foreach ($table_data as $field_name => $field_data) {
@@ -83,7 +86,10 @@ function commerce_product_reference_views_data_alter(&$data) {
       }
 
       $entity_info = entity_get_info($entity_type);
-      $replacements = array('@entity_type' => $entity_info['label'], '!field_name' => $field['field_name']);
+      $replacements = array(
+        '@entity_type' => $entity_info['label'],
+        '!field_name' => $field['field_name'],
+      );
 
       $data['commerce_product'][$field['field_name']]['relationship'] = array(
         'handler' => 'views_handler_relationship_entity_reverse',
@@ -92,21 +98,9 @@ function commerce_product_reference_views_data_alter(&$data) {
         'field field' => $field['field_name'] . '_product_id',
         'base' => $entity_info['base table'],
         'base field' => $entity_info['entity keys']['id'],
-
         'label' => t('@entity_type referencing products from !field_name', $replacements),
         'title' => t('Referencing @entity_type', $replacements),
         'help' => t('Relate a product to the @entity_type referencing it through !field_name.', $replacements),
-        'join_extra' => array(
-          0 => array(
-            'field' => 'entity_type',
-            'value' => $entity_type,
-          ),
-          1 => array(
-            'field' => 'deleted',
-            'value' => 0,
-            'numeric' => TRUE,
-          ),
-        ),
       );
     }
   }

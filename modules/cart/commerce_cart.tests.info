@@ -1,0 +1,30 @@
+[CommerceCartTestCase]
+name = CommerceCartTestCase
+description = CommerceCartTestCase
+group = commerce_cart
+file = tests/commerce_cart.test
+
+[CommerceCartTestCaseSimpleProduct]
+name = Shopping cart
+description = Test cart features like adding products to the cart, removing products from the cart and updating quantities.
+group = Drupal Commerce
+file = tests/commerce_cart.test
+
+[CommerceCartTestCaseMultiProducts]
+name = Shopping cart multiple
+description = Test adding products to cart from a product display node with multiple products, using the product select add to cart form.
+group = Drupal Commerce
+file = tests/commerce_cart.test
+
+[CommerceCartTestCaseAttributes]
+name = Shopping cart attributes
+description = Test adding products to cart from a product with multiple attributes, using the add to cart form product attribute select.
+group = Drupal Commerce
+file = tests/commerce_cart.test
+
+[CommerceCartTestCaseAnonymousToAuthenticated]
+name = Shopping cart anonymous to authenticated
+description = Test cart conversion from anonymous to authenticated when an anonymous users logs in.
+group = Drupal Commerce
+file = tests/commerce_cart.test
+

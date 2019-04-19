@@ -1,0 +1,5 @@
+{
+    "_config_name": "commerce.settings",
+    "commerce_default_currency": "USD",
+    "commerce_enabled_currencies": "dynamic value in file /commerce/includes/commerce_ui.admin.inc line 45"
+}
