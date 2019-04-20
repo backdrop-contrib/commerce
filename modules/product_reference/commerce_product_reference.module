@@ -1148,15 +1148,18 @@ function commerce_product_reference_entity_info_alter(&$entity_info) {
     'custom settings' => TRUE,
   );
 
-  // Query the field tables directly to avoid creating a loop in the Field API:
-  // it is not legal to call any of the field_info_*() in
-  // hook_entity_info(), as field_read_instances() calls entity_get_info().
-  $query = db_select('field_config_instance', 'fci', array('fetch' => PDO::FETCH_ASSOC));
-  $query->join('field_config', 'fc', 'fc.id = fci.field_id');
-  $query->fields('fci', array('entity_type'));
-  $query->condition('fc.type', 'commerce_product_reference');
-  $query->condition('fc.deleted', 0);
-  $query->distinct();
+  $config_names = config_get_names_with_prefix('field.instance');
+  $fields = _field_read_fields_cache();
+  $instances = array();
+  foreach ($config_names as $config_name) {
+    $config = config($config_name);
+    $instance = $config->get();
+    $field = $fields[$instance['field_name']];
+    if ($field['type'] != 'commerce_product_reference' || $field['deleted'] === 0) {
+      continue;
+    }
+    $instances[] = $instance;
+  }
 
   foreach ($query->execute() as $instance) {
     $entity_type = $instance['entity_type'];
