@@ -178,9 +178,9 @@ function commerce_order_ui_menu_local_tasks_alter(&$data, $router_item, $root_pa
 /**
  * Implements hook_config_info().
  */
-function commerce_order_config_info() {
-  $prefixes['commerce_order.settings'] = array(
-    'label' => t('Module name settings'),
+function commerce_order_ui_config_info() {
+  $prefixes['commerce_order_ui.settings'] = array(
+    'label' => t('Commerce order settings'),
     'group' => t('Configuration'),
   );
 }

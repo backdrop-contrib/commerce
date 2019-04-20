@@ -12,7 +12,7 @@
  * Implements hook_rules_event_info().
  */
 function commerce_payment_rules_event_info() {
-  // So that we can use the entity_rules_events_variables() helper function.
+  // So that we can use the commerce_entity_rules_events_variables() helper function.
   module_load_include('inc', 'entity', 'entity.rules');
 
   $events = array();
@@ -20,13 +20,13 @@ function commerce_payment_rules_event_info() {
   $events['commerce_payment_methods'] = array(
     'label' => t('Select available payment methods for an order'),
     'group' => t('Commerce Payment'),
-    'variables' => entity_rules_events_variables('commerce_order', t('Order', array(), array('context' => 'a backdrop commerce order'))),
+    'variables' => commerce_entity_rules_events_variables('commerce_order', t('Order', array(), array('context' => 'a backdrop commerce order'))),
     'access callback' => 'commerce_order_rules_access',
   );
 
   $variables = array_merge(
-    entity_rules_events_variables('commerce_order', t('Order', array(), array('context' => 'a backdrop commerce order')), TRUE, TRUE),
-    entity_rules_events_variables('commerce_payment_transaction', t('Last completed transaction'), TRUE)
+    commerce_entity_rules_events_variables('commerce_order', t('Order', array(), array('context' => 'a backdrop commerce order')), TRUE, TRUE),
+    commerce_entity_rules_events_variables('commerce_payment_transaction', t('Last completed transaction'), TRUE)
   );
 
   $events['commerce_payment_order_paid_in_full'] = array(
@@ -284,6 +284,25 @@ function commerce_payment_rules_data_info() {
     'ui class' => 'RulesDataUIPaymentSettings',
   );
   return $data;
+}
+
+function commerce_entity_rules_events_variables($type, $label, $update = FALSE) {
+  $args = array(
+    $type => array(
+      'type' => $type,
+      'label' => $label,
+    ),
+  );
+  if ($update) {
+    $args += array(
+      $type . '_unchanged' => array(
+        'type' => $type, 
+        'label' => t('unchanged entity'), 
+        'handler' => 'rules_events_entity_unchanged',
+      ),
+    );
+  }
+  return $args;
 }
 
 /**

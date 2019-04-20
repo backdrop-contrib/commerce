@@ -167,15 +167,13 @@ function commerce_entity_reference_delete($entity, $field_name, $col_name, $ref_
  *   Boolean indicating whether or not the field was activated.
  */
 function commerce_activate_field($field_name) {
-  // Set it to active via a query because field_update_field() does
+  // Set it to active via Config because field_update_field() does
   // not work on inactive fields.
-  $updated = db_update('field_config')
-    ->fields(array('active' => 1))
-    ->condition('field_name', $field_name, '=')
-    ->condition('deleted', 0, '=')
-    ->execute();
-
-  return !empty($updated) ? TRUE : FALSE;
+  $config = config('field.field.' . $field_name);
+  $config->set('active', 1);
+  $config->save();
+  
+  return $config->get('active');
 }
 
 /**
