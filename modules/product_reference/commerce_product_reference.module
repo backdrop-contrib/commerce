@@ -1150,6 +1150,7 @@ function commerce_product_reference_entity_info_alter(&$entity_info) {
 
   $config_names = config_get_names_with_prefix('field.instance');
   $fields = _field_read_fields_cache();
+  // $fields = array();
   $instances = array();
   foreach ($config_names as $config_name) {
     $config = config($config_name);
@@ -1161,7 +1162,7 @@ function commerce_product_reference_entity_info_alter(&$entity_info) {
     $instances[] = $instance;
   }
 
-  foreach ($query->execute() as $instance) {
+  foreach ($instances as $instance) {
     $entity_type = $instance['entity_type'];
 
     if (!empty($entity_info[$entity_type]['view modes'])) {

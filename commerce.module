@@ -170,7 +170,9 @@ function commerce_activate_field($field_name) {
   // Set it to active via Config because field_update_field() does
   // not work on inactive fields.
   $config = config('field.field.' . $field_name);
-  $config->set('active', 1);
+  $data = $config->get();
+  $data['active'] = 1;
+  $config->setData($data);
   $config->save();
   
   return $config->get('active');
@@ -1290,8 +1292,9 @@ function commerce_options_list_limit_validate($element, &$form_state, $form) {
  * that function with a Commerce specific version.
  *
  * @todo Remove when https://drupal.org/node/1934382 is resolved.
+ * @todo There is no theme_entity().
  */
-function commerce_theme_registry_alter(&$theme_registry) {
+/* function commerce_theme_registry_alter(&$theme_registry) {
   // Copy the preprocess functions array and remove the core preprocess function
   // along with the Entity API's and this module's.
   $functions = backdrop_map_assoc($theme_registry['entity']['preprocess functions']);
@@ -1304,6 +1307,7 @@ function commerce_theme_registry_alter(&$theme_registry) {
   // Update the function list in the theme registry.
   $theme_registry['entity']['preprocess functions'] = array_values($functions);
 }
+ */
 
 /**
  * Processes variables for entity.tpl.php, replacing template_preprocess_entity().

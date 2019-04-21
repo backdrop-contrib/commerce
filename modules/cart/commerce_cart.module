@@ -2834,38 +2834,20 @@ function commerce_cart_i18n_string_list_field_alter(&$strings, $type = NULL, $ob
 }
 
 /**
- * Implements hook_ctools_plugin_type().
- */
-function commerce_cart_ctools_plugin_type() {
-  $plugins['cart_provider'] = array(
-    'classes' => array('class'),
-  );
-  return $plugins;
-}
-
-/**
- * Implements hook_ctools_plugin_directory().
- */
-function commerce_cart_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'commerce_cart') {
-    return 'plugins/' . $plugin;
-  }
-}
-
-/**
  * Returns the instantiated cart provider.
  */
 function commerce_cart_get_provider($provider = NULL) {
-  ctools_include('plugins');
   if (empty($provider)) {
     $provider = config_get('commerce_cart.settings', 'commerce_cart_provider');
   }
 
   // Return NULL if the class could not be found.
-  if (!$class = ctools_plugin_load_class('commerce_cart', 'cart_provider', $provider, 'class')) {
+  $providers = commerce_cart_get_providers();
+  if (!isset($providers[$provider]['class'])) {
     return NULL;
   }
 
+  $class = $providers[$provider]['class'];
   return new $class();
 }
 
@@ -2873,10 +2855,26 @@ function commerce_cart_get_provider($provider = NULL) {
  * Returns the cart providers.
  */
 function commerce_cart_get_providers() {
-  ctools_include('plugins');
-  $plugins = ctools_get_plugins('commerce_cart', 'cart_provider');
-  uasort($plugins, 'ctools_plugin_sort');
-  return $plugins;
+  // @todo: static cache?
+  $providers = module_invoke_all('cart_provider_info');
+
+  // ctools_include('plugins');
+  // $plugins = ctools_get_plugins('commerce_cart', 'cart_provider');
+  // uasort($plugins, 'ctools_plugin_sort');
+  // return $plugins;
+  return $providers;
+}
+
+/**
+ * Implements hook_cart_provider_info().
+ */
+function commerce_cart_cart_provider_info() {
+  $providers['session'] = array(
+    'title' => t('Session'),
+    'class' => 'CommerceCartProviderSession',
+    'weight' => -10,
+  );
+  return $providers;
 }
 
 /**
