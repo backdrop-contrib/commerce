@@ -300,7 +300,8 @@ function commerce_tax_ui_tax_type_save($tax_type, $skip_reset = FALSE) {
 
   // Clear the necessary caches and rebuild the menu items.
   if (!$skip_reset) {
-    entity_defaults_rebuild();
+    // TODO: not sure the significance of this.
+    // entity_defaults_rebuild();
     rules_clear_cache(TRUE);
     // TODO This variable was probably removed in Backdrop without replacement.
     variable_set('menu_rebuild_needed', TRUE);
