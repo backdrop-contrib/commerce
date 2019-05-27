@@ -1261,7 +1261,7 @@ function commerce_payment_entity_load($entities, $type) {
     // check if we have payment settings override.
     foreach ($entity->actions() as $name => $action) {
       if (is_callable(array($action, 'getElementName')) && strpos($action->getElementName(), 'commerce_payment_enable_') === 0) {
-        if (is_array($action->settings['payment_method']) && !empty($action->settings['payment_method']['settings'])) {
+        if (isset($action->settings['payment_method']) && is_array($action->settings['payment_method']) && !empty($action->settings['payment_method']['settings'])) {
           $instance_id = commerce_payment_method_instance_id($action->settings['payment_method']['method_id'], $entity);
           $settings = variable_get($instance_id, array());
 
