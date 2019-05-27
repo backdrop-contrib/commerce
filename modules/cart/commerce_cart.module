@@ -1753,11 +1753,12 @@ function _commerce_cart_matching_products($products, &$form_state) {
     // filtering.
     $attributes_products = array_fill_keys(array_keys($attributes), array());
     foreach ($products as $product_id => $product) {
-      $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
-
       // Store which attributes this product is associated with.
       foreach ($attributes as $attribute_name => $attribute_value) {
-        if ($product_wrapper->{$attribute_name}->raw() == $attribute_value) {
+        $product_attribute_items = field_get_items('commerce_product', $product, $attribute_name);
+        $product_attribute_value = reset($product_attribute_items[0]);
+
+        if ($product_attribute_value == $attribute_value) {
           $attributes_products[$attribute_name][$product_id] = $product;
         }
       }
@@ -1785,14 +1786,16 @@ function _commerce_cart_matching_products($products, &$form_state) {
     if (count($matching_products) > 1) {
       $default_product = reset($matching_products);
       unset($matching_products[key($matching_products)]);
-      $default_product_wrapper = entity_metadata_wrapper('commerce_product', $default_product);
       $default_products[$default_product->product_id] = $default_product;
 
       foreach ($matching_products as $matching_product_id => $matching_product) {
-        $matching_product_wrapper = entity_metadata_wrapper('commerce_product', $matching_product);
-
         foreach ($attributes as $attribute_name => $attribute_value) {
-          if ($matching_product_wrapper->{$attribute_name}->raw() != $default_product_wrapper->{$attribute_name}->raw()) {
+          $matching_product_attribute_items = field_get_items('commerce_product', $matching_product, $attribute_name);
+          $matching_product_attribute_value = reset($matching_product_attribute_items[0]);
+          $default_product_attribute_items = field_get_items('commerce_product', $default_product, $attribute_name);
+          $default_product_attribute_value = reset($default_product_attribute_items[0]);
+
+          if ($matching_product_attribute_value != $default_product_attribute_value) {
             continue 2;
           }
         }
@@ -1978,15 +1981,21 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
         }
       }
 
-      // Wrap the default product for later use.
-      $default_product_wrapper = entity_metadata_wrapper('commerce_product', $default_product);
-
       // Remove any attribute input values from the form state that aren't
       // associated with the default product so that attribute widgets can use
       // the default values.
       if (!empty($form_state['input']['attributes'])) {
         foreach ($form_state['input']['attributes'] as $attribute_name => $attribute_value) {
-          if (empty($default_product_wrapper->{$attribute_name}) || $default_product_wrapper->{$attribute_name}->raw() != $attribute_value) {
+          $default_product_attribute_items = field_get_items('commerce_product', $default_product, $attribute_name);
+
+          if (!empty($default_product_attribute_items)) {
+            $default_product_attribute_value = reset($default_product_attribute_items[0]);
+
+            if ($default_product_attribute_value != $attribute_value) {
+              unset($form_state['input']['attributes'][$attribute_name]);
+            }
+          }
+          else {
             unset($form_state['input']['attributes'][$attribute_name]);
           }
         }
@@ -2066,8 +2075,6 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
         foreach ($qualifying_fields as $field_name => $data) {
           // Build an options array of widget options used by referenced products.
           foreach ($products as $product_id => $product) {
-            $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
-
             // Only add options to the present array that appear on products that
             // match the default value of the previously added attribute widgets.
             foreach ($used_options as $used_field_name => $unused) {
@@ -2088,7 +2095,10 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
               // attribute field, ensure the current product's attribute field
               // value matches the selected value on that element.
               if (isset($form['attributes'][$used_field_name]) && array_key_exists('#default_value', $form['attributes'][$used_field_name])) {
-                if ($product_wrapper->{$used_field_name}->raw() != $form['attributes'][$used_field_name]['#default_value']) {
+                $used_field_items = field_get_items('commerce_product', $product, $used_field_name);
+                $used_field_value = reset($used_field_items[0]);
+
+                if ($used_field_value != $form['attributes'][$used_field_name]['#default_value']) {
                   continue 2;
                 }
               }
@@ -2096,10 +2106,14 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
 
             // With our hard dependency on widgets provided by the Options
             // module, we can make assumptions about where the data is stored.
-            if ($product_wrapper->{$field_name}->raw() != NULL) {
+            $field_items = field_get_items('commerce_product', $product, $field_name);
+            $field_value = reset($field_items[0]);
+
+            if ($field_value != NULL) {
               $field_has_options[$field_name] = TRUE;
             }
-            $used_options[$field_name][] = $product_wrapper->{$field_name}->raw();
+
+            $used_options[$field_name][] = $field_value;
           }
 
           // If for some reason no options for this field are used, remove it
@@ -2108,11 +2122,14 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
             unset($qualifying_fields[$field_name]);
           }
           else {
+            $default_product_field_items = field_get_items('commerce_product', $default_product, $field_name);
+            $default_product_field_value = reset($default_product_field_items[0]);
+
             $form['attributes'][$field_name] = array(
               '#type' => $data['commerce_cart_settings']['attribute_widget'],
               '#title' => commerce_cart_attribute_widget_title($data['instance']),
               '#options' => array_intersect_key($data['options'], drupal_map_assoc($used_options[$field_name])),
-              '#default_value' => $default_product_wrapper->{$field_name}->raw(),
+              '#default_value' => $default_product_field_value,
               '#weight' => $data['instance']['widget']['weight'],
               '#ajax' => array(
                 'callback' => 'commerce_cart_add_to_cart_form_attributes_refresh',
@@ -2127,7 +2144,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
 
             $form['unchanged_attributes'][$field_name] = array(
               '#type' => 'value',
-              '#value' => $default_product_wrapper->{$field_name}->raw(),
+              '#value' => $default_product_field_value,
             );
           }
         }
@@ -2148,11 +2165,13 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
           // products that match the default attribute options.
           if (empty($matching_products)) {
             foreach ($products as $product_id => $product) {
-              $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
               $match = TRUE;
 
               foreach (element_children($form['attributes']) as $field_name) {
-                if ($product_wrapper->{$field_name}->raw() != $form['attributes'][$field_name]['#default_value']) {
+                $product_field_items = field_get_items('commerce_product', $product, $field_name);
+                $product_field_value = reset($product_field_items[0]);
+
+                if ($product_field_value != $form['attributes'][$field_name]['#default_value']) {
                   $match = FALSE;
                 }
               }
