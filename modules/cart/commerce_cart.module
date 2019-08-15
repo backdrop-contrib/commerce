@@ -2096,7 +2096,12 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
               // value matches the selected value on that element.
               if (isset($form['attributes'][$used_field_name]) && array_key_exists('#default_value', $form['attributes'][$used_field_name])) {
                 $used_field_items = field_get_items('commerce_product', $product, $used_field_name);
-                $used_field_value = reset($used_field_items[0]);
+                if (!empty($used_field_items[0])) {
+                  $used_field_value = reset($used_field_items[0]);
+                }
+                else {
+                  $used_field_value = NULL;
+                }
 
                 if ($used_field_value != $form['attributes'][$used_field_name]['#default_value']) {
                   continue 2;
@@ -2107,7 +2112,12 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
             // With our hard dependency on widgets provided by the Options
             // module, we can make assumptions about where the data is stored.
             $field_items = field_get_items('commerce_product', $product, $field_name);
-            $field_value = reset($field_items[0]);
+            if (!empty($field_items[0])) {
+              $field_value = reset($field_items[0]);
+            }
+            else {
+              $field_value = NULL;
+            }
 
             if ($field_value != NULL) {
               $field_has_options[$field_name] = TRUE;
@@ -2123,7 +2133,12 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
           }
           else {
             $default_product_field_items = field_get_items('commerce_product', $default_product, $field_name);
-            $default_product_field_value = reset($default_product_field_items[0]);
+            if (!empty($default_product_field_items[0])) {
+              $default_product_field_value = reset($default_product_field_items[0]);
+            }
+            else {
+              $default_product_field_value = NULL;
+            }
 
             $form['attributes'][$field_name] = array(
               '#type' => $data['commerce_cart_settings']['attribute_widget'],
@@ -2169,7 +2184,12 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
 
               foreach (element_children($form['attributes']) as $field_name) {
                 $product_field_items = field_get_items('commerce_product', $product, $field_name);
-                $product_field_value = reset($product_field_items[0]);
+                if (!empty($product_field_items[0])) {
+                  $product_field_value = reset($product_field_items[0]);
+                }
+                else {
+                  $product_field_value = NULL;
+                }
 
                 if ($product_field_value != $form['attributes'][$field_name]['#default_value']) {
                   $match = FALSE;
