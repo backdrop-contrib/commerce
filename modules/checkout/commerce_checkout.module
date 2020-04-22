@@ -737,16 +737,17 @@ function commerce_checkout_pane_callback($checkout_pane, $callback) {
  */
 function commerce_checkout_access($order, $account = NULL) {
   global $user;
+  $access = TRUE;
 
   // Default to the current user as the account whose access we're checking.
   if (empty($account)) {
     $account = clone($user);
   }
 
-  // First, if this order doesn't belong to the account return FALSE.
+  // First, deny access if this order doesn't belong to the account.
   if ($account->uid) {
     if ($account->uid != $order->uid) {
-      return FALSE;
+      $access = FALSE;
     }
   }
   else {
@@ -757,16 +758,20 @@ function commerce_checkout_access($order, $account = NULL) {
       $completed_order_ids = commerce_cart_order_session_order_ids(TRUE);
       if (empty($completed_order_ids) ||
         !in_array($order->order_id, $completed_order_ids)) {
-        // And then return FALSE if the anonymous user's session doesn't specify
+        // And then deny access if the anonymous user's session doesn't specify
         // this order ID.
         if (empty($cart_order_ids) || !in_array($order->order_id, $cart_order_ids)) {
-          return FALSE;
+          $access = FALSE;
         }
       }
     }
   }
 
-  return TRUE;
+  // Allow other modules to alter the access value, such as to grant access on
+  // return from third party services where redirects temporarily drop cookies.
+  drupal_alter('commerce_checkout_access', $access, $order, $account);
+
+  return $access;
 }
 
 /**
