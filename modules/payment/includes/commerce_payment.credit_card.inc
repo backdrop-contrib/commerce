@@ -414,10 +414,10 @@ function commerce_payment_credit_card_types() {
 final class CommercePaymentCreditCard {
 
   /**
-   * Gets all available credit card types.
+   * Gets all available card types.
    *
    * @return array
-   *   The credit card types.
+   *   The array of card types, keyed by card type ID.
    */
   public static function getTypes() {
     $definitions = array(
@@ -473,6 +473,8 @@ final class CommercePaymentCreditCard {
         'uses_luhn' => FALSE,
       ),
     );
+
+    drupal_alter('commerce_card_type_info', $definitions);
 
     foreach ($definitions as &$definition) {
       $definition += array(
