@@ -1521,7 +1521,7 @@ function commerce_line_items_total($line_items, $types = array()) {
 
     $line_item_currency_code = $line_item_wrapper->commerce_total->currency_code->value();
 
-    if (!in_array($line_item_currency_code, array_keys($currencies))) {
+    if (!array_key_exists($line_item_currency_code, $currencies)) {
       $currencies[$line_item_currency_code] = 1;
     }
     else {
@@ -1535,7 +1535,7 @@ function commerce_line_items_total($line_items, $types = array()) {
   if (count($currencies) == 1) {
     $currency_code = key($currencies);
   }
-  elseif (in_array(commerce_default_currency(), array_keys($currencies))) {
+  elseif (array_key_exists(commerce_default_currency(), $currencies)) {
     // Otherwise use the site default currency if it's in the array.
     $currency_code = commerce_default_currency();
   }

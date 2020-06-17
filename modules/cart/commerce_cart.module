@@ -954,7 +954,7 @@ function commerce_cart_order_new($uid = 0, $type = 'commerce_order') {
  */
 function commerce_cart_order_is_cart($order) {
   // If the order is in a shopping cart order status, assume it is a cart.
-  $is_cart = in_array($order->status, array_keys(commerce_order_statuses(array('cart' => TRUE))));
+  $is_cart = array_key_exists($order->status, commerce_order_statuses(array('cart' => TRUE)));
 
   // Allow other modules to make the judgment based on some other criteria.
   foreach (module_implements('commerce_cart_order_is_cart') as $module) {

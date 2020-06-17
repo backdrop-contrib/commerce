@@ -133,7 +133,7 @@ function commerce_order_admin_order_view_access($order) {
  */
 function commerce_order_customer_order_view_access($order) {
   // If the order is in a shopping cart order status...
-  if (in_array($order->status, array_keys(commerce_order_statuses(array('cart' => TRUE))))) {
+  if (array_key_exists($order->status, commerce_order_statuses(array('cart' => TRUE)))) {
     // Do not allow the customer to see the page.
     return FALSE;
   }

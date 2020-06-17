@@ -165,7 +165,7 @@ class CommerceOrderUIAdminTest extends CommerceBaseTestCase {
          $products[$product->product_id]= $product;
        }
     }
-    $this->assertTrue(in_array($this->product->product_id, array_keys($products)), t('Added product is included in the order at the database level'));
+    $this->assertTrue(array_key_exists($this->product->product_id, $products), t('Added product is included in the order at the database level'));
 
     // Access the edit page of the order and check if the product is present.
     $this->drupalGet('admin/commerce/orders/' . $this->order->order_id . '/edit');

@@ -99,7 +99,7 @@ function commerce_info_fields($field_type, $entity_type = NULL) {
     if ($field_stub['type'] == $field_type) {
       // Add this field to the return array if no entity type was specified or
       // if the specified type exists in the field's bundles array.
-      if (empty($entity_type) || in_array($entity_type, array_keys($field_stub['bundles']))) {
+      if (empty($entity_type) || array_key_exists($entity_type, $field_stub['bundles'])) {
         $field = field_info_field($field_name);
         $fields[$field_name] = $field;
       }

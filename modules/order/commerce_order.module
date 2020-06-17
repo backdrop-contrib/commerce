@@ -421,7 +421,7 @@ function commerce_order_field_attach_form($entity_type, $entity, &$form, &$form_
     // Loop over each child element of the form.
     foreach (element_children($form) as $key) {
       // If the current element is for a customer profile reference field...
-      if (in_array($key, array_keys($fields))) {
+      if (array_key_exists($key, $fields)) {
         // Loop over each of its child items...
         foreach (element_children($form[$key][$form[$key]['#language']]) as $delta) {
           foreach (element_children($form[$key][$form[$key]['#language']][$delta]) as $subdelta) {
@@ -552,7 +552,7 @@ function commerce_order_commerce_customer_profile_presave($profile) {
         // marked as changed.
         if ($field_name == 'commerce_customer_address') {
           foreach ($original_items[$delta] as $key => $value) {
-            if (!in_array($key, array_keys($item)) && !empty($value)) {
+            if (!array_key_exists($key, $item) && !empty($value)) {
               $field_change = TRUE;
               break 2;
             }
@@ -632,7 +632,7 @@ function commerce_order_form_commerce_customer_customer_profile_delete_form_alte
             $order = commerce_order_load($order->order_id);
 
             // Only exit here if the order is in a non-cart status.
-            if (!in_array($order->status, array_keys(commerce_order_statuses(array('cart' => TRUE))))) {
+            if (!array_key_exists($order->status, commerce_order_statuses(array('cart' => TRUE)))) {
               $description = t('This customer profile is referenced by Order @order_number and therefore cannot be deleted. Disable it instead.', array('@order_number' => $order->order_number));
 
               $form['description']['#markup'] .= '<p>' . $description . '</p>';
