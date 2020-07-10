@@ -815,6 +815,13 @@ function commerce_payment_transaction_status_options_list() {
 }
 
 /**
+ * Themes the payment transaction entity.
+ */
+function theme_commerce_payment_transaction($variables) {
+  return render($variables['content']);
+}
+
+/**
  * Themes the icon representing a payment transaction status.
  */
 function theme_commerce_payment_transaction_status_icon($variables) {
