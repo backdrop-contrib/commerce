@@ -1032,6 +1032,8 @@ function commerce_line_item_field_widget_form(&$form, &$form_state, $field, $ins
 
     if (!empty($form_state['line_item_save_warning'])) {
       drupal_set_message(t('New line items on this order will not be saved until the <em>Save order</em> button is clicked.'), 'warning');
+      // Set variable to false to prevent it from showing up in other contexts.
+      $form_state['line_item_save_warning'] = FALSE;
     }
 
     // Add a set of elements to the form for each referenced line item.

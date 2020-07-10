@@ -425,6 +425,11 @@ function commerce_order_field_attach_form($entity_type, $entity, &$form, &$form_
         // Loop over each of its child items...
         foreach (element_children($form[$key][$form[$key]['#language']]) as $delta) {
           foreach (element_children($form[$key][$form[$key]['#language']][$delta]) as $subdelta) {
+            if (!isset($form[$key][$form[$key]['#language']][$delta][$subdelta]['profile'])) {
+              // There's no profile of this type for this order.
+              continue;
+            }
+
             // Extract the customer profile from the widget form element.
             $profile = $form[$key][$form[$key]['#language']][$delta][$subdelta]['profile']['#value'];
 
