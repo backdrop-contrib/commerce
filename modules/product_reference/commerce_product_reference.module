@@ -1059,6 +1059,11 @@ function commerce_product_reference_autocomplete_validate($element, &$form_state
     $value = array();
   }
 
+  // If the field is required and none of the product IDs matched...
+  if ($element['#required'] && empty($value)) {
+    form_error($element, t('You must provide at least one valid SKU.'));
+  }
+
   // Update the value of this element so the field can validate the product IDs.
   form_set_value($element, $value, $form_state);
 }
