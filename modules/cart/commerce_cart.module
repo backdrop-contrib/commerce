@@ -1140,6 +1140,7 @@ function commerce_cart_order_refresh($order) {
       is_null($current_line_item_wrapper->commerce_unit_price->amount->value()) ||
       is_null($current_line_item_wrapper->commerce_unit_price->currency_code->value())) {
       commerce_cart_order_product_line_item_delete($order, $cloned_line_item->line_item_id, TRUE);
+      $line_item_changed = TRUE;
     }
     else {
       // Compare the refreshed unit price to the original unit price looking for
