@@ -790,6 +790,10 @@ function commerce_checkout_page_access($checkout_page, $order) {
   // Load the order status object for the current order.
   $order_status = commerce_order_status_load($order->status);
 
+  if ($order_status === FALSE) {
+    return FALSE;
+  }
+
   // If the order is not in a checkout status, return FALSE for any page but the
   // completion page unless the order is still a shopping cart.
   if ($order_status['state'] != 'checkout' && $checkout_page['page_id'] != 'complete') {
@@ -909,6 +913,10 @@ function commerce_checkout_commerce_order_state_info_alter(&$order_states) {
  */
 function commerce_checkout_order_uri($order) {
   $order_status = commerce_order_status_load($order->status);
+
+  if ($order_status === FALSE) {
+    return NULL;
+  }
 
   if ($order_status['state'] == 'checkout') {
     $page_id = '/' . $order_status['checkout_page'];

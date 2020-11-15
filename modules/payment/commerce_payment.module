@@ -407,13 +407,20 @@ function commerce_payment_commerce_payment_totals_row_info($totals, $order) {
 
     // Add a row for the remaining balance on the order.
     if ($order) {
-      // @todo Fix for when there's a FALSE $balance.
       $balance = commerce_payment_order_balance($order, $totals);
+
+      // Fix false balances.
+      if (empty($balance)) {
+        $formatted_amount = commerce_currency_format(0, NULL);
+      }
+      else {
+        $formatted_amount = commerce_currency_format($balance['amount'], $balance['currency_code']);
+      }
 
       $rows[] = array(
         'data' => array(
           array('data' => t('Order balance'), 'class' => array('label')),
-          array('data' => commerce_currency_format($balance['amount'], $balance['currency_code']), 'class' => array('balance')),
+          array('data' => $formatted_amount, 'class' => array('balance')),
         ),
         'class' => array('order-balance'),
         'weight' => 10,

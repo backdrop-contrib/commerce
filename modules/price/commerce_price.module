@@ -469,6 +469,14 @@ function commerce_price_field_formatter_view($entity_type, $entity, $field, $ins
         foreach ($item['data']['components'] as $key => $component) {
           $component_type = commerce_price_component_type_load($component['name']);
 
+          // Initialize an empty component type array if the load failed.
+          if (!$component_type) {
+            $component_type = array(
+              'display_title' => '',
+              'weight' => NULL,
+            );
+          }
+
           if (empty($components[$component['name']])) {
             $components[$component['name']] = array(
               'title' => check_plain($component_type['display_title']),
