@@ -104,13 +104,12 @@ function hook_commerce_cart_order_convert($order_wrapper, $account) {
  * Allows modules to perform processing on a shopping cart order prior to the
  * logic in commerce_cart_order_refresh() taking place.
  *
- * @param $order_wrapper
- *   The entity metadata wrapper for the order about to be refreshed.
+ * @param $order
+ *   The order about to be refreshed.
  *
  * @see commerce_cart_order_refresh()
- * @see entity_metadata_wrapper()
  */
-function hook_commerce_cart_order_pre_refresh($order_wrapper) {
+function hook_commerce_cart_order_pre_refresh($order) {
   // No example.
 }
 
