@@ -664,7 +664,7 @@ function commerce_currency_format($amount, $currency_code, $object = NULL, $conv
   // issue, we can introduce an if statement here to use trim() by default and
   // maintain an array of currency codes for which we must use preg_replace().
   $pattern = '/^\s+|\s+$/us';
-  return preg_replace($pattern, '', t('@code_before@code_spacer@negative@symbol_before@symbol_spacer_before@price@symbol_spacer@symbol_after@code_spacer@code_after', $replacements));
+  return preg_replace($pattern, '', check_plain(strtr('@code_before@code_spacer@negative@symbol_before@symbol_spacer_before@price@symbol_spacer@symbol_after@code_spacer@code_after', $replacements)));
 }
 
 /**
