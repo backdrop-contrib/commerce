@@ -274,3 +274,20 @@ function hook_commerce_cart_product_add($order, $product, $quantity, $line_item)
 function hook_commerce_cart_product_remove($order, $product, $quantity, $line_item) {
   // No example.
 }
+
+/**
+ * Allow modules to skip/allow the automatic cart refresh when a given cart
+ * order is being loaded.
+ *
+ * @param $order
+ *   The cart order object
+ *
+ * @return bool
+ *   Boolean indicating whether or not the cart order can be refreshed.
+ */
+function hook_commerce_cart_order_can_refresh($order) {
+  // Skip refresh when the current path is "foo".
+  if (current_path() === 'foo') {
+    return FALSE;
+  }
+}

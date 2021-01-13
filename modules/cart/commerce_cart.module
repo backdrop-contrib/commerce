@@ -709,6 +709,19 @@ function commerce_cart_block_view($delta) {
  *   Boolean indicating whether or not the cart order can be refreshed.
  */
 function commerce_cart_order_can_refresh($order) {
+  $can_refresh = module_invoke_all('commerce_cart_order_can_refresh', $order);
+
+  // We refresh the cart order if both of the following conditions are met:
+  // - No modules say to skip the cart refresh.
+  // - At least one module allows it.
+  // If no module specified either allow or skip, we fall back to the
+  // logic below.
+  if (in_array(FALSE, $can_refresh, TRUE)) {
+    return FALSE;
+  }
+  elseif (in_array(TRUE, $can_refresh, TRUE)) {
+    return TRUE;
+  }
   global $user;
 
   // Force the shopping cart refresh on /cart and /checkout/* paths if enabled.
