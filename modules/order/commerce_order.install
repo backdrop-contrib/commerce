@@ -583,3 +583,10 @@ function commerce_order_update_7113() {
     return t('Database indexes added to the commerce_order table.');
   }
 }
+
+/**
+ * Add an extra field to orders that renders the order e-mail address.
+ */
+function commerce_order_update_7114() {
+  return t('To display the e-mail address on orders, you must adjust and resave your order field display settings. The e-mail address will appear to be visible already due to a limitation of the field UI, but it will not truly be visible on rendered orders until you resave the display settings.');
+}
