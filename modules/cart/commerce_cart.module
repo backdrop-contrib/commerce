@@ -2331,7 +2331,10 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
     // Do not allow products without a price to be purchased.
     $values = commerce_product_calculate_sell_price($form_state['default_product']);
 
-    if (is_null($values) || is_null($values['amount']) || is_null($values['currency_code'])) {
+    // Do not allow products without active status to be purchased.
+    $status = $form_state['default_product']->status;
+
+    if (is_null($values) || is_null($values['amount']) || is_null($values['currency_code']) || !$status) {
       $form['submit'] = array(
         '#type' => 'submit',
         '#value' => t('Product not available'),
@@ -2746,15 +2749,20 @@ function commerce_cart_field_formatter_view($entity_type, $entity, $field, $inst
   }
 
   if ($display['type'] == 'commerce_cart_add_to_cart_form') {
-    // Load the referenced products.
-    $products = commerce_product_load_multiple($product_ids);
+    // Return an empty render array if there were no referenced products.
+    if (empty($product_ids)) {
+      return array();
+    }
 
-    // Check to ensure products are referenced, before returning results.
-    if (!empty($products)) {
+    // Load the default product to use for this form.
+    $product = commerce_product_reference_get_default_product($entity, $entity_type, $field, $langcode);
+
+    // Check to ensure a default product is loaded before returning results.
+    if (!empty($product)) {
       $type = !empty($settings['line_item_type']) ? $settings['line_item_type'] : 'product';
-      $line_item = commerce_product_line_item_new(commerce_product_reference_default_product($products), $settings['default_quantity'], 0, array(), $type);
-      $line_item->data['context']['button_text'] = !empty($settings['button_text']) ? filter_xss($settings['button_text'], array()) : t('Add to cart');;
-      $line_item->data['context']['product_ids'] = array_keys($products);
+      $line_item = commerce_product_line_item_new($product, $settings['default_quantity'], 0, array(), $type);
+      $line_item->data['context']['product_ids'] = $product_ids;
+      $line_item->data['context']['button_text'] = !empty($settings['button_text']) ? filter_xss($settings['button_text'], array()) : t('Add to cart');
       $line_item->data['context']['add_to_cart_combine'] = !empty($settings['combine']);
       $line_item->data['context']['show_single_product_attributes'] = !empty($settings['show_single_product_attributes']);
 
