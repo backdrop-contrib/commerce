@@ -148,6 +148,12 @@ function commerce_order_schema() {
         'length' => '255',
         'not null' => TRUE,
       ),
+      'placed' => array(
+        'description' => 'The Unix timestamp when the order was placed e.g. when checkout was completed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'log' => array(
         'description' => 'The log entry explaining the changes in this version.',
         'type' => 'text',
@@ -521,4 +527,27 @@ function commerce_order_update_7111() {
   }
 
   return t('Database indexes added to commerce_order for status.');
+}
+
+/**
+ * Add the placed timestamp to {commerce_order_revision}.
+ *
+ * Sites with a large number of order revisions should consider manually adding
+ * this column to avoid performance issues. Before applying pending updates,
+ * set the 'skip_order_revision_update' setting to FALSE to skip this update,
+ * e.g. by adding $conf['skip_order_revision_update'] = FALSE; to settings.php.
+ */
+function commerce_order_update_7112() {
+  if (variable_get('skip_order_revision_update', TRUE) &&
+    !db_field_exists('commerce_order_revision', 'placed')) {
+
+    db_add_field('commerce_order_revision', 'placed', array(
+      'description' => 'The Unix timestamp when the order was placed e.g. when checkout was completed.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ));
+
+    return t('Schema for the commerce_order_revision table has been updated.');
+  }
 }
