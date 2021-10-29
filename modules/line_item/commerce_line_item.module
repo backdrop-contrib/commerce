@@ -124,7 +124,7 @@ function commerce_line_item_form_alter(&$form, &$form_state, $form_id) {
   }
 
   // Require the existence of an order_id argument (and its value).
-  if (empty($view->argument['order_id']) || empty($view->argument['order_id']->value)) {
+  if (empty($view->argument['order_id']) || empty($view->argument['order_id']->value[0]) || !is_integer($view->argument['order_id']->value[0])) {
     return;
   }
 
