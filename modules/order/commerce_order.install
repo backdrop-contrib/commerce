@@ -94,7 +94,11 @@ function commerce_order_schema() {
     'indexes' => array(
       'uid' => array('uid'),
       'status' => array('status'),
-      'order_id_uid_status' => array('order_id', 'uid', 'status')
+      'order_id_uid_status' => array('order_id', 'uid', 'status'),
+      'created' => array('created'),
+      'changed' => array('changed'),
+      'order_id_status_type' => array('order_id', 'status', 'type'),
+      'type' => array('type'),
     ),
     'foreign keys' => array(
       'current_revision' => array(
@@ -534,11 +538,11 @@ function commerce_order_update_7111() {
  *
  * Sites with a large number of order revisions should consider manually adding
  * this column to avoid performance issues. Before applying pending updates,
- * set the 'skip_order_revision_update' setting to FALSE to skip this update,
- * e.g. by adding $conf['skip_order_revision_update'] = FALSE; to settings.php.
+ * set the 'skip_order_update_7112' setting to FALSE to skip this update, e.g.
+ * by adding $conf['skip_order_update_7112'] = FALSE; to settings.php.
  */
 function commerce_order_update_7112() {
-  if (variable_get('skip_order_revision_update', TRUE) &&
+  if (variable_get('skip_order_update_7112', TRUE) &&
     !db_field_exists('commerce_order_revision', 'placed')) {
 
     db_add_field('commerce_order_revision', 'placed', array(
@@ -549,5 +553,33 @@ function commerce_order_update_7112() {
     ));
 
     return t('Schema for the commerce_order_revision table has been updated.');
+  }
+}
+
+/**
+ * Add indexes to the commerce_order table to improve performance.
+ *
+ * Sites with a large number of orders should consider manually adding these
+ * indexes to better accommodate the lengthy database operation. Before
+ * applying pending updates, set the 'skip_order_update_7113' setting to FALSE
+ * to skip this update, e.g. by adding $conf['skip_order_update_7113'] = FALSE;
+ * to settings.php.
+ */
+function commerce_order_update_7113() {
+  if (variable_get('skip_order_update_7113', TRUE)) {
+    if (!db_index_exists('commerce_order', 'created')) {
+      db_add_index('commerce_order', 'created', array('created'));
+    }
+    if (!db_index_exists('commerce_order', 'changed')) {
+      db_add_index('commerce_order', 'changed', array('changed'));
+    }
+    if (!db_index_exists('commerce_order', 'order_id_status_type')) {
+      db_add_index('commerce_order', 'order_id_status_type', array('order_id', 'status', 'type'));
+    }
+    if (!db_index_exists('commerce_order', 'type')) {
+      db_add_index('commerce_order', 'type', array('type'));
+    }
+
+    return t('Database indexes added to the commerce_order table.');
   }
 }
