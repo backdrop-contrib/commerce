@@ -538,11 +538,11 @@ function commerce_order_update_7111() {
  *
  * Sites with a large number of order revisions should consider manually adding
  * this column to avoid performance issues. Before applying pending updates,
- * set the 'skip_order_update_7112' setting to FALSE to skip this update, e.g.
- * by adding $conf['skip_order_update_7112'] = FALSE; to settings.php.
+ * set the 'skip_order_update_7112' setting to TRUE to skip this update, e.g.
+ * by adding $conf['skip_order_update_7112'] = TRUE; to settings.php.
  */
 function commerce_order_update_7112() {
-  if (variable_get('skip_order_update_7112', TRUE) &&
+  if (!variable_get('skip_order_update_7112', FALSE) &&
     !db_field_exists('commerce_order_revision', 'placed')) {
 
     db_add_field('commerce_order_revision', 'placed', array(
@@ -561,12 +561,12 @@ function commerce_order_update_7112() {
  *
  * Sites with a large number of orders should consider manually adding these
  * indexes to better accommodate the lengthy database operation. Before
- * applying pending updates, set the 'skip_order_update_7113' setting to FALSE
- * to skip this update, e.g. by adding $conf['skip_order_update_7113'] = FALSE;
+ * applying pending updates, set the 'skip_order_update_7113' setting to TRUE
+ * to skip this update, e.g. by adding $conf['skip_order_update_7113'] = TRUE;
  * to settings.php.
  */
 function commerce_order_update_7113() {
-  if (variable_get('skip_order_update_7113', TRUE)) {
+  if (!variable_get('skip_order_update_7113', FALSE)) {
     if (!db_index_exists('commerce_order', 'created')) {
       db_add_index('commerce_order', 'created', array('created'));
     }
