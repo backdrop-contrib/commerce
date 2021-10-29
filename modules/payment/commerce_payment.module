@@ -1200,7 +1200,7 @@ function commerce_payment_order_has_payments($order) {
     ->propertyCondition('status', COMMERCE_PAYMENT_STATUS_FAILURE, '!=')
     ->count();
 
-  return $query->execute() == 1;
+  return $query->execute() >= 1;
 }
 
 /**
