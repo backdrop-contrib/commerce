@@ -294,11 +294,22 @@ function commerce_checkout_line_item_views_form_submit($form, &$form_state) {
  * order edit forms to simulate checkout completion.
  */
 function commerce_checkout_form_commerce_order_settings_form_alter(&$form, &$form_state) {
-  $form['commerce_order_simulate_checkout_link'] = array(
+  $form['checkout'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Checkout completion'),
+    '#weight' => 20,
+  );
+  $form['checkout']['commerce_checkout_permit_multiple_completions'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Permit checkout completion logic to be invoked multiple times per order.'),
+    '#description' => t('Consider disabling this if you experience unintentional invocations of checkout completion, e.g. as a result of an off-site payment notification.'),
+    '#default_value' => variable_get('commerce_checkout_permit_multiple_completions', TRUE),
+  );
+  $form['checkout']['commerce_order_simulate_checkout_link'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable the local action link on order edit forms to simulate checkout completion.'),
+    '#description' => t('The form to simulate checkout completion will not permit submission if an order already performed checkout completion at a time when multiple invocations were disabled.<br />This means the simulation form may still work for orders placed <em>prior</em> to when you disabled the setting above.'),
     '#default_value' => variable_get('commerce_order_simulate_checkout_link', TRUE),
-    '#weight' => 20,
   );
 }
 
@@ -969,18 +980,50 @@ function commerce_checkout_order_can_checkout($order) {
 }
 
 /**
+ * Determines if an order should be permitted to be completed multiple times.
+ */
+function commerce_checkout_permit_multiple_completions() {
+  return variable_get('commerce_checkout_permit_multiple_completions', TRUE);
+}
+
+/**
  * Completes the checkout process for the given order.
  */
 function commerce_checkout_complete($order) {
-  // An order could complete the checkout process more than once for a variety
-  // of reasons, including administrators making changes. We want to keep the
-  // timestamp from when the order was originally placed, so we don't update it
-  // if it is already set.
+  $save_order = FALSE;
+
+  // Keep the timestamp from when the order was originally placed,
+  // so we don't update it if it is already set.
   if (empty($order->placed)) {
     $order->placed = REQUEST_TIME;
+    $save_order = TRUE;
   }
 
-  rules_invoke_all('commerce_checkout_complete', $order);
+  // An order could complete the checkout process more than once for a variety
+  // of reasons, including administrator action. Before Commerce 1.16 we only
+  // supported permitting the checkout completion logic to invoke any number of
+  // times, but this caused problems with off-site payment gateways where the
+  // logic could be invoked multiple times unintentionally.
+
+  // As of Commerce 1.16, there is now an order setting that determines the
+  // appropriate behavior. If instructed, here we check to make sure the event
+  // hasn't been invoked for this order already.
+  if (commerce_checkout_permit_multiple_completions()) {
+    rules_invoke_all('commerce_checkout_complete', $order);
+  }
+  else {
+    if (empty($order->data['commerce_checkout_complete_invoked'])) {
+      rules_invoke_all('commerce_checkout_complete', $order);
+
+      // Update the order's data array to indicate when completion occured.
+      $order->data['commerce_checkout_complete_invoked'] = REQUEST_TIME;
+      $save_order = TRUE;
+    }
+  }
+
+  if ($save_order) {
+    commerce_order_save($order);
+  }
 }
 
 /**
