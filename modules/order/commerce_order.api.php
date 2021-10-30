@@ -222,3 +222,13 @@ function hook_commerce_order_can_delete($order) {
 
   return $query->execute() == 0;
 }
+
+/**
+ * Respond to order revision deletion.
+ *
+ * @param $order
+ *   The order revision (order object) that is being deleted.
+ */
+function hook_commerce_order_revision_delete($order) {
+  // No example.
+}

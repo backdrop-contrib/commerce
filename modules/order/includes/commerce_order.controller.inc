@@ -9,7 +9,7 @@
  * The controller class for orders contains methods for the order CRUD
  * operations. The load method is inherited from the default controller.
  */
-class CommerceOrderEntityController extends DrupalCommerceEntityController {
+class CommerceOrderEntityController extends DrupalCommerceEntityController implements EntityAPIControllerRevisionableInterface {
 
   /**
    * Create a default order.
@@ -181,5 +181,29 @@ class CommerceOrderEntityController extends DrupalCommerceEntityController {
     else {
       return FALSE;
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteRevision($revision_id) {
+    if ($revisions = commerce_order_load_multiple(array(), array('revision_id' => $revision_id))) {
+      $revision = $revisions ? reset($revisions) : FALSE;
+      // Prevent deleting the current revision.
+      if (!$revision || commerce_order_is_latest_revision($revision)) {
+        return FALSE;
+      }
+
+      // Delete order revision.
+      db_delete('commerce_order_revision')
+        ->condition('order_id', $revision->order_id)
+        ->condition('revision_id', $revision->revision_id)
+        ->execute();
+
+      $this->invoke('commerce_order_revision_delete', $revision);
+      field_attach_delete_revision('commerce_order', $revision);
+      return TRUE;
+    }
+    return FALSE;
   }
 }
