@@ -475,7 +475,7 @@ function commerce_payment_commerce_payment_transaction_insert($transaction) {
         rules_invoke_all('commerce_payment_order_paid_in_full', $order, $transaction);
 
         // Update the order's data array to indicate this just happened.
-        $order->data['commerce_payment_order_paid_in_full_invoked'] = TRUE;
+        $order->data['commerce_payment_order_paid_in_full_invoked'] = REQUEST_TIME;
 
         // Save the updated order.
         commerce_order_save($order);
