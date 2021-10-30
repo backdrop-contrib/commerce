@@ -81,6 +81,22 @@ function commerce_system_info_alter(&$info, $file, $type) {
 }
 
 /**
+ * Implements hook_html_head_alter().
+ */
+function commerce_html_head_alter(&$head_elements) {
+  if (isset($head_elements['system_meta_generator'])) {
+    $head_elements['system_meta_generator']['#attributes']['content'] .= '; Commerce 1';
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function commerce_init() {
+  drupal_add_http_header('X-Commerce-Core', '1');
+}
+
+/**
  * Finds all fields of a particular field type.
  *
  * @param $field_type
