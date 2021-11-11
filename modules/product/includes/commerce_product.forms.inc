@@ -41,7 +41,7 @@ function commerce_product_product_form($form, &$form_state, $product) {
   // Add the field related form elements.
   $form_state['commerce_product'] = $product;
 
-  $langcode = entity_language('commerce_product', $product);
+  $langcode = !empty($product->language) ? $product->language : LANGUAGE_NONE;
 
   if (empty($langcode)) {
     $langcode = LANGUAGE_NONE;
