@@ -1199,7 +1199,7 @@ function commerce_cart_order_refresh($order) {
  *
  * @see commerce_cart_entity_property_info_alter()
  */
-function commerce_cart_get_properties($data = FALSE, array $options, $name) {
+function commerce_cart_get_properties($data, array $options, $name) {
   global $user;
 
   switch ($name) {
