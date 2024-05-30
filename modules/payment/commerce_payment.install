@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Installation functions for Drupal Commerce Payment.
+ * Installation functions for Backdrop Commerce Payment.
  */
 
 
@@ -130,12 +130,11 @@ function commerce_payment_schema() {
       'payment_method' => array('payment_method'),
       'uid' => array('uid'),
       'order_id' => array('order_id'),
-      'remote_id' => array('remote_id'),
     ),
     'foreign keys' => array(
       'payment_transaction_revision' => array(
         'table' => 'commerce_payment_transaction_revision',
-        'columns'=> array('revision_id' => 'revision_id'),
+        'columns' => array('revision_id' => 'revision_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -143,7 +142,7 @@ function commerce_payment_schema() {
       ),
       'order_id' => array(
         'table' => 'commerce_order',
-        'columns'=> array('order_id' => 'order_id'),
+        'columns' => array('order_id' => 'order_id'),
       ),
     ),
   );
@@ -235,13 +234,12 @@ function commerce_payment_schema() {
     ),
     'indexes' => array(
       'transaction_id' => array('transaction_id'),
-      'remote_id' => array('remote_id'),
     ),
     'primary key' => array('revision_id'),
     'foreign keys' => array(
       'payment_transaction' => array(
         'table' => 'commerce_payment_transaction',
-        'columns'=> array('transaction_id' => 'transaction_id'),
+        'columns' => array('transaction_id' => 'transaction_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -324,4 +322,74 @@ function commerce_payment_update_7104() {
   }
 
   return t('Schema for the commerce_payment_transaction and commerce_payment_transaction_revision tables have been updated.');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_payment_update_last_removed() {
+  return 7103;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_payment_update_1000() {
+  $config = config('commerce_payment.settings');
+  $config->set('commerce_payment_pane_require_method', update_variable_get('commerce_payment_pane_require_method', false));
+  $config->set('commerce_payment_pane_no_method_behavior', update_variable_get('commerce_payment_pane_no_method_behavior', 'message'));
+  $config->set('commerce_order_auto_revision', update_variable_get('commerce_order_auto_revision', true));
+  $config->set('anonymous', update_variable_get('anonymous', 'Anonymous'));
+  $config->save();
+  update_variable_del('commerce_payment_pane_require_method');
+  update_variable_del('commerce_payment_pane_no_method_behavior');
+  update_variable_del('commerce_order_auto_revision');
+  update_variable_del('anonymous');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_payment_install() {
+  // Dynamically generated variable data was detected.
+}
+
+function commerce_payment_uninstall() {
+  $names = array(
+    'views.view.commerce_payment_order',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
+  }
+  // Clear admin bar cache to remove views from menu
+  cache('admin_bar')->flush();
+}
+
+function commerce_payment_update_1016() {
+
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_payment_order');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_payment') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_payment_order.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_payment_update_1500() {
+  $names = array(
+    'views.view.commerce_payment_order',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->set('module', 'commerce_payment');
+    $config->set('storage', 4);
+    $config->save();
+  }
 }

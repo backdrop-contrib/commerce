@@ -43,7 +43,7 @@ function commerce_payment_ui_admin_page() {
       // We don't have access to the actual machine-name of the rule each row
       // represents, so we must extract the name from the machine-name markup.
       $rule_name_markup = $row[0]['data']['description']['settings']['machine_name']['#markup'];
-      $rule_name = drupal_substr($rule_name_markup, drupal_strlen(t('Machine name') . ': '));
+      $rule_name = backdrop_substr($rule_name_markup, backdrop_strlen(t('Machine name') . ': '));
 
       // If we were able to extract a valid name from the markup...
       if ($rule = rules_config_load($rule_name)) {
@@ -51,7 +51,7 @@ function commerce_payment_ui_admin_page() {
         foreach ($rule->actions() as $action) {
           // Parse the action name into a payment method ID.
           if (method_exists($action, 'getElementName') && strpos($action->getElementName(), 'commerce_payment_enable_') === 0) {
-            $method_id = drupal_substr($action->getElementName(), 24);
+            $method_id = backdrop_substr($action->getElementName(), 24);
 
             // Load the payment method instance and determine availability.
             $payment_method = commerce_payment_method_load($method_id);
@@ -97,7 +97,7 @@ function commerce_payment_ui_admin_page() {
  * Displays the full details of a payment transaction.
  */
 function commerce_payment_ui_payment_transaction_view($order, $transaction, $view_mode) {
-  return entity_view('commerce_payment_transaction', array($transaction->transaction_id => $transaction), $view_mode, NULL, TRUE);
+  return entity_plus_view('commerce_payment_transaction', array($transaction->transaction_id => $transaction), $view_mode, NULL, TRUE);
 }
 
 /**
@@ -113,5 +113,5 @@ function commerce_payment_ui_payment_transaction_view($order, $transaction, $vie
 function commerce_payment_ui_payment_transaction_delete_form_wrapper($order, $transaction) {
   // Include the forms file from the Payment module.
   module_load_include('inc', 'commerce_payment', 'includes/commerce_payment.forms');
-  return drupal_get_form('commerce_payment_ui_payment_transaction_delete_form', $order, $transaction);
+  return backdrop_get_form('commerce_payment_ui_payment_transaction_delete_form', $order, $transaction);
 }

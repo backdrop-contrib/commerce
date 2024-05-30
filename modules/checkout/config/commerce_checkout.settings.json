@@ -1,0 +1,14 @@
+{
+    "_config_name": "commerce_checkout.settings",
+    "commerce_checkout_run_update_7103": false,
+    "commerce_checkout_completion_message": {
+    "value": "",
+    "format": ""
+    },
+    "enable_commerce_checkout_order_created_date_update": false,
+    "commerce_checkout_completion_message_override": "",
+    "commerce_order_simulate_checkout_link": false,
+    "commerce_order_auto_revision": true,
+    "commerce_checkout_permit_multiple_completions": true,
+    "commerce_password_length": 8
+}

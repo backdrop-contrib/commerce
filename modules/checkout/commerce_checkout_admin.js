@@ -6,15 +6,15 @@
  * This code is almost an exact copy of the code used for the block region and
  * weight settings form.
  */
-Drupal.behaviors.paneDrag = {
+Backdrop.behaviors.paneDrag = {
   attach: function (context, settings) {
     // tableDrag is required for this behavior.
-    if (typeof Drupal.tableDrag == 'undefined' || typeof Drupal.tableDrag.panes == 'undefined') {
+    if (typeof Backdrop.tableDrag == 'undefined' || typeof Backdrop.tableDrag.panes == 'undefined') {
       return;
     }
 
     var table = $('table#panes');
-    var tableDrag = Drupal.tableDrag.panes; // Get the blocks tableDrag object.
+    var tableDrag = Backdrop.tableDrag.panes; // Get the blocks tableDrag object.
 
     // Add a handler for when a row is swapped, update empty regions.
     tableDrag.row.prototype.onSwap = function (swappedRow) {
@@ -22,8 +22,8 @@ Drupal.behaviors.paneDrag = {
     };
 
     // A custom message for the panes page specifically.
-    Drupal.theme.tableDragChangedWarning = function () {
-      return '<div class="messages warning">' + Drupal.theme('tableDragChangedMarker') + ' ' + Drupal.t("Changes to the checkout panes will not be saved until the <em>Save configuration</em> button is clicked.") + '</div>';
+    Backdrop.theme.tableDragChangedWarning = function () {
+      return '<div class="messages warning">' + Backdrop.theme('tableDragChangedMarker') + ' ' + Backdrop.t("Changes to the checkout panes will not be saved until the <em>Save configuration</em> button is clicked.") + '</div>';
     };
 
     // Add a handler so when a row is dropped, update fields dropped into new regions.
