@@ -13,6 +13,8 @@ define('COMMERCE_ROUND_HALF_DOWN', 2);
 define('COMMERCE_ROUND_HALF_EVEN', 3);
 define('COMMERCE_ROUND_HALF_ODD', 4);
 
+module_load_include('inc', 'commerce', 'includes/commerce.controller');
+
 /**
  * Implements hook_permission().
  */
@@ -93,7 +95,7 @@ function commerce_html_head_alter(&$head_elements) {
  * Implements hook_init().
  */
 function commerce_init() {
-  drupal_add_http_header('X-Commerce-Core', '1');
+  backdrop_add_http_header('X-Commerce-Core', '1');
 }
 
 /**
@@ -185,11 +187,12 @@ function commerce_entity_reference_delete($entity, $field_name, $col_name, $ref_
 function commerce_activate_field($field_name) {
   // Set it to active via a query because field_update_field() does
   // not work on inactive fields.
-  $updated = db_update('field_config')
-    ->fields(array('active' => 1))
-    ->condition('field_name', $field_name, '=')
-    ->condition('deleted', 0, '=')
-    ->execute();
+  $config = config('field.field.' . $field_name);
+  if (!empty($config->getData() || $config->getData() != NULL)) {
+    $config->set('deleted', 0);
+    $config->save();
+  }
+  $updated = $config->get('deleted');
 
   return !empty($updated) ? TRUE : FALSE;
 }
@@ -240,6 +243,7 @@ function commerce_delete_field($field_name) {
  *   entity type.
  */
 function commerce_delete_instances($entity_type, $bundle = NULL) {
+  $config = config('commerce.settings');
   // Prepare a parameters array to load the specified instances.
   $params = array(
     'entity_type' => $entity_type,
@@ -248,7 +252,7 @@ function commerce_delete_instances($entity_type, $bundle = NULL) {
   if (!empty($bundle)) {
     $params['bundle'] = $bundle;
     // Delete this bundle's field bundle settings.
-    variable_del('field_bundle_settings_' . $entity_type . '__' . $bundle);
+    $config->clear('field_bundle_settings_' . $entity_type . '__' . $bundle);
   }
   else {
     // Delete all field bundle settings for this entity type.
@@ -336,7 +340,7 @@ function commerce_form_callback($form_id, $form_state) {
   // If a function named after the $form_id does not exist, look for its
   // definition in hook_forms().
   if (!function_exists($form_id)) {
-    $forms = &drupal_static(__FUNCTION__);
+    $forms = &backdrop_static(__FUNCTION__);
 
     // In cases where many form_ids need to share a central builder function,
     // such as the product editing form, modules can implement hook_forms(). It
@@ -397,7 +401,13 @@ function commerce_embed_view($view_id, $display_id, $arguments, $override_url = 
  * store's physical address and contact information.
  */
 function commerce_email_from() {
-  return variable_get('site_mail', ini_get('sendmail_from'));
+  $config = config('commerce.settings');
+  $site_email = $config->get('site_mail');
+  if (!isset($site_email) || empty($site_email) || $site_email == NULL){
+    $site_email = ini_get('sendmail_from');
+    $config->set('site_mail', update_variable_get('site_mail', $site_email));
+  }
+  return $site_email;
 }
 
 /**
@@ -486,8 +496,9 @@ function commerce_i18n_string($name, $default, $options = array()) {
  * Returns the currency code of the site's default currency.
  */
 function commerce_default_currency() {
-  $currency_code = variable_get('commerce_default_currency', 'USD');
-  drupal_alter('commerce_default_currency', $currency_code);
+  $config = config('commerce.settings');
+  $currency_code = $config->get('commerce_default_currency');
+  backdrop_alter('commerce_default_currency', $currency_code);
   return $currency_code;
 }
 
@@ -524,14 +535,15 @@ function commerce_currency_load($currency_code = NULL) {
  *   An array of altered currency arrays keyed by the currency code.
  */
 function commerce_currencies($enabled = FALSE, $reset = FALSE) {
+  $config = config('commerce.settings');
   global $language;
-  $currencies = &drupal_static(__FUNCTION__);
+  $currencies = &backdrop_static(__FUNCTION__);
 
   // If there is no static cache for currencies yet or a reset was specified...
   if (!isset($currencies) || $reset) {
     // First attempt to load currency data from the cache if we simply didn't
     // have it statically cached and a reset hasn't been specified.
-    if (!$reset && $currencies_cached = cache_get('commerce_currencies:' . $language->language)) {
+    if (!$reset && $currencies_cached = cache_get('commerce_currencies:' . $language->langcode)) {
       $currencies['all'] = $currencies_cached->data;
     }
     else {
@@ -556,7 +568,7 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
       // Include the currency file and invoke the currency info hook.
       module_load_include('inc', 'commerce', 'includes/commerce.currency');
       $currencies['all'] = module_invoke_all('commerce_currency_info');
-      drupal_alter('commerce_currency_info', $currencies['all'], $language->language);
+      backdrop_alter('commerce_currency_info', $currencies['all'], $language->langcode);
 
       // Add default values if they don't exist.
       foreach ($currencies['all'] as $currency_code => $currency) {
@@ -566,13 +578,14 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
       // Sort the currencies
       ksort($currencies['all']);
 
-      cache_set('commerce_currencies:' . $language->language, $currencies['all']);
+      cache_set('commerce_currencies:' . $language->langcode, $currencies['all']);
     }
+    $lang = ($config->get('commerce_enabled_currencies'));
 
     // Form an array of enabled currencies based on the variable set by the
     // checkboxes element on the currency settings form.
-    $enabled_currencies = array_diff(array_values(variable_get('commerce_enabled_currencies', array('USD' => 'USD'))), array(0));
-    $currencies['enabled'] = array_intersect_key($currencies['all'], drupal_map_assoc($enabled_currencies));
+    $enabled_currencies = array_diff(array_values($lang), array(0));
+    $currencies['enabled'] = array_intersect_key($currencies['all'], backdrop_map_assoc($enabled_currencies));
   }
 
   return $enabled ? $currencies['enabled'] : $currencies['all'];
@@ -585,7 +598,7 @@ function commerce_currencies($enabled = FALSE, $reset = FALSE) {
  *   Boolean indicating whether or not to include only enabled currencies.
  */
 function commerce_currency_get_code($enabled = FALSE) {
-  return drupal_map_assoc(array_keys(commerce_currencies($enabled)));
+  return backdrop_map_assoc(array_keys(commerce_currencies($enabled)));
 }
 
 /**
@@ -840,7 +853,7 @@ function commerce_months() {
  * Returns an array of numerical comparison operators for use in Rules.
  */
 function commerce_numeric_comparison_operator_options_list() {
-  return drupal_map_assoc(array('<', '<=', '=', '>=', '>'));
+  return backdrop_map_assoc(array('<', '<=', '=', '>=', '>'));
 }
 
 /**
@@ -1272,7 +1285,7 @@ function commerce_entity_access_query_alter($query, $entity_type, $base_table = 
   );
 
   // Allow other modules to add conditions to the array as necessary.
-  drupal_alter($hooks, $conditions, $context);
+  backdrop_alter($hooks, $conditions, $context);
 
   // If we have more than one condition based on the entity access permissions
   // and any hook implementations...
@@ -1309,7 +1322,7 @@ function commerce_options_list_limit_validate($element, &$form_state, $form) {
 function commerce_theme_registry_alter(&$theme_registry) {
   // Copy the preprocess functions array and remove the core preprocess function
   // along with the Entity API's and this module's.
-  $functions = drupal_map_assoc($theme_registry['entity']['preprocess functions']);
+  $functions = backdrop_map_assoc($theme_registry['entity']['preprocess functions']);
   unset($functions['template_preprocess'], $functions['template_preprocess_entity'], $functions['commerce_preprocess_entity']);
 
   // Unshift the core preprocess function and the Commerce specific function so
@@ -1318,6 +1331,58 @@ function commerce_theme_registry_alter(&$theme_registry) {
 
   // Update the function list in the theme registry.
   $theme_registry['entity']['preprocess functions'] = array_values($functions);
+}
+
+function commerce_entity_label($entity_type, $entity) {
+  $label = FALSE;
+  $info = entity_get_info($entity_type);
+  if (isset($info['label callback']) && function_exists($info['label callback'])) {
+    $label = $info['label callback']($entity, $entity_type);
+  }
+  elseif (!empty($info['entity keys']['label']) && isset($entity->{$info['entity keys']['label']})) {
+    $label = $entity->{$info['entity keys']['label']};
+  }
+
+  return $label;
+}
+
+/**
+ * Returns the URI elements of an entity.
+ *
+ * @param $entity_type
+ *   The entity type; e.g. 'node' or 'user'.
+ * @param $entity
+ *   The entity for which to generate a path.
+ * @return
+ *   An array containing the 'path' and 'options' keys used to build the URI of
+ *   the entity, and matching the signature of url(). NULL if the entity has no
+ *   URI of its own.
+ */
+function commerce_entity_uri($entity_type, $entity) {
+  $info = entity_get_info($entity_type);
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+
+  // A bundle-specific callback takes precedence over the generic one for the
+  // entity type.
+  if (isset($info['bundles'][$bundle]['uri callback'])) {
+    $uri_callback = $info['bundles'][$bundle]['uri callback'];
+  }
+  elseif (isset($info['uri callback'])) {
+    $uri_callback = $info['uri callback'];
+  }
+  else {
+    return NULL;
+  }
+
+  // Invoke the callback to get the URI. If there is no callback, return NULL.
+  if (isset($uri_callback) && function_exists($uri_callback)) {
+    $uri = $uri_callback($entity);
+    // Pass the entity data to url() so that alter functions do not need to
+    // lookup this entity again.
+    $uri['options']['entity_type'] = $entity_type;
+    $uri['options']['entity'] = $entity;
+    return $uri;
+  }
 }
 
 /**
@@ -1334,9 +1399,10 @@ function commerce_preprocess_entity(&$variables) {
   $variables[$variables['elements']['#entity_type']] = $entity;
   $info = entity_get_info($entity_type);
 
-  $variables['title'] = check_plain(entity_label($entity_type, $entity));
+  $variables['title'] = check_plain(commerce_entity_label($entity_type, $entity));
 
-  $uri = entity_uri($entity_type, $entity);
+  $uri = commerce_entity_uri($entity_type, $entity);
+
   $variables['url'] = $uri && isset($uri['path']) ? url($uri['path'], $uri['options']) : FALSE;
 
   if (isset($variables['elements']['#page'])) {
@@ -1358,11 +1424,11 @@ function commerce_preprocess_entity(&$variables) {
     // Make the field variables available with the appropriate language.
     field_attach_preprocess($entity_type, $entity, $variables['content'], $variables);
   }
-  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  [, , $bundle] = entity_extract_ids($entity_type, $entity);
 
   // Gather css classes.
-  $variables['classes_array'][] = drupal_html_class('entity-' . $entity_type);
-  $variables['classes_array'][] = drupal_html_class($entity_type . '-' . $bundle);
+  $variables['classes_array'][] = backdrop_html_class('entity-' . $entity_type);
+  $variables['classes_array'][] = backdrop_html_class($entity_type . '-' . $bundle);
 
   // Add RDF type and about URI.
   if (module_exists('rdf')) {
@@ -1374,7 +1440,7 @@ function commerce_preprocess_entity(&$variables) {
   $variables['theme_hook_suggestions'][] = $entity_type;
   $variables['theme_hook_suggestions'][] = $entity_type . '__' . $bundle;
   $variables['theme_hook_suggestions'][] = $entity_type . '__' . $bundle . '__' . $variables['view_mode'];
-  if ($id = entity_id($entity_type, $entity)) {
+  if ($id = entity_plus_id($entity_type, $entity)) {
     $variables['theme_hook_suggestions'][] = $entity_type . '__' . $id;
   }
 }
@@ -1393,4 +1459,21 @@ function commerce_preprocess_entity(&$variables) {
  */
 function commerce_entity_is_unchanged($entity_type, $entity) {
   return entity_get_controller($entity_type)->isUnchanged($entity);
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function commerce_config_info() {
+  $prefixes['commerce.settings'] = array(
+    'label' => t('Commerce settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+function commerce_autoload_info() {
+  return array(
+    'EntityAPIControllerExportable' =>'includes/commerce.entity.controller.inc',
+  );
 }

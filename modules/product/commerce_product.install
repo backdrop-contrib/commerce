@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_product module.
+ *
+ */
+
 
 
 /**
@@ -192,6 +198,18 @@ function commerce_product_uninstall() {
   // Delete any field instance attached to a product type.
   module_load_include('module', 'commerce');
   commerce_delete_instances('commerce_product');
+
+  $names = array(
+    'views.view.commerce_product_revisions',
+    'views.view.commerce_products',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
+  }
+  // Clear admin bar cache to remove views from menu
+  cache('admin_bar')->flush();
 }
 
 /**
@@ -241,9 +259,6 @@ function commerce_product_update_7102() {
   return t('Database index added to the uid column of the commerce_product table.');
 }
 
-/**
- * Add support for product revisions.
- */
 function commerce_product_update_7103(&$sandbox) {
   if (!isset($sandbox['progress'])) {
     $commerce_product_revision_schema = array(
@@ -407,9 +422,6 @@ function commerce_product_update_7103(&$sandbox) {
   return t('The update for commerce product revisions ran successfully.');
 }
 
-/**
- * Remove the default value for revision_id on {commerce_product}.
- */
 function commerce_product_update_7104() {
   db_change_field('commerce_product', 'revision_id', 'revision_id', array(
     'description' => 'The current {commerce_product_revision}.revision_id version identifier.',
@@ -419,4 +431,77 @@ function commerce_product_update_7104() {
   ));
 
   return t('Schema for the commerce_product table has been updated.');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_product_update_last_removed() {
+  return 7104;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_product_update_1000() {
+  $config = config('commerce_product.settings');
+  $config->set('commerce_product_match_products_efq', update_variable_get('commerce_product_match_products_efq', FALSE));
+  $config->set('menu_rebuild_needed', update_variable_get('menu_rebuild_needed', FALSE));
+  $config->set('anonymous', update_variable_get('anonymous', "Anonymous"));
+  $config->save();
+  update_variable_del('commerce_product_match_products_efq');
+}
+
+/**
+ * Create webform_analysis views if it doesn't exist already.
+ */
+function commerce_product_update_1016() {
+
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_product_revisions');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_product') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_product_revisions.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_product_update_1017() {
+
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_products');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_product') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_products.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_product_update_1500() {
+  $names = array(
+    'views.view.commerce_product_revisions',
+    'views.view.commerce_products'
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->set('module', 'commerce_product');
+    $config->set('storage', 4);
+    $config->save();
+  }
+
+}
+
+
+/**
+ * Implements hook_install().
+ */
+function commerce_product_install() {
+  // Dynamically generated variable data was detected.
 }

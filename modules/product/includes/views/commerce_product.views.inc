@@ -109,18 +109,18 @@ function commerce_product_views_data() {
       'title' => t('Language'),
       'help' => t('The language the product is in.'),
       'field' => array(
-       'handler' => 'views_handler_field_locale_language',
-       'click sortable' => TRUE,
+        'handler' => 'views_handler_field_locale_language',
+        'click sortable' => TRUE,
       ),
-     'filter' => array(
-       'handler' => 'views_handler_filter_locale_language',
-     ),
-     'argument' => array(
-       'handler' => 'views_handler_argument_locale_language',
-     ),
-     'sort' => array(
-     'handler' => 'views_handler_sort',
-     ),
+      'filter' => array(
+        'handler' => 'views_handler_filter_locale_language',
+      ),
+      'argument' => array(
+        'handler' => 'views_handler_argument_locale_language',
+      ),
+      'sort' => array(
+        'handler' => 'views_handler_sort',
+      ),
     );
   }
 
@@ -485,7 +485,7 @@ function commerce_product_views_data() {
     'help' => t('The log message entered when the revision was created.'),
     'field' => array(
       'handler' => 'views_handler_field_xss',
-     ),
+    ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),

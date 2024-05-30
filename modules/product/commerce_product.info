@@ -3,9 +3,10 @@ description = Defines the Product entity and associated features.
 package = Commerce
 dependencies[] = commerce
 dependencies[] = commerce_price
-core = 7.x
+backdrop = 1.x
+type = module
 
-; Module includes
+ Module includes
 files[] = includes/commerce_product.controller.inc
 
 ; Views handlers

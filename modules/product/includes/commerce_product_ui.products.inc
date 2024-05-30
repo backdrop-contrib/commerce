@@ -17,7 +17,7 @@ function commerce_product_ui_add_page() {
   // available.
   if (count($content) == 1) {
     $item = array_shift($content);
-    drupal_goto($item['href']);
+    backdrop_goto($item['href']);
   }
 
   return theme('product_add_list', array('content' => $content));
@@ -63,7 +63,7 @@ function theme_product_add_list($variables) {
 function commerce_product_ui_product_form_wrapper($product) {
   // Include the forms file from the Product module.
   module_load_include('inc', 'commerce_product', 'includes/commerce_product.forms');
-  return drupal_get_form('commerce_product_ui_product_form', $product);
+  return backdrop_get_form('commerce_product_ui_product_form', $product);
 }
 
 /**
@@ -77,5 +77,5 @@ function commerce_product_ui_product_form_wrapper($product) {
 function commerce_product_ui_product_delete_form_wrapper($product) {
   // Include the forms file from the Product module.
   module_load_include('inc', 'commerce_product', 'includes/commerce_product.forms');
-  return drupal_get_form('commerce_product_ui_product_delete_form', $product);
+  return backdrop_get_form('commerce_product_ui_product_delete_form', $product);
 }

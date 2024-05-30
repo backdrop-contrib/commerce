@@ -15,7 +15,7 @@
  */
 function commerce_product_product_form($form, &$form_state, $product) {
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_product') . '/includes/commerce_product.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_product') . '/includes/commerce_product.forms.inc';
 
   // Add the default field elements.
   // TODO: Update description to include the acceptable product tokens.
@@ -41,7 +41,7 @@ function commerce_product_product_form($form, &$form_state, $product) {
   // Add the field related form elements.
   $form_state['commerce_product'] = $product;
 
-  $langcode = entity_language('commerce_product', $product);
+  $langcode = entity_plus_language('commerce_product', $product);
 
   if (empty($langcode)) {
     $langcode = LANGUAGE_NONE;
@@ -207,7 +207,7 @@ function commerce_product_product_form_submit($form, &$form_state) {
   commerce_product_save($product);
 
   // Redirect based on the button clicked.
-  drupal_set_message(t('Product saved.'));
+  backdrop_set_message(t('Product saved.'));
 }
 
 /**
@@ -222,20 +222,21 @@ function commerce_product_product_delete_form($form, &$form_state, $product) {
   $form_state['product'] = $product;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_product') . '/includes/commerce_product.forms.inc';
+  $form_state['build_info']['files']['form'] =  backdrop_get_path('module', 'commerce_product') . '/includes/commerce_product.forms.inc';
 
   $form['#submit'][] = 'commerce_product_product_delete_form_submit';
 
-  $content = entity_view('commerce_product', array($product->product_id => $product));
+  $content = entity_plus_view('commerce_product', array($product->product_id => $product));
 
   $form = confirm_form($form,
     t('Are you sure you want to delete %title?', array('%title' => $product->title)),
     '',
-    drupal_render($content) . '<p>' . t('Deleting this product cannot be undone.', array('@sku' => $product->sku)) . '</p>',
+     '<p>' . t('Deleting this product cannot be undone.', array('@sku' => $product->sku)) . '</p>',
     t('Delete'),
     t('Cancel'),
     'confirm'
   );
+
 
   return $form;
 }
@@ -247,10 +248,11 @@ function commerce_product_product_delete_form_submit($form, &$form_state) {
   $product = $form_state['product'];
 
   if (commerce_product_delete($product->product_id)) {
-    drupal_set_message(t('%title has been deleted.', array('%title' => $product->title)));
+    backdrop_set_message(t('%title has been deleted.', array('%title' => $product->title)));
     watchdog('commerce_product', 'Deleted product %title (SKU: @sku).', array('%title' => $product->title, '@sku' => $product->sku), WATCHDOG_NOTICE);
+    $form_state['redirect'] = 'admin/commerce/products';
   }
   else {
-    drupal_set_message(t('%title could not be deleted.', array('%title' => $product->title)), 'error');
+    backdrop_set_message(t('%title could not be deleted.', array('%title' => $product->title)), 'error');
   }
 }

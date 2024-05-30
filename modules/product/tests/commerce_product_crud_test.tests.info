@@ -1,0 +1,12 @@
+[CommerceProductCRUDTestCase]
+name = Product CRUD
+description = Test the product CRUD functions.
+group = Drupal Commerce
+file = commerce_product.test
+
+[CommerceProductUIAdminTest]
+name = Product administration
+description = Tests creating, deleting and editing products and product types.
+group = Drupal Commerce
+file = commerce_product_ui.test
+

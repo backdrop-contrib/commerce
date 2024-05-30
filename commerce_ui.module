@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Defines menu items common to the various Drupal Commerce UI modules.
+ * Defines menu items common to the various Backdrop Commerce UI modules.
  */
 
 
@@ -18,7 +18,7 @@ function commerce_ui_menu() {
     'description' => 'Administer your store.',
     'page callback' => 'system_admin_menu_block_page',
     'access arguments' => array('access administration pages'),
-    'file path' => drupal_get_path('module', 'system'),
+    'file path' => backdrop_get_path('module', 'system'),
     'file' => 'system.admin.inc',
     'weight' => -7,
   );
@@ -29,13 +29,13 @@ function commerce_ui_menu() {
     'access arguments' => array('access administration pages'),
     'type' => MENU_NORMAL_ITEM,
     'weight' => 50,
-    'file path' => drupal_get_path('module', 'system'),
+    'file path' => backdrop_get_path('module', 'system'),
     'file' => 'system.admin.inc',
   );
   $items['admin/commerce/config/currency'] = array(
     'title' => 'Currency settings',
     'description' => 'Configure the default currency and display settings.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_currency_settings_form'),
     'access arguments' => array('configure store'),
     'type' => MENU_NORMAL_ITEM,
@@ -43,4 +43,14 @@ function commerce_ui_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_ui_autoload_info() {
+  return array(
+    'BackdropCommerceEntityControllerInterface' => 'includes/commerce.controller.inc',
+    'BackdropCommerceEntityController' => 'includes/commerce.controller.inc',
+  );
 }

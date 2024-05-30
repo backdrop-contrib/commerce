@@ -24,7 +24,7 @@ function commerce_product_entity_property_info() {
     'label' => t('SKU'),
     'description' => t('The human readable product SKU.'),
     'type' => 'text',
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'required' => TRUE,
     'schema field' => 'sku',
   );
@@ -32,7 +32,7 @@ function commerce_product_entity_property_info() {
     'label' => t('Type'),
     'description' => t('The type of the product.'),
     'type' => 'token',
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_product entities',
     'options list' => 'commerce_product_type_options_list',
     'required' => TRUE,
@@ -42,7 +42,7 @@ function commerce_product_entity_property_info() {
     'label' => t('Title'),
     'description' => t('The title of the product.'),
     'type' => 'text',
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'required' => TRUE,
     'schema field' => 'title',
   );
@@ -50,7 +50,7 @@ function commerce_product_entity_property_info() {
     'label' => t('Language'),
     'type' => 'token',
     'description' => t('The language the product was created in.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'options list' => 'entity_metadata_language_list',
     'schema field' => 'language',
     'setter permission' => 'administer commerce_product entities',
@@ -60,7 +60,7 @@ function commerce_product_entity_property_info() {
     'description' => t('Boolean indicating whether the product is active or disabled.'),
     'type' => 'boolean',
     'options list' => 'commerce_product_status_options_list',
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_product entities',
     'schema field' => 'status',
   );
@@ -68,7 +68,7 @@ function commerce_product_entity_property_info() {
     'label' => t('Date created'),
     'description' => t('The date the product was created.'),
     'type' => 'date',
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_product entities',
     'schema field' => 'created',
   );
@@ -76,7 +76,7 @@ function commerce_product_entity_property_info() {
     'label' => t('Date updated'),
     'description' => t('The date the product was most recently updated.'),
     'type' => 'date',
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'query callback' => 'entity_metadata_table_query',
     'setter permission' => 'administer commerce_product entities',
     'schema field' => 'changed',
@@ -85,7 +85,7 @@ function commerce_product_entity_property_info() {
     'label' => t('Creator ID'),
     'type' => 'integer',
     'description' => t('The unique ID of the product creator.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_product entities',
     'clear' => array('creator'),
     'schema field' => 'uid',
@@ -101,6 +101,7 @@ function commerce_product_entity_property_info() {
     'computed' => TRUE,
     'clear' => array('uid'),
   );
+
 
   $info['commerce_product']['bundles'] = array();
   foreach (commerce_product_type_get_name() as $type => $name) {

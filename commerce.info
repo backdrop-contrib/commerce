@@ -4,10 +4,9 @@ package = Commerce
 dependencies[] = system
 dependencies[] = entity
 dependencies[] = rules
-core = 7.x
+dependencies[] = i18n
+backdrop = 1.x
+type = module
 
 ; Tests
-files[] = tests/commerce_base.test
-
 ; Central Entity Controller.
-files[] = includes/commerce.controller.inc

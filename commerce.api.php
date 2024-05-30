@@ -188,7 +188,7 @@ function hook_commerce_entity_create_alter($entity_type, $entity) {
  */
 function hook_commerce_default_currency_alter(&$currency_code) {
   global $language;
-  if (isset($language->language) && $language->language == 'en-US') {
+  if (isset($language->langcode) && $language->langcode == 'en') {
     $currency_code = 'USD';
   }
 }

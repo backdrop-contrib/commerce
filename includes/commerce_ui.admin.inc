@@ -10,6 +10,7 @@
  * Builds the currency settings form.
  */
 function commerce_currency_settings_form($form, &$form_state) {
+  $config = config('commerce.settings');
   // Build a currency options list from all defined currencies.
   $options = array();
 
@@ -21,6 +22,7 @@ function commerce_currency_settings_form($form, &$form_state) {
     }
   }
 
+  $form['#config'] = 'commerce.settings';
   $form['commerce_default_currency'] = array(
     '#type' => 'select',
     '#title' => t('Default store currency'),
@@ -42,12 +44,19 @@ function commerce_currency_settings_form($form, &$form_state) {
   $form['enabled_currencies']['commerce_enabled_currencies'] = array(
     '#type' => 'checkboxes',
     '#options' => $options,
-    '#default_value' => variable_get('commerce_enabled_currencies', array('USD' => 'USD')),
+    '#default_value' => $config->get('commerce_enabled_currencies'),
   );
 
   $form['#validate'][] = 'commerce_currency_settings_form_validate';
 
+  $form['#submit'][] = 'commerce_currency_form_settings_form_submit';
+
   return system_settings_form($form);
+}
+
+function commerce_currency_form_settings_form_submit($form, &$form_state) {
+  $commerce_enabled_currencies = $form_state['values']['commerce_enabled_currencies'];
+  config_set('commerce.settings', 'commerce_enabled_currencies', $commerce_enabled_currencies);
 }
 
 /**

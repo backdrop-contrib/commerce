@@ -3,5 +3,7 @@ description = "Support module for product related testing."
 package = Testing
 dependencies[] = rules
 version = VERSION
-core = 7.x
+backdrop = 1.x
+type = module
 hidden = TRUE
+
