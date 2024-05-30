@@ -128,8 +128,8 @@ function commerce_line_item_form_alter(&$form, &$form_state, $form_id) {
     return;
   }
 
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.theme.css';
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_line_item') . '/commerce_line_item.js';
+  $form['#attached']['css'][] = backdrop_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.theme.css';
+  $form['#attached']['js'][] = backdrop_get_path('module', 'commerce_line_item') . '/commerce_line_item.js';
   $form['#submit'][] = 'commerce_line_item_line_item_views_form_submit';
 
   // Wrap the form in a div so we can add CSS and javascript behaviors to it.
@@ -207,7 +207,7 @@ function commerce_line_item_theme() {
     ),
     'commerce_line_item_summary' => array(
       'variables' => array('quantity_raw' => NULL, 'quantity_label' => NULL, 'quantity' => NULL, 'total_raw' => NULL, 'total_label' => NULL, 'total' => NULL, 'links' => NULL, 'view' => NULL),
-      'path' => drupal_get_path('module', 'commerce_line_item') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_line_item') . '/theme',
       'template' => 'commerce-line-item-summary',
     ),
   );
@@ -217,21 +217,21 @@ function commerce_line_item_theme() {
  * Submit handler used when clicking the remove button.
  */
 function commerce_line_item_line_item_views_delete_form_submit($form, &$form_state) {
-  drupal_set_message(t('Line item removed.'));
+  backdrop_set_message(t('Line item removed.'));
 }
 
 /**
  * Submit handler used when clicking the update button.
  */
 function commerce_line_item_line_item_views_form_submit($form, &$form_state) {
-  drupal_set_message(t('Line items saved.'));
+  backdrop_set_message(t('Line items saved.'));
 }
 
 /**
  * Adds the necessary CSS for the line item summary template.
  */
 function template_preprocess_commerce_line_item_summary(&$variables) {
-  drupal_add_css(drupal_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.theme.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.theme.css');
 }
 
 /**
@@ -240,7 +240,7 @@ function template_preprocess_commerce_line_item_summary(&$variables) {
 function commerce_line_item_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_line_item') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_line_item') . '/includes/views',
   );
 }
 
@@ -433,12 +433,12 @@ function commerce_line_item_field_attach_delete($entity_type, $entity) {
  */
 function commerce_line_item_types() {
   // First check the static cache for a line item types array.
-  $line_item_types = &drupal_static(__FUNCTION__);
+  $line_item_types = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the types now.
   if (!isset($line_item_types)) {
     $line_item_types = module_invoke_all('commerce_line_item_type_info');
-    drupal_alter('commerce_line_item_type_info', $line_item_types);
+    backdrop_alter('commerce_line_item_type_info', $line_item_types);
 
     foreach ($line_item_types as $type => &$line_item_type) {
       $defaults = array(
@@ -481,7 +481,7 @@ function commerce_line_item_type_load($type) {
  * Resets the cached list of line item types.
  */
 function commerce_line_item_types_reset() {
-  $line_item_types = &drupal_static('commerce_line_item_types');
+  $line_item_types = &backdrop_static('commerce_line_item_types');
   $line_item_types = NULL;
   entity_info_cache_clear();
 }
@@ -562,7 +562,7 @@ function commerce_line_item_type_to_arg($type) {
 function commerce_line_item_type_callback($line_item_type, $callback) {
   // If the specified callback function exists, return it.
   if (!empty($line_item_type['callbacks'][$callback]) &&
-      is_callable($line_item_type['callbacks'][$callback])) {
+    is_callable($line_item_type['callbacks'][$callback])) {
     return $line_item_type['callbacks'][$callback];
   }
 
@@ -681,7 +681,7 @@ function commerce_line_item_delete_references($line_item) {
         foreach ($entities as $entity_id => $entity) {
           commerce_entity_reference_delete($entity, $field_name, 'line_item_id', $line_item->line_item_id);
 
-          entity_save($entity_type, $entity);
+          entity_plus_save($entity_type, $entity);
         }
       }
     }
@@ -891,15 +891,15 @@ function commerce_line_item_field_formatter_settings_form($field, $instance, $vi
     // Build an options array of Views available for the order contents pane.
     $options = array();
 
-     // Generate an option list from all user defined and module defined views.
-     foreach (views_get_all_views() as $name => $view) {
+    // Generate an option list from all user defined and module defined views.
+    foreach (views_get_all_views() as $name => $view) {
       // Only include line item Views.
       if ($view->base_table == 'commerce_line_item') {
-         foreach ($view->display as $display_name => $display) {
+        foreach ($view->display as $display_name => $display) {
           $options[check_plain($name)][$name .'|'. $display_name] = $display->display_title;
         }
-       }
-     }
+      }
+    }
 
     $element['view'] = array(
       '#type' => 'select',
@@ -1031,7 +1031,7 @@ function commerce_line_item_field_widget_form(&$form, &$form_state, $field, $ins
     );
 
     if (!empty($form_state['line_item_save_warning'])) {
-      drupal_set_message(t('New line items on this order will not be saved until the <em>Save order</em> button is clicked.'), 'warning');
+      backdrop_set_message(t('New line items on this order will not be saved until the <em>Save order</em> button is clicked.'), 'warning');
       // Set variable to false to prevent it from showing up in other contexts.
       $form_state['line_item_save_warning'] = FALSE;
     }
@@ -1169,7 +1169,7 @@ function commerce_line_item_manager_refresh($form, $form_state) {
  * Themes the line item manager widget form element.
  */
 function theme_commerce_line_item_manager($variables) {
-  drupal_add_css(drupal_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.admin.css');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_line_item') . '/theme/commerce_line_item.admin.css');
 
   $form = $variables['form'];
   $rows = array();
@@ -1186,7 +1186,7 @@ function theme_commerce_line_item_manager($variables) {
         continue;
       }
 
-      $row[] = drupal_render($form['line_items'][$line_item_id][$item]);
+      $row[] = backdrop_render($form['line_items'][$line_item_id][$item]);
     }
 
     $rows[] = $row;
@@ -1200,7 +1200,7 @@ function theme_commerce_line_item_manager($variables) {
     'empty' => $form['#empty'],
   );
 
-  $output = theme('table', $table_variables) . drupal_render($form['actions']);
+  $output = theme('table', $table_variables) . backdrop_render($form['actions']);
 
   return '<div id="line-item-manager" class="clearfix">' . $output . '</div>';
 }
@@ -1322,7 +1322,7 @@ function commerce_line_item_manager_validate($element, &$form_state, $form) {
           // Otherwise display the error message; note this is not using
           // form_set_error() on purpose, because a failed addition of a line item
           // doesn't affect the rest of the form submission process.
-          drupal_set_message($error, 'error');
+          backdrop_set_message($error, 'error');
         }
 
         $form_state['rebuild'] = TRUE;
@@ -1573,7 +1573,7 @@ function commerce_line_items_total($line_items, $types = array()) {
  * @see hook_commerce_line_item_summary_link_info()
  */
 function commerce_line_item_summary_links() {
-  $links = &drupal_static(__FUNCTION__, array());
+  $links = &backdrop_static(__FUNCTION__, array());
 
   if (empty($links)) {
     // Retrieve links defined by the hook and allow other modules to alter them.
@@ -1587,7 +1587,7 @@ function commerce_line_item_summary_links() {
       );
     }
 
-    drupal_alter('commerce_line_item_summary_link_info', $links);
+    backdrop_alter('commerce_line_item_summary_link_info', $links);
 
     // Sort the links by weight and return the array.
     uasort($links, 'drupal_sort_weight');
@@ -1627,4 +1627,23 @@ function commerce_line_item_field_views_data($field) {
   }
 
   return $data;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_line_item_autoload_info() {
+  return [
+    'CommerceLineItemEntityController' => 'includes/commerce_line_item.controller.inc',
+    'commerce_line_item_handler_area_line_item_summary' => 'includes/views/handlers/commerce_line_item_handler_area_line_item_summary.inc',
+    'commerce_line_item_handler_argument_line_item_line_item_id' => 'includes/views/handlers/commerce_line_item_handler_argument_line_item_line_item_id.inc',
+    'commerce_line_item_handler_field_edit_delete' => 'includes/views/handlers/commerce_line_item_handler_field_edit_delete.inc',
+    'commerce_line_item_handler_field_edit_quantity' => 'includes/views/handlers/commerce_line_item_handler_field_edit_quantity.inc',
+    'commerce_line_item_handler_field_line_item_title' => 'includes/views/handlers/commerce_line_item_handler_field_line_item_title.inc',
+    'commerce_line_item_handler_field_line_item_type' => 'includes/views/handlers/commerce_line_item_handler_field_line_item_type.inc',
+    'commerce_line_item_handler_filter_line_item_is_referenced' => 'includes/views/handlers/commerce_line_item_handler_filter_line_item_is_referenced.inc',
+    'commerce_line_item_handler_filter_line_item_type' => 'includes/views/handlers/commerce_line_item_handler_filter_line_item_type.inc',
+    'commerce_line_item.views'=> 'includes/views/commerce_line_item.views.inc',
+    'commerce_line_item.views_default'=>'includes/views/commerce_line_item.views_default.inc'
+  ];
 }

@@ -1,0 +1,8 @@
+{
+    "_config_name": "commerce_product_pricing.settings",
+    "commerce_product_pricing_callback": "rules_invoke_event",
+    "commerce_product_sell_price_pre_calculation": "disabled",
+    "commerce_product_sell_price_pre_calculation_rules_bypass": {
+
+    }
+}

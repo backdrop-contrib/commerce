@@ -9,7 +9,7 @@
  * The controller class for line items contains methods for the line item CRUD
  * operations. The load method is inherited from the default controller.
  */
-class CommerceLineItemEntityController extends DrupalCommerceEntityController {
+class CommerceLineItemEntityController extends BackdropCommerceEntityController {
 
   /**
    * Create a default line item.
@@ -189,7 +189,7 @@ class CommerceLineItemEntityController extends DrupalCommerceEntityController {
         if ($skip_order_save && $entity_data['entity_type'] == 'commerce_order') {
           continue;
         }
-        entity_save($entity_data['entity_type'], $entity_data['entity']);
+        entity_plus_save($entity_data['entity_type'], $entity_data['entity']);
       }
 
       return parent::delete($line_item_ids, $transaction);

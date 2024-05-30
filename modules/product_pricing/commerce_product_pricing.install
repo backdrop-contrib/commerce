@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_product_pricing module.
+ *
+ */
+
 
 /**
  * Deletes Product Pricing data on uninstallation.
@@ -9,8 +15,11 @@
  * Implements hook_uninstall().
  */
 function commerce_product_pricing_uninstall() {
-  variable_del('commerce_product_sell_price_pre_calculation');
-  variable_del('commerce_product_sell_price_pre_calculation_rules_bypass');
+  // TODO This variable was probably removed in Backdrop without replacement.
+  config_clear('commerce_product_pricing.settings','commerce_product_sell_price_pre_calculation');
+  // TODO This variable was probably removed in Backdrop without replacement.
+  config_clear('commerce_product_pricing.settings','commerce_product_sell_price_pre_calculation_rules_bypass');
+  config_clear('commerce_product_pricing.settings','commerce_product_pricing_callback');
 }
 
 /**
@@ -23,4 +32,32 @@ function commerce_product_pricing_update_7100() {
     ->execute();
 
   return t('Pre-calculated price records have been updated.');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_product_pricing_update_last_removed() {
+  return 7100;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_product_pricing_update_1000() {
+  $config = config('commerce_product_pricing.settings');
+  $config->set('commerce_product_pricing_callback', update_variable_get('commerce_product_pricing_callback', 'rules_invoke_event'));
+  $config->set('commerce_product_sell_price_pre_calculation', update_variable_get('commerce_product_sell_price_pre_calculation', 'disabled'));
+  $config->set('commerce_product_sell_price_pre_calculation_rules_bypass', update_variable_get('commerce_product_sell_price_pre_calculation_rules_bypass', array()));
+  $config->save();
+  update_variable_del('commerce_product_pricing_callback');
+  update_variable_del('commerce_product_sell_price_pre_calculation');
+  update_variable_del('commerce_product_sell_price_pre_calculation_rules_bypass');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_product_pricing_install() {
+  // Dynamically generated variable data was detected.
 }

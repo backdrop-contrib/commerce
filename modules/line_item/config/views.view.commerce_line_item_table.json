@@ -1,0 +1,183 @@
+{
+    "_config_name": "views.view.commerce_line_item_table",
+    "name": "commerce_line_item_table",
+    "description": "Display a set of line items in a table.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_line_item",
+    "human_name": "Line items",
+    "core": 0,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "use_more_always": false,
+                "access": {
+                    "type": "none"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic"
+                },
+                "pager": {
+                    "type": "none"
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "line_item_id": "line_item_id",
+                        "type": "type",
+                        "line_item_title": "line_item_title",
+                        "line_item_label": "line_item_title",
+                        "commerce_unit_price": "commerce_unit_price",
+                        "quantity": "quantity",
+                        "commerce_total": "commerce_total"
+                    },
+                    "default": "-1",
+                    "info": {
+                        "line_item_id": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "type": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "line_item_title": {
+                            "align": "",
+                            "separator": " "
+                        },
+                        "line_item_label": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "commerce_unit_price": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "quantity": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "commerce_total": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "views-align-right",
+                            "separator": ""
+                        }
+                    }
+                },
+                "empty": {
+                    "area": {
+                        "id": "area",
+                        "table": "views",
+                        "field": "area",
+                        "label": "Empty line item text.",
+                        "content": "No line items found.",
+                        "format": "plain_text"
+                    }
+                },
+                "fields": {
+                    "line_item_id": {
+                        "id": "line_item_id",
+                        "table": "commerce_line_item",
+                        "field": "line_item_id",
+                        "label": "ID",
+                        "exclude": true
+                    },
+                    "type": {
+                        "id": "type",
+                        "table": "commerce_line_item",
+                        "field": "type",
+                        "exclude": true
+                    },
+                    "line_item_title": {
+                        "id": "line_item_title",
+                        "table": "commerce_line_item",
+                        "field": "line_item_title"
+                    },
+                    "line_item_label": {
+                        "id": "line_item_label",
+                        "table": "commerce_line_item",
+                        "field": "line_item_label",
+                        "alter": {
+                            "alter_text": true,
+                            "text": "([line_item_label])"
+                        }
+                    },
+                    "commerce_unit_price": {
+                        "id": "commerce_unit_price",
+                        "table": "field_data_commerce_unit_price",
+                        "field": "commerce_unit_price",
+                        "click_sort_column": "amount",
+                        "type": "commerce_price_formatted_amount"
+                    },
+                    "quantity": {
+                        "id": "quantity",
+                        "table": "commerce_line_item",
+                        "field": "quantity",
+                        "precision": "0"
+                    },
+                    "commerce_total": {
+                        "id": "commerce_total",
+                        "table": "field_data_commerce_total",
+                        "field": "commerce_total",
+                        "click_sort_column": "amount",
+                        "type": "commerce_price_formatted_amount"
+                    }
+                },
+                "sorts": {
+                    "line_item_id": {
+                        "id": "line_item_id",
+                        "table": "commerce_line_item",
+                        "field": "line_item_id"
+                    }
+                },
+                "arguments": {
+                    "line_item_id": {
+                        "id": "line_item_id",
+                        "table": "commerce_line_item",
+                        "field": "line_item_id",
+                        "default_action": "empty",
+                        "default_argument_type": "fixed",
+                        "summary": {
+                            "number_of_records": "0",
+                            "format": "default_summary"
+                        },
+                        "summary_options": {
+                            "items_per_page": "25"
+                        },
+                        "break_phrase": true
+                    }
+                },
+                "filters": {
+                    "product_line_item_type": {
+                        "id": "product_line_item_type",
+                        "table": "commerce_line_item",
+                        "field": "product_line_item_type",
+                        "value": "1"
+                    }
+                }
+            }
+        }
+    }
+}
