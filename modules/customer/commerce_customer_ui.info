@@ -6,8 +6,8 @@ dependencies[] = commerce
 dependencies[] = commerce_ui
 dependencies[] = commerce_customer
 dependencies[] = views
-core = 7.x
+backdrop = 1.x
+type = module
 configure = admin/commerce/customer-profiles/types
 
 ; Simple tests
-files[] = tests/commerce_customer_ui.test

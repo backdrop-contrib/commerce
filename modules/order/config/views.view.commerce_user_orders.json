@@ -1,0 +1,196 @@
+{
+    "_config_name": "views.view.commerce_user_orders",
+    "name": "commerce_user_orders",
+    "description": "Display a list of completed orders for a user.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_order",
+    "human_name": "User orders",
+    "core": 7,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "title": "Orders",
+                "use_more_always": false,
+                "access": {
+                    "type": "perm",
+                    "perm": "view own commerce_order entities"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic"
+                },
+                "pager": {
+                    "type": "full",
+                    "options": {
+                        "items_per_page": 25
+                    }
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "order_number": "order_number",
+                        "placed": "placed",
+                        "changed": "changed",
+                        "commerce_order_total": "commerce_order_total",
+                        "status": "status"
+                    },
+                    "default": "order_number",
+                    "info": {
+                        "order_number": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "placed": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "changed": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "commerce_order_total": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "status": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        }
+                    }
+                },
+                "empty": {
+                    "text": {
+                        "id": "text",
+                        "table": "views",
+                        "field": "area",
+                        "content": "You have not placed any orders with us yet.",
+                        "format": "plain_text"
+                    }
+                },
+                "fields": {
+                    "order_number": {
+                        "id": "order_number",
+                        "table": "commerce_order",
+                        "field": "order_number",
+                        "link_to_order": "customer"
+                    },
+                    "placed": {
+                        "id": "placed",
+                        "table": "commerce_order",
+                        "field": "placed",
+                        "label": "Placed"
+                    },
+                    "changed": {
+                        "id": "changed",
+                        "table": "commerce_order",
+                        "field": "changed",
+                        "label": "Updated"
+                    },
+                    "commerce_order_total": {
+                        "id": "commerce_order_total",
+                        "table": "field_data_commerce_order_total",
+                        "field": "commerce_order_total",
+                        "label": "Total",
+                        "click_sort_column": "amount",
+                        "type": "commerce_price_formatted_amount",
+                        "settings": {
+                            "calculation": false
+                        }
+                    },
+                    "status": {
+                        "id": "status",
+                        "table": "commerce_order",
+                        "field": "status"
+                    }
+                },
+                "arguments": {
+                    "uid_1": {
+                        "id": "uid_1",
+                        "table": "commerce_order",
+                        "field": "uid",
+                        "default_action": "not found",
+                        "default_argument_type": "fixed",
+                        "summary": {
+                            "number_of_records": "0",
+                            "format": "default_summary"
+                        },
+                        "summary_options": {
+                            "items_per_page": "25"
+                        },
+                        "specify_validation": true,
+                        "validate": {
+                            "type": "current_user_or_role"
+                        },
+                        "validate_options": {
+                            "restrict_roles": true,
+                            "roles": {
+                                "3": "3"
+                            }
+                        }
+                    }
+                },
+                "filters": {
+                    "state": {
+                        "id": "state",
+                        "table": "commerce_order",
+                        "field": "state",
+                        "operator": "not in",
+                        "value": {
+                            "cart": "cart",
+                            "checkout": "checkout"
+                        }
+                    }
+                }
+            }
+        },
+        "order_page": {
+            "display_title": "User Orders",
+            "display_plugin": "page",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": []
+                },
+                "path": "user/%/orders",
+                "menu": {
+                    "type": "tab",
+                    "title": "Orders",
+                    "weight": "15"
+                },
+                "tab_options": {
+                    "type": "normal",
+                    "title": "Orders",
+                    "description": "User orders in the store.",
+                    "weight": "",
+                    "name": "user-menu"
+                }
+            }
+        }
+    }
+}

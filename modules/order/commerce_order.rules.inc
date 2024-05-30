@@ -185,7 +185,7 @@ function commerce_order_address_field_options_list() {
   }
 
   if (empty($options)) {
-    drupal_set_message(t('No order addresses could be found for comparison.'), 'error');
+    backdrop_set_message(t('No order addresses could be found for comparison.'), 'error');
   }
 
   return $options;
@@ -240,8 +240,8 @@ function commerce_order_rules_compare_address($order, $address_field, $component
       $address = $wrapper->{$field_name}->{$address_field_name}->value();
 
       // Perform the comparison in upper case.
-      $address_component = drupal_strtoupper($address[$component]);
-      $value = drupal_strtoupper($value);
+      $address_component = backdrop_strtoupper($address[$component]);
+      $value = backdrop_strtoupper($value);
 
       // Make a comparison based on the operator.
       switch ($operator) {

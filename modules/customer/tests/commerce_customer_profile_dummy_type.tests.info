@@ -1,0 +1,6 @@
+[CommerceCustomerUITest]
+name = Customer user interface
+description = Test creating, editing, deleting cusomer profiles and how they interact with other components, like orders.
+group = Drupal Commerce
+file = commerce_customer_ui.test
+

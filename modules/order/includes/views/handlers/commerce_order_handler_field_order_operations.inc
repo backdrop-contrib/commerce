@@ -45,12 +45,12 @@ class commerce_order_handler_field_order_operations extends views_handler_field 
         foreach ($links as $id => &$link) {
           // Only include the destination for the edit and delete forms.
           if (in_array($id, array('commerce-order-edit', 'commerce-order-delete'))) {
-            $link['query'] = drupal_get_destination();
+            $link['query'] = backdrop_get_destination();
           }
         }
       }
 
-      drupal_add_css(drupal_get_path('module', 'commerce_order') . '/theme/commerce_order.admin.css');
+      backdrop_add_css(backdrop_get_path('module', 'commerce_order') . '/theme/commerce_order.admin.css');
       return theme('links', array('links' => $links, 'attributes' => array('class' => array('links', 'inline', 'operations'))));
     }
   }

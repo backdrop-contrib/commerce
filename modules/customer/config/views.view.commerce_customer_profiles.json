@@ -1,0 +1,213 @@
+{
+    "_config_name": "views.view.commerce_customer_profiles",
+    "name": "commerce_customer_profiles",
+    "description": "A list of customer profiles of all types.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_customer_profile",
+    "human_name": "Customer profiles",
+    "core": 0,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "title": "Customer profiles",
+                "use_more_always": false,
+                "access": {
+                    "type": "perm",
+                    "perm": "administer commerce_customer_profile entities"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic",
+                    "options": {
+                        "reset_button": true
+                    }
+                },
+                "pager": {
+                    "type": "full",
+                    "options": {
+                        "items_per_page": "50",
+                        "offset": "0",
+                        "id": "0"
+                    }
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "profile_id": "profile_id",
+                        "commerce_customer_address": "commerce_customer_address",
+                        "name": "name",
+                        "type": "type",
+                        "status": "status",
+                        "edit_customer_profile": "edit_customer_profile",
+                        "delete_customer_profile": "edit_customer_profile"
+                    },
+                    "default": "profile_id",
+                    "info": {
+                        "profile_id": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "commerce_customer_address": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "name": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "type": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "status": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "edit_customer_profile": {
+                            "align": "",
+                            "separator": "&nbsp;&nbsp;&nbsp;",
+                            "empty_column": 0
+                        },
+                        "delete_customer_profile": {
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        }
+                    },
+                    "empty_table": true
+                },
+                "empty": {
+                    "empty_text": {
+                        "id": "empty_text",
+                        "table": "commerce_customer_profile",
+                        "field": "empty_text",
+                        "add_path": "admin/commerce/customer-profiles/add"
+                    }
+                },
+                "relationships": {
+                    "uid": {
+                        "id": "uid",
+                        "table": "commerce_customer_profile",
+                        "field": "uid"
+                    }
+                },
+                "fields": {
+                    "profile_id": {
+                        "id": "profile_id",
+                        "table": "commerce_customer_profile",
+                        "field": "profile_id",
+                        "link_to_profile": 1
+                    },
+                    "commerce_customer_address": {
+                        "id": "commerce_customer_address",
+                        "table": "field_data_commerce_customer_address",
+                        "field": "commerce_customer_address",
+                        "label": "Name",
+                        "click_sort_column": "country",
+                        "settings": {
+                            "use_widget_handlers": 0,
+                            "format_handlers": [
+                                "name-oneline"
+                            ]
+                        }
+                    },
+                    "name": {
+                        "id": "name",
+                        "table": "users",
+                        "field": "name",
+                        "relationship": "uid",
+                        "label": "User"
+                    },
+                    "type": {
+                        "id": "type",
+                        "table": "commerce_customer_profile",
+                        "field": "type",
+                        "link_to_profile": 0
+                    },
+                    "status": {
+                        "id": "status",
+                        "table": "commerce_customer_profile",
+                        "field": "status",
+                        "type": "active-disabled",
+                        "not": 0
+                    },
+                    "edit_customer_profile": {
+                        "id": "edit_customer_profile",
+                        "table": "commerce_customer_profile",
+                        "field": "edit_customer_profile",
+                        "label": "Operations"
+                    },
+                    "delete_customer_profile": {
+                        "id": "delete_customer_profile",
+                        "table": "commerce_customer_profile",
+                        "field": "delete_customer_profile"
+                    }
+                },
+                "filters": {
+                    "commerce_customer_address_name_line": {
+                        "id": "commerce_customer_address_name_line",
+                        "table": "field_data_commerce_customer_address",
+                        "field": "commerce_customer_address_name_line",
+                        "operator": "contains",
+                        "exposed": true,
+                        "expose": {
+                            "operator_id": "commerce_customer_address_name_line_op",
+                            "label": "Filter by names containing",
+                            "operator": "commerce_customer_address_name_line_op",
+                            "identifier": "name"
+                        }
+                    }
+                }
+            }
+        },
+        "page_1": {
+            "display_title": "Admin page",
+            "display_plugin": "page",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": []
+                },
+                "path": "admin/commerce/customer-profiles/list",
+                "menu": {
+                    "type": "default tab",
+                    "title": "List",
+                    "weight": "-10"
+                },
+                "tab_options": {
+                    "type": "normal",
+                    "title": "Customer profiles",
+                    "description": "Manage customer profiles and profile types in the store.",
+                    "weight": "0",
+                    "name": "management"
+                }
+            }
+        }
+    }
+}

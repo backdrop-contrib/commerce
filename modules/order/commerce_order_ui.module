@@ -72,7 +72,7 @@ function commerce_order_ui_menu() {
   $items['admin/commerce/config/order'] = array(
     'title' => 'Order settings',
     'description' => 'Configure general order settings, fields, and displays.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_order_settings_form'),
     'access arguments' => array('configure order settings'),
     'file' => 'includes/commerce_order_ui.orders.inc',
@@ -179,9 +179,10 @@ function commerce_order_ui_menu_local_tasks_alter(&$data, $router_item, $root_pa
  * Implements hook_i18n_string_list().
  */
 function commerce_order_ui_i18n_string_list($group) {
+  $config = config('commerce_order.settings');
   if ($group == 'commerce') {
     // Allow the order creation help text to be translated.
-    $help = variable_get('commerce_order_help_text', '');
+    $help = $config->get('commerce_order_help_text', '');
 
     if (!empty($help)) {
       $strings['commerce']['order']['help']['create'] = $help;
@@ -194,9 +195,10 @@ function commerce_order_ui_i18n_string_list($group) {
  * Implements hook_help().
  */
 function commerce_order_ui_help($path, $arg) {
+  $config = config('commerce_order.settings');
   // Display a user configurable help text on the order add page.
   if (strpos($path, 'admin/commerce/orders/add') === 0) {
-    $help = variable_get('commerce_order_help_text', '');
+    $help = $config->get('commerce_order_help_text');
 
     if (!empty($help)) {
       $help = commerce_i18n_string('commerce:order:help:create', $help, array('sanitize' => FALSE));
@@ -285,7 +287,7 @@ function commerce_order_ui_form_commerce_order_ui_order_form_alter(&$form, &$for
 function commerce_order_ui_order_form_submit($form, &$form_state) {
   // Apply the redirect based on the clicked button.
   if ($form_state['triggering_element']['#value'] === t('Save order', array(), array('context' => 'a drupal commerce order'))) {
-    drupal_set_message(t('Order saved.'));
+    backdrop_set_message(t('Order saved.'));
 
     $form_state['redirect'] = 'admin/commerce/orders/' . $form_state['commerce_order']->order_id . '/edit';
   }
@@ -320,7 +322,7 @@ function commerce_order_ui_order_delete_form_submit($form, &$form_state) {
 function commerce_order_ui_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_order_ui') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_order_ui') . '/includes/views',
   );
 }
 
@@ -349,8 +351,8 @@ function commerce_order_ui_set_breadcrumb($view_mode = 'administrator') {
  *   An array as expected by drupal_render().
  */
 function commerce_order_ui_order_view($order, $view_mode = 'administrator') {
-  drupal_add_css(drupal_get_path('module', 'commerce_order') . '/theme/commerce_order.theme.css');
-  return entity_view('commerce_order', array($order->order_id => $order), $view_mode, NULL, TRUE);
+  backdrop_add_css(backdrop_get_path('module', 'commerce_order') . '/theme/commerce_order.theme.css');
+  return entity_plus_view('commerce_order', array($order->order_id => $order), $view_mode, NULL, TRUE);
 }
 
 /**
@@ -372,7 +374,7 @@ function commerce_order_ui_form_entity_translation_admin_form_alter(&$form, &$fo
  *   'order_number' (the default), 'order_id', or 'select'.
  */
 function commerce_order_ui_redirect_form($form, &$form_state, $redirect_page = 'admin', $identifier = 'order_number') {
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_order') . '/theme/commerce_order.admin.css';
+  $form['#attached']['css'][] = backdrop_get_path('module', 'commerce_order') . '/theme/commerce_order.admin.css';
 
   if ($identifier == 'select') {
     $form['identifier'] = array(

@@ -10,6 +10,7 @@
  * Checkout pane callback: returns the cart contents pane's settings form.
  */
 function commerce_cart_contents_pane_settings_form($checkout_pane) {
+  $config = config('commerce_cart.settings');
   $form = array();
 
   // Build an options array of Views available for the cart contents pane.
@@ -18,7 +19,7 @@ function commerce_cart_contents_pane_settings_form($checkout_pane) {
   // Generate an option list from all user defined and module defined Views,
   // excluding the core Commerce cart block / form and order listing Views.
   $exclude = array('commerce_cart_block', 'commerce_cart_form', 'commerce_orders', 'commerce_user_orders');
-  $default = variable_get('commerce_cart_contents_pane_view', 'commerce_cart_summary|default');
+  $default = $config->get('commerce_cart_contents_pane_view');
 
   foreach (views_get_all_views() as $view_id => $view_value) {
     // Only include line item Views, including a View that may be excluded but
@@ -53,10 +54,11 @@ function commerce_cart_contents_pane_settings_form($checkout_pane) {
  *   checkout form.
  */
 function commerce_cart_contents_pane_checkout_form($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_cart.settings');
   $pane_form = array();
 
   // Extract the View and display keys from the cart contents pane setting.
-  list($view_id, $display_id) = explode('|', variable_get('commerce_cart_contents_pane_view', 'commerce_cart_summary|default'));
+  list($view_id, $display_id) = explode('|', $config->get('commerce_cart_contents_pane_view'));
 
   $pane_form['cart_contents_view'] = array(
     '#markup' => commerce_embed_view($view_id, $display_id, array($order->order_id)),
@@ -64,8 +66,8 @@ function commerce_cart_contents_pane_checkout_form($form, &$form_state, $checkou
 
   // Attach the Cart and Price module CSS to accommodate the order total area
   // handler's CSS being reloaded properly on a form rebuild.
-  $pane_form['cart_contents_views']['#attached']['css'][] = drupal_get_path('module', 'commerce_cart') . '/theme/commerce_cart.theme.css';
-  $pane_form['cart_contents_views']['#attached']['css'][] = drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
+  $pane_form['cart_contents_views']['#attached']['css'][] = backdrop_get_path('module', 'commerce_cart') . '/theme/commerce_cart.theme.css';
+  $pane_form['cart_contents_views']['#attached']['css'][] = backdrop_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
 
   return $pane_form;
 }
@@ -75,10 +77,11 @@ function commerce_cart_contents_pane_checkout_form($form, &$form_state, $checkou
  *   Review checkout pane.
  */
 function commerce_cart_contents_pane_review($form, $form_state, $checkout_pane, $order) {
-  drupal_add_css(drupal_get_path('module', 'commerce_cart') . '/theme/commerce_cart.theme.css');
+  $config = config('commerce_cart.settings');
+  backdrop_add_css(backdrop_get_path('module', 'commerce_cart') . '/theme/commerce_cart.theme.css');
 
   // Extract the View and display keys from the cart contents pane setting.
-  list($view_id, $display_id) = explode('|', variable_get('commerce_cart_contents_pane_view', 'commerce_cart_summary|default'));
+  list($view_id, $display_id) = explode('|', $config->get('commerce_cart_contents_pane_view'));
 
   return commerce_embed_view($view_id, $display_id, array($order->order_id));
 }

@@ -47,11 +47,11 @@ function commerce_cart_order_refresh_form($form, &$form_state, $order) {
 function commerce_cart_order_refresh_form_submit($form, &$form_state) {
   if ($order = commerce_order_load($form_state['values']['order_id'])) {
     commerce_cart_order_refresh($order);
-    drupal_set_message(t('Pricing rules have been applied and the order updated.'));
+    backdrop_set_message(t('Pricing rules have been applied and the order updated.'));
     $form_state['redirect'] = 'admin/commerce/orders/' . $order->order_id . '/edit';
   }
   else {
-    drupal_set_message(t('Order not found.'), 'error');
+    backdrop_set_message(t('Order not found.'), 'error');
     $form_state['redirect'] = 'admin/commerce/orders';
   }
 }

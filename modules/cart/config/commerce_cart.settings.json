@@ -1,0 +1,11 @@
+{
+    "_config_name": "commerce_cart.settings",
+    "commerce_cart_provider": "session",
+    "commerce_cart_refresh_mode": "owner_only",
+    "commerce_cart_refresh_frequency": 15,
+    "commerce_cart_refresh_force": true,
+    "commerce_cart_contents_pane_view": "commerce_cart_summary|default",
+    "commerce_order_apply_pricing_rules_link": true,
+    "commerce_order_auto_revision": true,
+    "commerce_checkout_empty_redirect": ""
+}

@@ -193,7 +193,7 @@ function commerce_cart_rules_empty($order) {
  * Rules action: displays a the default translatable Add to Cart message.
  */
 function commerce_cart_rules_add_to_cart_message($product) {
-  drupal_set_message(t('%title added to <a href="!cart-url">your cart</a>.', array('%title' => $product->title, '!cart-url' => url('cart'))));
+  backdrop_set_message(t('%title added to <a href="!cart-url">your cart</a>.', array('%title' => $product->title, '!cart-url' => url('cart'))));
 }
 
 /**

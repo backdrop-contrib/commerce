@@ -24,14 +24,14 @@ function commerce_order_entity_property_info() {
     'type' => 'text',
     'label' => t('Order number', array(), array('context' => 'a drupal commerce order')),
     'description' => t('The order number displayed to the customer.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'schema field' => 'order_number',
   );
   $properties['status'] = array(
     'type' => 'text',
     'label' => t('Status'),
     'description' => t('The current status of the order.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'options list' => 'commerce_order_status_options_list',
     'required' => TRUE,
     'schema field' => 'status',
@@ -48,7 +48,7 @@ function commerce_order_entity_property_info() {
     'type' => 'date',
     'label' => t('Date created'),
     'description' => t('The date the order was created.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_order entities',
     'schema field' => 'created',
   );
@@ -56,7 +56,7 @@ function commerce_order_entity_property_info() {
     'type' => 'date',
     'label' => t('Date changed'),
     'description' => t('The date the order was most recently updated.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_order entities',
     'schema field' => 'changed',
   );
@@ -64,7 +64,7 @@ function commerce_order_entity_property_info() {
     'type' => 'date',
     'label' => t('Date placed'),
     'description' => t('The date the order was placed.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_order entities',
     'schema field' => 'placed',
   );
@@ -72,7 +72,7 @@ function commerce_order_entity_property_info() {
     'type' => 'text',
     'label' => t('Host name'),
     'description' => t('The IP address that created this order.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_order entities',
     'schema field' => 'hostname',
   );
@@ -80,7 +80,7 @@ function commerce_order_entity_property_info() {
     'type' => 'text',
     'label' => t('Type'),
     'description' => t('The human readable name of the order type.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'options list' => 'commerce_order_type_options_list',
     'required' => TRUE,
     'schema field' => 'type',
@@ -89,7 +89,7 @@ function commerce_order_entity_property_info() {
     'type' => 'integer',
     'label' => t('Owner ID'),
     'description' => t('The unique ID of the order owner.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'setter permission' => 'administer commerce_order entities',
     'clear' => array('owner'),
     'schema field' => 'uid',
@@ -108,7 +108,7 @@ function commerce_order_entity_property_info() {
   $properties['mail'] = array(
     'label' => t('Order e-mail'),
     'description' => t('The e-mail address associated with this order.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
     'validation callback' => 'valid_email_address',
     'schema field' => 'mail',
   );
@@ -124,7 +124,7 @@ function commerce_order_entity_property_info() {
     'label' => t('Create revision'),
     'type' => 'boolean',
     'description' => t('Whether or not saving this order creates a new revision.'),
-    'setter callback' => 'entity_property_verbatim_set',
+    'setter callback' => 'entity_plus_property_verbatim_set',
   );
 
   return $info;

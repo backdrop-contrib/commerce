@@ -11,16 +11,10 @@ dependencies[] = commerce_product_reference
 dependencies[] = entity
 dependencies[] = rules
 dependencies[] = views
-core = 7.x
+dependencies[] = plugin_manager
+backdrop = 1.x
+type = module
 
 ; Views handlers
-files[] = includes/views/handlers/commerce_cart_handler_field_add_to_cart_form.inc
-files[] = includes/views/handlers/commerce_cart_handler_field_edit_attributes.inc
-files[] = includes/views/handlers/commerce_cart_plugin_argument_default_current_cart_order_id.inc
-files[] = includes/views/handlers/commerce_cart_handler_area_empty_text.inc
-
 ; Simple tests
-files[] = tests/commerce_cart.test
-
 ; Cart provider Interface.
-files[] = plugins/cart_provider/interface.inc

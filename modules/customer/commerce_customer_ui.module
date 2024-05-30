@@ -123,7 +123,7 @@ function commerce_customer_ui_customer_profile_add_any_access() {
  * Redirects a customer profile type URL to its fields management page.
  */
 function commerce_customer_ui_profile_type_redirect($type) {
-  drupal_goto('admin/commerce/customer-profiles/types/' . strtr($type, '_', '-') . '/fields');
+  backdrop_goto('admin/commerce/customer-profiles/types/' . strtr($type, '_', '-') . '/fields');
 }
 
 /**
@@ -205,7 +205,7 @@ function commerce_customer_ui_theme() {
     ),
     'commerce_customer_profile_status' => array(
       'variables' => array('status' => NULL, 'label' => NULL, 'profile' => NULL),
-      'path' => drupal_get_path('module', 'commerce_customer_ui') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_customer_ui') . '/theme',
       'template' => 'commerce-customer-profile-status',
     ),
   );
@@ -278,7 +278,7 @@ function commerce_customer_ui_form_alter(&$form, &$form_state, $form_id) {
     if ($form['#entity_type'] == 'commerce_customer_profile') {
       // Load the customer profile type being modified for this form.
       $profile_type = commerce_customer_profile_type_load($form['#bundle']);
-      drupal_set_title($profile_type['name']);
+      backdrop_set_title($profile_type['name']);
     }
   }
 }
@@ -355,7 +355,7 @@ function commerce_customer_ui_customer_profile_delete_form_submit($form, &$form_
 function commerce_customer_ui_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_customer_ui') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_customer_ui') . '/includes/views',
   );
 }
 

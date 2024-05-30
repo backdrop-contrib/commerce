@@ -55,7 +55,7 @@ function commerce_cart_menu() {
     $items['admin/commerce/orders/%commerce_order/edit/refresh'] = array(
       'title' => 'Apply pricing rules',
       'description' => 'Executes the cart order refresh used to apply all current pricing rules on the front end.',
-      'page callback' => 'drupal_get_form',
+      'page callback' => 'backdrop_get_form',
       'page arguments' => array('commerce_cart_order_refresh_form', 3),
       'access callback' => 'commerce_cart_order_refresh_form_access',
       'access arguments' => array(3),
@@ -96,13 +96,14 @@ function commerce_cart_menu_item_title() {
  * Redirects a valid page request to cart/my to the cart page.
  */
 function commerce_cart_menu_item_redirect() {
-  drupal_goto('cart');
+  backdrop_goto('cart');
 }
 
 /**
  * Access callback: determines access to the "Apply pricing rules" local action.
  */
 function commerce_cart_order_refresh_form_access($order) {
+  $config = config('commerce_cart.settings');
   // Do not show the link for cart orders as they're refreshed automatically.
   if (commerce_cart_order_is_cart($order)) {
     return FALSE;
@@ -110,7 +111,7 @@ function commerce_cart_order_refresh_form_access($order) {
 
   // Returns TRUE if the link is enabled via the order settings form and the
   // user has access to update the order.
-  return variable_get('commerce_order_apply_pricing_rules_link', TRUE) && commerce_order_access('update', $order);
+  return $config->get('commerce_order_apply_pricing_rules_link') && commerce_order_access('update', $order);
 }
 
 /**
@@ -288,20 +289,21 @@ function commerce_cart_form_alter(&$form, &$form_state, $form_id) {
  * Submit handler to take back the order to cart status on cancel in checkout.
  */
 function commerce_cart_checkout_form_cancel_submit($form, &$form_state) {
+  $config = config('commerce_cart.settings');
   // Update the order to the cart status.
   $order = commerce_order_load($form_state['order']->order_id);
   $form_state['order'] = commerce_order_status_update($order, 'cart', TRUE);
 
   // Skip saving in the status update and manually save here to force a save
   // even when the status doesn't actually change.
-  if (variable_get('commerce_order_auto_revision', TRUE)) {
+  if ($config->get('commerce_order_auto_revision')) {
     $form_state['order']->revision = TRUE;
     $form_state['order']->log = t('Customer manually canceled the checkout process.');
   }
 
   commerce_order_save($form_state['order']);
 
-  drupal_set_message(t('Checkout of your current order has been canceled and may be resumed when you are ready.'));
+  backdrop_set_message(t('Checkout of your current order has been canceled and may be resumed when you are ready.'));
 
   // Redirect to cart on cancel.
   $form_state['redirect'] = 'cart';
@@ -311,6 +313,7 @@ function commerce_cart_checkout_form_cancel_submit($form, &$form_state) {
  * Submit handler to show the shopping cart updated message.
  */
 function commerce_cart_line_item_views_form_submit($form, &$form_state) {
+  $config = config('commerce_cart.settings');
   // Reset the status of the order to cart.
   $order = commerce_order_load($form_state['order']->order_id);
 
@@ -321,14 +324,14 @@ function commerce_cart_line_item_views_form_submit($form, &$form_state) {
 
     // Skip saving in the status update and manually save here to force a save
     // even when the status doesn't actually change.
-    if (variable_get('commerce_order_auto_revision', TRUE)) {
+    if ($config->get('commerce_order_auto_revision')) {
       $form_state['order']->revision = TRUE;
       $form_state['order']->log = t('Customer updated the order via the shopping cart form.');
     }
 
     commerce_order_save($form_state['order']);
 
-    drupal_set_message(t('Your shopping cart has been updated.'));
+    backdrop_set_message(t('Your shopping cart has been updated.'));
   }
 }
 
@@ -349,7 +352,7 @@ function commerce_cart_line_item_delete_form_submit($form, &$form_state) {
     $title = $line_item_wrapper->line_item_label->value();
   }
 
-  drupal_set_message(t('%title removed from your cart.', array('%title' => $title)));
+  backdrop_set_message(t('%title removed from your cart.', array('%title' => $title)));
 }
 
 /**
@@ -359,11 +362,12 @@ function commerce_cart_line_item_delete_form_submit($form, &$form_state) {
  * order edit forms to apply pricing rules.
  */
 function commerce_cart_form_commerce_order_settings_form_alter(&$form, &$form_state) {
+  $config = config('commerce_cart.settings');
   $form['commerce_order_apply_pricing_rules_link'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable the local action link on order edit forms to apply pricing rules.'),
     '#description' => t('Even if enabled the link will not appear on shopping cart order edit forms.'),
-    '#default_value' => variable_get('commerce_order_apply_pricing_rules_link', TRUE),
+    '#default_value' => $config->get('commerce_order_apply_pricing_rules_link'),
     '#weight' => 10,
   );
 
@@ -376,7 +380,7 @@ function commerce_cart_form_commerce_order_settings_form_alter(&$form, &$form_st
     '#title' => t('Cart provider'),
     '#type' => 'select',
     '#options' => $cart_providers,
-    '#default_value' => variable_get('commerce_cart_provider', COMMERCE_CART_DEFAULT_PROVIDER),
+    '#default_value' => $config->get('commerce_cart_provider'),
     '#access' => count($cart_providers) > 1,
   );
 
@@ -395,13 +399,13 @@ function commerce_cart_form_commerce_order_settings_form_alter(&$form, &$form_st
       COMMERCE_CART_REFRESH_OWNER_ONLY => t('Only refresh a shopping cart when it is loaded if it belongs to the current user.'),
       COMMERCE_CART_REFRESH_ACTIVE_CART_ONLY => t("Only refresh a shopping cart when it is loaded if it is the current user's active shopping cart."),
     ),
-    '#default_value' => variable_get('commerce_cart_refresh_mode', COMMERCE_CART_REFRESH_OWNER_ONLY),
+    '#default_value' => $config->get('commerce_cart_refresh_mode'),
   );
   $form['cart_refresh']['commerce_cart_refresh_frequency'] = array(
     '#type' => 'textfield',
     '#title' => t('Shopping cart refresh frequency'),
     '#description' => t('Shopping carts will only be refreshed if more than the specified number of seconds have passed since they were last refreshed.'),
-    '#default_value' => variable_get('commerce_cart_refresh_frequency', COMMERCE_CART_REFRESH_DEFAULT_FREQUENCY),
+    '#default_value' => $config->get('commerce_cart_refresh_frequency'),
     '#required' => TRUE,
     '#size' => 32,
     '#field_suffix' => t('seconds'),
@@ -411,8 +415,27 @@ function commerce_cart_form_commerce_order_settings_form_alter(&$form, &$form_st
     '#type' => 'checkbox',
     '#title' => t('Always refresh shopping cart orders on shopping cart and checkout form pages regardless of other settings.'),
     '#description' => t('Note: this option only applies to the core /cart and /checkout/* paths.'),
-    '#default_value' => variable_get('commerce_cart_refresh_force', TRUE),
+    '#default_value' => $config->get('commerce_cart_refresh_force'),
   );
+
+  $form['#submit'][] = 'commerce_cart_form_commerce_order_settings_form_submit';
+}
+
+function commerce_cart_form_commerce_order_settings_form_submit ($form, &$form_state) {
+  if (isset($form_state['values']['commerce_order_apply_pricing_rules_link']) && isset($form_state['values']['commerce_cart_refresh_mode'])
+    && isset($form_state['values']['commerce_cart_refresh_frequency']) && isset($form_state['values']['commerce_cart_refresh_force'])) {
+    $commerce_order_apply_pricing_rules_link = $form_state['values']['commerce_order_apply_pricing_rules_link'];
+    $commerce_cart_refresh_mode = $form_state['values']['commerce_cart_refresh_mode'];
+    $commerce_cart_refresh_frequency = $form_state['values']['commerce_cart_refresh_frequency'];
+    $commerce_cart_refresh_force = $form_state['values']['commerce_cart_refresh_force'];
+
+    config_set('commerce_cart.settings', 'commerce_order_apply_pricing_rules_link', $commerce_order_apply_pricing_rules_link);
+    config_set('commerce_cart.settings', 'commerce_cart_refresh_mode', $commerce_cart_refresh_mode);
+    config_set('commerce_cart.settings', 'commerce_cart_refresh_frequency', $commerce_cart_refresh_frequency);
+    config_set('commerce_cart.settings', 'commerce_cart_refresh_force', $commerce_cart_refresh_force);
+  }
+//  print_r($form_state['values']['commerce_order_apply_pricing_rules_link']);
+//die;
 }
 
 /**
@@ -580,7 +603,7 @@ function commerce_cart_commerce_product_calculate_sell_price_line_item_alter($li
 function commerce_cart_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_cart') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_cart') . '/includes/views',
   );
 }
 
@@ -597,7 +620,7 @@ function commerce_cart_theme() {
     ),
     'commerce_cart_block' => array(
       'variables' => array('order' => NULL, 'contents_view' => NULL),
-      'path' => drupal_get_path('module', 'commerce_cart') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_cart') . '/theme',
       'template' => 'commerce-cart-block',
     ),
   );
@@ -709,6 +732,7 @@ function commerce_cart_block_view($delta) {
  *   Boolean indicating whether or not the cart order can be refreshed.
  */
 function commerce_cart_order_can_refresh($order) {
+  $config = config('commerce_cart.settings');
   $can_refresh = module_invoke_all('commerce_cart_order_can_refresh', $order);
 
   // We refresh the cart order if both of the following conditions are met:
@@ -725,13 +749,13 @@ function commerce_cart_order_can_refresh($order) {
   global $user;
 
   // Force the shopping cart refresh on /cart and /checkout/* paths if enabled.
-  if (variable_get('commerce_cart_refresh_force', TRUE) &&
+  if ($config->get('commerce_cart_refresh_force') &&
     (current_path() == 'cart' || strpos(current_path(), 'checkout/') === 0)) {
     return TRUE;
   }
 
   // Prevent refresh for orders that don't match the current refresh mode.
-  switch (variable_get('commerce_cart_refresh_mode', COMMERCE_CART_REFRESH_OWNER_ONLY)) {
+  switch ($config->get('commerce_cart_refresh_mode')) {
     case COMMERCE_CART_REFRESH_OWNER_ONLY:
       // If the order is anonymous, check the session to see if the order
       // belongs to the current user. Otherwise just check that the order uid
@@ -758,7 +782,7 @@ function commerce_cart_order_can_refresh($order) {
   }
 
   // Check to see if the last cart refresh happened long enough ago.
-  $seconds = variable_get('commerce_cart_refresh_frequency', COMMERCE_CART_REFRESH_DEFAULT_FREQUENCY);
+  $seconds = $config->get('commerce_cart_refresh_frequency');
 
   if (!empty($seconds) && !empty($order->data['last_cart_refresh']) &&
     REQUEST_TIME - $order->data['last_cart_refresh'] < $seconds) {
@@ -777,7 +801,7 @@ function commerce_cart_order_can_refresh($order) {
  * prices of product line items and save them if any values have changed.
  */
 function commerce_cart_commerce_order_load($orders) {
-  $refreshed = &drupal_static(__FUNCTION__, array());
+  $refreshed = &backdrop_static(__FUNCTION__, array());
 
   foreach ($orders as $order) {
     // Refresh only if this order object represents the latest revision of a
@@ -866,7 +890,7 @@ function commerce_cart_order_load($uid = 0) {
  */
 function commerce_cart_order_id($uid = 0) {
   // Cart order IDs will be cached keyed by $uid.
-  $cart_order_ids = &drupal_static(__FUNCTION__);
+  $cart_order_ids = &backdrop_static(__FUNCTION__);
 
   // Cache the user's cart order ID if it hasn't been set already.
   if (isset($cart_order_ids[$uid])) {
@@ -924,7 +948,7 @@ function commerce_cart_order_id($uid = 0) {
  * Resets the cached array of shopping cart orders.
  */
 function commerce_cart_order_ids_reset() {
-  $cart_order_ids = &drupal_static('commerce_cart_order_id');
+  $cart_order_ids = &backdrop_static('commerce_cart_order_id');
   $cart_order_ids = NULL;
 }
 
@@ -983,7 +1007,7 @@ function commerce_cart_order_is_cart($order) {
     }
   }
 
-  drupal_alter('commerce_cart_order_is_cart', $is_cart, $order);
+  backdrop_alter('commerce_cart_order_is_cart', $is_cart, $order);
 
   return $is_cart;
 }
@@ -1288,12 +1312,15 @@ function commerce_cart_order_session_delete($order_id = NULL, $completed = FALSE
  * @param $uid
  *   The uid of the user whose cart you are adding the product to.
  * @param $line_item
- *   An unsaved product line item to be added to the cart with the following data
- *   on the line item being used to determine how to add the product to the cart:
+ *   An unsaved product line item to be added to the cart with the following
+ *   data on the line item being used to determine how to add the product to
+ *   the cart:
  *   - $line_item->commerce_unit_price: a non-NULL default unit price.
- *   - $line_item->commerce_product: reference to the product to add to the cart.
+ *   - $line_item->commerce_product: reference to the product to add to the
+ *   cart.
  *   - $line_item->quantity: quantity of this product to add to the cart.
- *   - $line_item->data: data array that is saved with the line item if the line
+ *   - $line_item->data: data array that is saved with the line item if the
+ *   line
  *     item is added to the cart as a new item; merged into an existing line
  *     item if combination is possible.
  *   - $line_item->order_id: this property does not need to be set when calling
@@ -1301,16 +1328,19 @@ function commerce_cart_order_session_delete($order_id = NULL, $completed = FALSE
  *     order ID.
  *   Additional field data on the line item may be considered when determining
  *   whether or not line items can be combined in the cart. This includes the
- *   line item type, referenced product, and any line item fields that have been
+ *   line item type, referenced product, and any line item fields that have
+ *   been
  *   exposed on the Add to Cart form.
  * @param $combine
- *   Boolean indicating whether or not to combine like products on the same line
+ *   Boolean indicating whether or not to combine like products on the same
+ *   line
  *   item, incrementing an existing line item's quantity instead of adding a
  *   new line item to the cart order. When the incoming line item is combined
  *   into an existing line item, field data on the existing line item will be
  *   left unchanged. Only the quantity will be incremented and the data array
  *   will be updated by merging the data from the existing line item onto the
- *   data from the incoming line item, giving precedence to the most recent data.
+ *   data from the incoming line item, giving precedence to the most recent
+ *   data.
  *
  * @return
  *   The new or updated line item object or FALSE on failure.
@@ -1366,7 +1396,7 @@ function commerce_cart_product_add($uid, $line_item, $combine = TRUE) {
     // Allow other modules to specify what properties should be compared when
     // determining whether or not to combine line items.
     $line_item_clone = clone($line_item);
-    drupal_alter('commerce_cart_product_comparison_properties', $comparison_properties, $line_item_clone);
+    backdrop_alter('commerce_cart_product_comparison_properties', $comparison_properties, $line_item_clone);
 
     // Loop over each line item on the order.
     foreach ($order_wrapper->commerce_line_items as $delta => $matching_line_item_wrapper) {
@@ -1430,14 +1460,16 @@ function commerce_cart_product_add($uid, $line_item, $combine = TRUE) {
  * specified product ID and adds it to a shopping cart. It does not offer the
  * full support of product line item fields that commerce_cart_product_add()
  * does, so you may still need to use the full function, especially if you need
- * to specify display_path field values or interact with custom line item fields.
+ * to specify display_path field values or interact with custom line item
+ * fields.
  *
  * @param $product_id
  *   ID of the product to add to the cart.
  * @param $quantity
  *   Quantity of the specified product to add to the cart; defaults to 1.
  * @param $combine
- *   Boolean indicating whether or not to combine like products on the same line
+ *   Boolean indicating whether or not to combine like products on the same
+ *   line
  *   item, incrementing an existing line item's quantity instead of adding a
  *   new line item to the cart order.
  * @param $uid
@@ -1695,7 +1727,7 @@ function commerce_cart_add_to_cart_form_id($product_ids) {
   $data = implode('_', $product_ids);
 
   if (strlen($data) > 50) {
-    $data = drupal_hash_base64($data);
+    $data = backdrop_hash_base64($data);
   }
 
   return 'commerce_cart_add_to_cart_form_' . $data;
@@ -1899,11 +1931,11 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
   }
 
   // Add a generic class ID.
-  $form['#attributes']['class'][] = drupal_html_class('commerce-add-to-cart');
+  $form['#attributes']['class'][] = backdrop_html_class('commerce-add-to-cart');
 
   // Store the form ID as a class of the form to avoid the incrementing form ID
   // from causing the AJAX refresh not to work.
-  $form['#attributes']['class'][] = drupal_html_class(commerce_cart_add_to_cart_form_id($product_ids));
+  $form['#attributes']['class'][] = backdrop_html_class(commerce_cart_add_to_cart_form_id($product_ids));
 
   // Disable autocomplete on Add to Cart form elements.
   $form['#attributes']['autocomplete'] = 'off';
@@ -2162,7 +2194,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
             $form['attributes'][$field_name] = array(
               '#type' => $data['commerce_cart_settings']['attribute_widget'],
               '#title' => commerce_cart_attribute_widget_title($data['instance']),
-              '#options' => array_intersect_key($data['options'], drupal_map_assoc($used_options[$field_name])),
+              '#options' => array_intersect_key($data['options'], backdrop_map_assoc($used_options[$field_name])),
               '#default_value' => $default_product_field_value,
               '#weight' => $data['instance']['widget']['weight'],
               '#ajax' => array(
@@ -2419,7 +2451,7 @@ function commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state) {
 
   // Render the form afresh to capture any changes to the available widgets
   // based on the latest selection.
-  $commands[] = ajax_command_replace('.' . drupal_html_class($form['#form_id']), drupal_render($form));
+  $commands[] = ajax_command_replace('.' . backdrop_html_class($form['#form_id']), backdrop_render($form));
 
   // Then render and return the various product fields that might need to be
   // updated on the page.
@@ -2431,12 +2463,12 @@ function commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state) {
     // First render the actual fields attached to the referenced product.
     foreach (field_info_instances('commerce_product', $product->type) as $product_field_name => $product_field) {
       // Rebuild the same array of classes used when the field was first rendered.
-      $replacement_class = drupal_html_class(implode('-', array($form_state['context']['class_prefix'], 'product', $product_field_name)));
+      $replacement_class = backdrop_html_class(implode('-', array($form_state['context']['class_prefix'], 'product', $product_field_name)));
 
       $classes = array(
         'commerce-product-field',
-        drupal_html_class('commerce-product-field-' . $product_field_name),
-        drupal_html_class('field-' . $product_field_name),
+        backdrop_html_class('commerce-product-field-' . $product_field_name),
+        backdrop_html_class('field-' . $product_field_name),
         $replacement_class,
       );
 
@@ -2452,7 +2484,7 @@ function commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state) {
       $element['#prefix'] = '<div class="' . implode(' ', $classes) . '">' . $element['#prefix'];
       $element['#suffix'] .= '</div>';
 
-      $commands[] = ajax_command_replace('.' . $replacement_class, drupal_render($element));
+      $commands[] = ajax_command_replace('.' . $replacement_class, backdrop_render($element));
     }
 
     // Then render the extra fields defined for the referenced product.
@@ -2464,11 +2496,11 @@ function commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state) {
       if (!empty($product_extra_field['theme']) &&
         !empty($display[$product_extra_field_name]['visible'])) {
         // Rebuild the same array of classes used when the field was first rendered.
-        $replacement_class = drupal_html_class(implode('-', array($form_state['context']['class_prefix'], 'product', $product_extra_field_name)));
+        $replacement_class = backdrop_html_class(implode('-', array($form_state['context']['class_prefix'], 'product', $product_extra_field_name)));
 
         $classes = array(
           'commerce-product-extra-field',
-          drupal_html_class('commerce-product-extra-field-' . $product_extra_field_name),
+          backdrop_html_class('commerce-product-extra-field-' . $product_extra_field_name),
           $replacement_class,
         );
 
@@ -2479,7 +2511,7 @@ function commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state) {
           '#label' => $product_extra_field['label'] . ':',
           '#product' => $product,
           '#attached' => array(
-            'css' => array(drupal_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'),
+            'css' => array(backdrop_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'),
           ),
           '#prefix' => '<div class="' . implode(' ', $classes) . '">',
           '#suffix' => '</div>',
@@ -2490,13 +2522,13 @@ function commerce_cart_add_to_cart_form_attributes_refresh($form, $form_state) {
           $classes[] = 'commerce-product-extra-field-empty';
         }
 
-        $commands[] = ajax_command_replace('.' . $replacement_class, drupal_render($element));
+        $commands[] = ajax_command_replace('.' . $replacement_class, backdrop_render($element));
       }
     }
   }
 
   // Allow other modules to add arbitrary AJAX commands on the refresh.
-  drupal_alter('commerce_cart_attributes_refresh', $commands, $form, $form_state);
+  backdrop_alter('commerce_cart_attributes_refresh', $commands, $form, $form_state);
 
   return array('#type' => 'ajax', '#commands' => $commands);
 }
@@ -2510,7 +2542,7 @@ function commerce_cart_add_to_cart_views_form_refresh($form, $form_state) {
 
   // Extract the View from the form's arguments and derive its DOM ID class.
   $view = $form_state['build_info']['args'][0];
-  $dom_id_class = drupal_html_class('view-dom-id-' . $view->dom_id);
+  $dom_id_class = backdrop_html_class('view-dom-id-' . $view->dom_id);
 
   // Unset the form related variables from the $_POST array. Otherwise, when we
   // rebuild the View, the Views form will fetch these values to rebuild the
@@ -2540,7 +2572,7 @@ function commerce_cart_add_to_cart_form_submit($form, &$form_state) {
 
     // Allow modules to prepare this as necessary. This hook is defined by the
     // Product Pricing module.
-    drupal_alter('commerce_product_calculate_sell_price_line_item', $line_item);
+    backdrop_alter('commerce_product_calculate_sell_price_line_item', $line_item);
 
     // Remove line item field values the user didn't have access to modify.
     foreach ($form_state['values']['line_item_fields'] as $field_name => $value) {
@@ -2578,7 +2610,7 @@ function commerce_cart_add_to_cart_form_submit($form, &$form_state) {
       );
     }
     else {
-      drupal_set_message(t('%title could not be added to your cart.', array('%title' => $product->title)), 'error');
+      backdrop_set_message(t('%title could not be added to your cart.', array('%title' => $product->title)), 'error');
     }
   }
 }
@@ -2678,7 +2710,7 @@ function commerce_cart_field_formatter_settings_form($field, $instance, $view_mo
       $element['line_item_type'] = array(
         '#type' => 'select',
         '#title' => t('Add to Cart line item type'),
-        '#options' => array_intersect_key(commerce_line_item_type_get_name(), drupal_map_assoc($types)),
+        '#options' => array_intersect_key(commerce_line_item_type_get_name(), backdrop_map_assoc($types)),
         '#default_value' => $settings['line_item_type'],
       );
     }
@@ -2804,7 +2836,7 @@ function commerce_cart_field_attach_view_alter(&$output, $context) {
       $cart_context = $context;
 
       // Remove the full entity from the context array and put the ID in instead.
-      list($entity_id, $vid, $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
+      [$entity_id, $vid, $bundle] = entity_extract_ids($context['entity_type'], $context['entity']);
       $cart_context['entity_id'] = $entity_id;
       unset($cart_context['entity']);
 
@@ -2864,7 +2896,7 @@ function commerce_cart_field_attach_view_alter(&$output, $context) {
         // Replace the array containing the arguments with the return value of
         // drupal_get_form(). It will be rendered when the rest of the object is
         // rendered for display.
-        $output[$field_name][$key] = drupal_get_form($arguments['form_id'], $arguments['line_item'], $arguments['show_quantity'], $cart_context);
+        $output[$field_name][$key] = backdrop_get_form($arguments['form_id'], $arguments['line_item'], $arguments['show_quantity'], $cart_context);
       }
     }
   }
@@ -2898,7 +2930,9 @@ function commerce_cart_add_to_cart_form_product_ids($line_item) {
     $entity_data = $line_item->data['context']['entity'];
 
     // Load the specified entity.
-    $entity = entity_load_single($entity_data['entity_type'], $entity_data['entity_id']);
+    $entity = entity_load($entity_data['entity_type'], $entity_data['entity_id']);
+    $entity = reset($entity);
+    //$entity = entity_load_single($entity_data['entity_type'], $entity_data['entity_id']);
 
     // Extract the product IDs from the specified product reference field.
     if (!empty($entity->{$entity_data['product_reference_field_name']})) {
@@ -2920,7 +2954,7 @@ function commerce_cart_preprocess_views_view(&$vars) {
 
   // Add the shopping cart stylesheet to the cart or form if they are not empty.
   if ($view->name == 'commerce_cart_block' || $view->name == 'commerce_cart_form') {
-    drupal_add_css(drupal_get_path('module', 'commerce_cart') . '/theme/commerce_cart.theme.css');
+    backdrop_add_css(backdrop_get_path('module', 'commerce_cart') . '/theme/commerce_cart.theme.css');
   }
 }
 
@@ -2953,9 +2987,37 @@ function commerce_cart_i18n_string_list_field_alter(&$strings, $type = NULL, $ob
 }
 
 /**
+ * Implements hook_autoload_info().
+ */
+function commerce_cart_autoload_info() {
+  return [
+    'commerce_cart_handler_area_empty_text' => 'includes/views/handlers/commerce_cart_handler_area_empty_text.inc',
+    'commerce_cart_handler_field_add_to_cart_form' => 'includes/views/handlers/commerce_cart_handler_field_add_to_cart_form.inc',
+    'commerce_cart_handler_field_edit_attributes' => 'includes/views/handlers/commerce_cart_handler_field_edit_attributes.inc',
+    'commerce_cart_plugin_argument_default_current_cart_order_id' => 'includes/views/handlers/commerce_cart_plugin_argument_default_current_cart_order_id.inc',
+    'commerce_cart.views'=> 'includes/views/commerce_cart.views.inc',
+    'commerce_cart.views_default'=> 'includes/views/commerce_cart.views_default.inc',
+    'CommerceCartProviderSession' => 'plugins/cart_provider/CommerceCartProviderSession.class.php',
+    'CommerceCartProviderInterface' => 'plugins/cart_provider/interface.inc',
+    'session' => 'plugins/cart_provider/session.inc',
+  ];
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function commerce_cart_config_info() {
+  $prefixes['commerce_cart.settings'] = array(
+    'label' => t('Commerce Car settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
  * Implements hook_ctools_plugin_type().
  */
-function commerce_cart_ctools_plugin_type() {
+function commerce_cart_plugin_manager_plugin_type() {
   $plugins['cart_provider'] = array(
     'classes' => array('class'),
   );
@@ -2965,7 +3027,7 @@ function commerce_cart_ctools_plugin_type() {
 /**
  * Implements hook_ctools_plugin_directory().
  */
-function commerce_cart_ctools_plugin_directory($module, $plugin) {
+function commerce_cart_plugin_manager_directory($module, $plugin) {
   if ($module == 'commerce_cart') {
     return 'plugins/' . $plugin;
   }
@@ -2975,13 +3037,13 @@ function commerce_cart_ctools_plugin_directory($module, $plugin) {
  * Returns the instantiated cart provider.
  */
 function commerce_cart_get_provider($provider = NULL) {
-  ctools_include('plugins');
+  $config = config('commerce_cart.settings');
   if (empty($provider)) {
-    $provider = variable_get('commerce_cart_provider', COMMERCE_CART_DEFAULT_PROVIDER);
+    $provider = $config->get('commerce_cart_provider');
   }
 
   // Return NULL if the class could not be found.
-  if (!$class = ctools_plugin_load_class('commerce_cart', 'cart_provider', $provider, 'class')) {
+  if (!$class = plugin_manager_load_class('commerce_cart', 'cart_provider', $provider, 'class')) {
     return NULL;
   }
 
@@ -2992,8 +3054,7 @@ function commerce_cart_get_provider($provider = NULL) {
  * Returns the cart providers.
  */
 function commerce_cart_get_providers() {
-  ctools_include('plugins');
-  $plugins = ctools_get_plugins('commerce_cart', 'cart_provider');
-  uasort($plugins, 'ctools_plugin_sort');
+  $plugins = plugin_manager_get_plugins('commerce_cart', 'cart_provider');
+  uasort($plugins, 'plugin_manager_sort');
   return $plugins;
 }

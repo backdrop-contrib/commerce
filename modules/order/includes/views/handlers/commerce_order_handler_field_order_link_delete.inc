@@ -22,6 +22,6 @@ class commerce_order_handler_field_order_link_delete extends commerce_order_hand
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('delete');
 
-    return l($text, 'admin/commerce/orders/' . $order->order_id . '/delete', array('query' => drupal_get_destination()));
+    return l($text, 'admin/commerce/orders/' . $order->order_id . '/delete', array('query' => backdrop_get_destination()));
   }
 }

@@ -92,11 +92,12 @@ function commerce_order_token_info() {
  * Implements hook_tokens().
  */
 function commerce_order_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $config = config('commerce_order.settings');
   $url_options = array('absolute' => TRUE);
 
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+    $language_code = $options['language']->langcode;
   }
   else {
     $language_code = NULL;
@@ -159,7 +160,7 @@ function commerce_order_tokens($type, $tokens, array $data = array(), array $opt
         // Default values for the chained tokens handled below.
         case 'owner':
           if ($order->uid == 0) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = t($config->get('anonymous'));
           }
           else {
             $account = user_load($order->uid);

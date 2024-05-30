@@ -1,0 +1,250 @@
+{
+    "_config_name": "views.view.commerce_orders",
+    "name": "commerce_orders",
+    "description": "Display a list of orders for the store admin.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_order",
+    "human_name": "Orders",
+    "core": 0,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "title": "Orders",
+                "use_more_always": false,
+                "access": {
+                    "type": "perm",
+                    "perm": "view any commerce_order entity"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic"
+                },
+                "pager": {
+                    "type": "full",
+                    "options": {
+                        "items_per_page": 50
+                    }
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "order_number": "order_number",
+                        "placed": "placed",
+                        "changed": "changed",
+                        "commerce_customer_address": "commerce_customer_address",
+                        "name": "name",
+                        "commerce_order_total": "commerce_order_total",
+                        "status": "status",
+                        "operations": "operations"
+                    },
+                    "default": "changed",
+                    "info": {
+                        "order_number": {
+                            "sortable": 0,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "placed": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "changed": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "commerce_customer_address": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "name": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "commerce_order_total": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "status": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "operations": {
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        }
+                    },
+                    "empty_table": true
+                },
+                "header": {
+                    "view_order_form": {
+                        "id": "view_order_form",
+                        "table": "views",
+                        "field": "view_order_form"
+                    }
+                },
+                "empty": {
+                    "empty_text": {
+                        "id": "empty_text",
+                        "table": "commerce_order",
+                        "field": "empty_text",
+                        "add_path": "admin/commerce/orders/add"
+                    }
+                },
+                "relationships": {
+                    "uid": {
+                        "id": "uid",
+                        "table": "commerce_order",
+                        "field": "uid"
+                    },
+                    "commerce_customer_billing_profile_id": {
+                        "id": "commerce_customer_billing_profile_id",
+                        "table": "field_data_commerce_customer_billing",
+                        "field": "commerce_customer_billing_profile_id"
+                    }
+                },
+                "fields": {
+                    "order_number": {
+                        "id": "order_number",
+                        "table": "commerce_order",
+                        "field": "order_number",
+                        "link_to_order": "admin"
+                    },
+                    "placed": {
+                        "id": "placed",
+                        "table": "commerce_order",
+                        "field": "placed",
+                        "label": "Placed",
+                        "empty": "-",
+                        "date_format": "medium"
+                    },
+                    "changed": {
+                        "id": "changed",
+                        "table": "commerce_order",
+                        "field": "changed",
+                        "label": "Updated",
+                        "date_format": "medium"
+                    },
+                    "commerce_customer_address": {
+                        "id": "commerce_customer_address",
+                        "table": "field_data_commerce_customer_address",
+                        "field": "commerce_customer_address",
+                        "relationship": "commerce_customer_billing_profile_id",
+                        "label": "Name",
+                        "empty": "-",
+                        "hide_alter_empty": false,
+                        "click_sort_column": "country",
+                        "settings": {
+                            "use_widget_handlers": 0,
+                            "format_handlers": {
+                                "name-oneline": "name-oneline"
+                            }
+                        }
+                    },
+                    "name": {
+                        "id": "name",
+                        "table": "users",
+                        "field": "name",
+                        "relationship": "uid",
+                        "label": "User"
+                    },
+                    "commerce_order_total": {
+                        "id": "commerce_order_total",
+                        "table": "field_data_commerce_order_total",
+                        "field": "commerce_order_total",
+                        "label": "Total",
+                        "click_sort_column": "amount",
+                        "type": "commerce_price_formatted_amount",
+                        "settings": {
+                            "calculation": false
+                        }
+                    },
+                    "status": {
+                        "id": "status",
+                        "table": "commerce_order",
+                        "field": "status"
+                    },
+                    "operations": {
+                        "id": "operations",
+                        "table": "commerce_order",
+                        "field": "operations",
+                        "label": "Operations"
+                    }
+                },
+                "filters": {
+                    "state": {
+                        "id": "state",
+                        "table": "commerce_order",
+                        "field": "state",
+                        "operator": "not in",
+                        "value": [],
+                        "group": 1,
+                        "expose": {
+                            "label": "Order state",
+                            "use_operator": true,
+                            "operator": "state_op",
+                            "identifier": "state"
+                        }
+                    }
+                }
+            }
+        },
+        "admin_page": {
+            "display_title": "Admin page",
+            "display_plugin": "page",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": []
+                },
+                "defaults": {
+                    "hide_admin_links": false
+                },
+                "path": "admin/commerce/orders/list",
+                "menu": {
+                    "type": "default tab",
+                    "title": "Orders",
+                    "weight": "-10"
+                },
+                "tab_options": {
+                    "type": "normal",
+                    "title": "Orders",
+                    "description": "Manage orders in the store.",
+                    "weight": "",
+                    "name": "management"
+                }
+            }
+        }
+    }
+}

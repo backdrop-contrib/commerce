@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_order module.
+ *
+ */
+
 
 /**
  * Implements hook_schema().
@@ -93,17 +99,11 @@ function commerce_order_schema() {
     ),
     'indexes' => array(
       'uid' => array('uid'),
-      'status' => array('status'),
-      'order_id_uid_status' => array('order_id', 'uid', 'status'),
-      'created' => array('created'),
-      'changed' => array('changed'),
-      'order_id_status_type' => array('order_id', 'status', 'type'),
-      'type' => array('type'),
     ),
     'foreign keys' => array(
       'current_revision' => array(
         'table' => 'commerce_order_revision',
-        'columns'=> array('revision_id' => 'revision_id'),
+        'columns' => array('revision_id' => 'revision_id'),
       ),
       'owner' => array(
         'table' => 'users',
@@ -152,12 +152,6 @@ function commerce_order_schema() {
         'length' => '255',
         'not null' => TRUE,
       ),
-      'placed' => array(
-        'description' => 'The Unix timestamp when the order was placed e.g. when checkout was completed.',
-        'type' => 'int',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
       'log' => array(
         'description' => 'The log entry explaining the changes in this version.',
         'type' => 'text',
@@ -192,7 +186,7 @@ function commerce_order_schema() {
     'foreign keys' => array(
       'order' => array(
         'table' => 'commerce_order',
-        'columns'=> array('order_id' => 'order_id'),
+        'columns' => array('order_id' => 'order_id'),
       ),
       'owner' => array(
         'table' => 'users',
@@ -212,7 +206,78 @@ function commerce_order_uninstall() {
   module_load_include('module', 'commerce');
   commerce_delete_instances('commerce_order');
 
-  variable_del('commerce_order_help_text');
+  config_clear('commerce_order.settings', 'commerce_order_help_text');
+
+  $names = array(
+    'views.view.commerce_order_revisions',
+    'views.view.commerce_orders',
+    'views.view.commerce_user_orders'
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
+  }
+  // Clear admin bar cache to remove views from menu
+  cache('admin_bar')->flush();
+}
+
+function commerce_order_update_1016() {
+
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_order_revisions');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_order') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_order_revisions.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_order_update_1017() {
+
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_orders');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_order') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_orders.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_order_update_1018() {
+
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_user_orders');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_order') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_user_orders.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_order_update_1500() {
+  $names = array(
+    'views.view.commerce_order_revisions',
+    'views.view.commerce_orders',
+    'views.view.commerce_user_orders'
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->set('module', 'commerce_order');
+    $config->set('storage', 4);
+    $config->save();
+  }
+
 }
 
 /**
@@ -229,10 +294,6 @@ function commerce_order_uninstall() {
  * a recalculated order total components array./
  */
 
-/**
- * Loads and resaves all the products on the site, updating the default price
- * field to have proper component price amount values.
- */
 function commerce_order_update_7100(&$sandbox) {
   // Ensure there are no stale prices in the field cache.
   field_cache_clear();
@@ -383,6 +444,7 @@ function commerce_order_update_7103() {
   return t('The calculated price table has been cleared. If your site uses product sell price pre-calculation, you will need to recalculate these prices.');
 }
 
+
 /**
  * Update permission names for order entity management.
  */
@@ -494,6 +556,7 @@ function commerce_order_update_7109() {
  * Add the placed timestamp to {commerce_order}.
  */
 function commerce_order_update_7110() {
+  $config = config('commerce_order.settings');
   if (!db_field_exists('commerce_order', 'placed')) {
     db_add_field('commerce_order', 'placed', array(
       'description' => 'The Unix timestamp when the order was placed e.g. when checkout was completed.',
@@ -509,9 +572,9 @@ function commerce_order_update_7110() {
     // holds the checkout completion time. To not alter the behavior in existing
     // sites we set the variable to TRUE, the previous default, and site admins
     // can change it when they desire.
-    $current_value = variable_get('enable_commerce_checkout_order_created_date_update');
+    $current_value = $config->get('enable_commerce_checkout_order_created_date_update');
     if ($current_value === NULL) {
-      variable_set('enable_commerce_checkout_order_created_date_update', TRUE);
+      $config->set('enable_commerce_checkout_order_created_date_update', update_variable_get('enable_commerce_checkout_order_created_date_update', TRUE));
     }
 
     return t('Schema for the commerce_order table has been updated. A drush command (commerce-order-update-placed-timestamp) is available to update the placed timestamp for existing orders.');
@@ -542,7 +605,8 @@ function commerce_order_update_7111() {
  * by adding $conf['skip_order_update_7112'] = TRUE; to settings.php.
  */
 function commerce_order_update_7112() {
-  if (!variable_get('skip_order_update_7112', FALSE) &&
+  $config = config('commerce_order.settings');
+  if (!$config->get('skip_order_update_7112') &&
     !db_field_exists('commerce_order_revision', 'placed')) {
 
     db_add_field('commerce_order_revision', 'placed', array(
@@ -566,7 +630,8 @@ function commerce_order_update_7112() {
  * to settings.php.
  */
 function commerce_order_update_7113() {
-  if (!variable_get('skip_order_update_7113', FALSE)) {
+  $config = config('commerce_order.settings');
+  if (!$config->get('skip_order_update_7113')) {
     if (!db_index_exists('commerce_order', 'created')) {
       db_add_index('commerce_order', 'created', array('created'));
     }
@@ -589,4 +654,42 @@ function commerce_order_update_7113() {
  */
 function commerce_order_update_7114() {
   return t('To display the e-mail address on orders, you must adjust and resave your order field display settings. The e-mail address will appear to be visible already due to a limitation of the field UI, but it will not truly be visible on rendered orders until you resave the display settings.');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_order_update_last_removed() {
+  return 7110;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_order_update_1000() {
+  $config = config('commerce_order.settings');
+  $config->set('commerce_order_auto_revision', update_variable_get('commerce_order_auto_revision', true));
+  $config->set('commerce_order_help_text', update_variable_get('commerce_order_help_text', ''));
+  $config->set('commerce_order_account_pane_mail_double_entry', update_variable_get('commerce_order_account_pane_mail_double_entry', false));
+  $config->set('commerce_order_account_pane_auth_display', update_variable_get('commerce_order_account_pane_auth_display', false));
+  $config->set('enable_commerce_checkout_order_created_date_update', update_variable_get('enable_commerce_checkout_order_created_date_update', true));
+  $config->set('skip_order_update_7113', update_variable_get('skip_order_update_7113', false));
+  $config->set('skip_order_update_7112', update_variable_get('skip_order_update_7112', false));
+  $config->set('anonymous', update_variable_get('anonymous', 'Anonymous'));
+  $config->save();
+  update_variable_del('commerce_order_auto_revision');
+  update_variable_del('commerce_order_help_text');
+  update_variable_del('commerce_order_account_pane_mail_double_entry');
+  update_variable_del('commerce_order_account_pane_auth_display');
+  update_variable_del('enable_commerce_checkout_order_created_date_update');
+  update_variable_del('skip_order_update_7113');
+  update_variable_del('skip_order_update_7112');
+  update_variable_del('anonymous');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_order_install() {
+  // Dynamically generated variable data was detected.
 }
