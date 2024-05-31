@@ -7,6 +7,3 @@ dependencies[] = rules
 dependencies[] = i18n
 backdrop = 1.x
 type = module
-
-; Tests
-; Central Entity Controller.

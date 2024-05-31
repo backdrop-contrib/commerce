@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Install, update and uninstall functions for the commerce_customer module.
- *
- */
-
 
 /**
  * Implements hook_schema().
@@ -305,7 +299,6 @@ function commerce_customer_update_1000() {
 }
 
 function commerce_customer_update_1017() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_customer_profiles');
   if ($config_analysis->isNew()) {
@@ -329,5 +322,4 @@ function commerce_customer_update_1500() {
     $config->set('storage', 4);
     $config->save();
   }
-
 }

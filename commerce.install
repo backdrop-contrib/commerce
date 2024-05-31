@@ -1,8 +1,7 @@
 <?php
+
 /**
- * @file
- * Install, update and uninstall functions for the commerce module.
- *
+ * Performs database updates and uninstallation cleanup for the Commerce module.
  */
 
 
@@ -13,10 +12,10 @@ function commerce_install() {
   // Give commerce.module a higher weight than field.module so we can use
   // hook_system_info_alter() to override the dependencies it adds.
   $weight = db_select('system', 's')
-    ->fields('s', array('weight'))
-    ->condition('name', 'field', '=')
-    ->execute()
-    ->fetchField();
+              ->fields('s', array('weight'))
+              ->condition('name', 'field', '=')
+              ->execute()
+              ->fetchField();
   db_update('system')
     ->fields(array('weight' => $weight + 1))
     ->condition('name', 'commerce', '=')
@@ -314,10 +313,10 @@ function commerce_update_7101() {
  */
 function commerce_update_7102() {
   $weight = db_select('system', 's')
-    ->fields('s', array('weight'))
-    ->condition('name', 'field', '=')
-    ->execute()
-    ->fetchField();
+              ->fields('s', array('weight'))
+              ->condition('name', 'field', '=')
+              ->execute()
+              ->fetchField();
   db_update('system')
     ->fields(array('weight' => $weight + 1))
     ->condition('name', 'commerce', '=')

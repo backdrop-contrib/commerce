@@ -1,5 +1,5 @@
 <?php
-//module_load_include('inc', 'commerce_product', 'includes/commerce_product.controller');
+
 /**
  * @file
  * Defines the core Commerce product entity, including the entity itself, the

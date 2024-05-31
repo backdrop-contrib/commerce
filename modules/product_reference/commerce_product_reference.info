@@ -9,6 +9,3 @@ dependencies[] = entity
 dependencies[] = options
 backdrop = 1.x
 type = module
-
-; Views handlers
-; Simple tests

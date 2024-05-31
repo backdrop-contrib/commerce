@@ -288,9 +288,7 @@ function commerce_order_order_form_submit($form, &$form_state) {
   // Ensure the attached customer profiles are associated with the order owner
   // if they do not have a uid yet and the order does.
   if ($converted) {
-
     $wrapper = entity_metadata_wrapper('commerce_order', $order);
-
 
     foreach (field_info_instances('commerce_order', $order->type) as $field_name => $instance) {
       $field_info = field_info_field($field_name);
@@ -299,13 +297,11 @@ function commerce_order_order_form_submit($form, &$form_state) {
         if (!is_null($wrapper->{$field_name}->value()) &&
           $wrapper->{$field_name}->uid->value() == 0) {
           $wrapper->{$field_name}->uid = $order->uid;
-          //$wrapper->{$field_name}->save();
           entity_plus_save($wrapper->{$field_name}->type(), $wrapper->{$field_name}->value());
         }
       }
     }
   }
-
 
   // Update the order status if specified.
   if ($form_state['values']['status'] != $form_state['values']['status_original']) {

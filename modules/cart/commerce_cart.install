@@ -78,7 +78,6 @@ function commerce_cart_uninstall() {
  * Create webform_analysis views if it doesn't exist already.
  */
 function commerce_cart_update_1016() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_cart_block');
   if ($config_analysis->isNew()) {
@@ -92,7 +91,6 @@ function commerce_cart_update_1016() {
 }
 
 function commerce_cart_update_1017() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_cart_form');
   if ($config_analysis->isNew()) {
@@ -106,7 +104,6 @@ function commerce_cart_update_1017() {
 }
 
 function commerce_cart_update_1018() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_cart_summary');
   if ($config_analysis->isNew()) {

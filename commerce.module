@@ -13,8 +13,6 @@ define('COMMERCE_ROUND_HALF_DOWN', 2);
 define('COMMERCE_ROUND_HALF_EVEN', 3);
 define('COMMERCE_ROUND_HALF_ODD', 4);
 
-module_load_include('inc', 'commerce', 'includes/commerce.controller');
-
 /**
  * Implements hook_permission().
  */
@@ -1333,6 +1331,20 @@ function commerce_theme_registry_alter(&$theme_registry) {
   $theme_registry['entity']['preprocess functions'] = array_values($functions);
 }
 
+/**
+ * Returns the label of an entity.
+ *
+ * See the 'label callback' component of the hook_entity_info() return value
+ * for more information.
+ *
+ * @param $entity_type
+ *   The entity type; e.g., 'node' or 'user'.
+ * @param $entity
+ *   The entity for which to generate the label.
+ *
+ * @return
+ *   The entity label, or FALSE if not found.
+ */
 function commerce_entity_label($entity_type, $entity) {
   $label = FALSE;
   $info = entity_get_info($entity_type);
@@ -1474,6 +1486,6 @@ function commerce_config_info() {
 
 function commerce_autoload_info() {
   return array(
-    'EntityAPIControllerExportable' =>'includes/commerce.entity.controller.inc',
+    'BackdropCommerceEntityControllerInterface' =>'includes/commerce.controller.inc',
   );
 }

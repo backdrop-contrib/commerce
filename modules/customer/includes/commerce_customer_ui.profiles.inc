@@ -29,7 +29,6 @@ function commerce_customer_ui_customer_profile_add_page() {
  * @ingroup themeable
  */
 function theme_customer_profile_add_list($variables) {
-  // TODO: Should this theme customer_profile_add_list be declared in hook_theme()?
   $content = $variables['content'];
   $output = '';
 

@@ -9,6 +9,3 @@ dependencies[] = entity
 dependencies[] = rules
 backdrop = 1.x
 type = module
-
-; Simple tests
-;

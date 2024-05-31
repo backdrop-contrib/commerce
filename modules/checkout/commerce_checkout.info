@@ -9,5 +9,3 @@ dependencies[] = rules
 backdrop = 1.x
 type = module
 configure = admin/commerce/config/checkout
-
-; Simple tests

@@ -9,5 +9,3 @@ dependencies[] = views
 backdrop = 1.x
 type = module
 configure = admin/commerce/customer-profiles/types
-
-; Simple tests

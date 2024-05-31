@@ -6,8 +6,3 @@ dependencies[] = commerce
 dependencies[] = entity
 backdrop = 1.x
 type = module
-
-; Module includes
-; Views handlers
-; Simple tests
-; 

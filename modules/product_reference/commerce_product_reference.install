@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Install, update and uninstall functions for the commerce_product_reference module.
- *
- */
-
 
 /**
  * Implements hook_field_schema().

@@ -334,12 +334,10 @@ function commerce_price_field_is_empty($item, $field) {
 }
 
 /**
- * Creates a required, locked instance of a price field on the specified
- * bundle.
+ * Creates a required, locked instance of a price field on the specified bundle.
  *
  * @param $field_name
- *   The name of the field; if it already exists, a new instance of the
- *   existing
+ *   The name of the field; if it already exists, a new instance of the existing
  *     field will be created. For fields governed by the Commerce modules, this
  *     should begin with commerce_.
  * @param $entity_type
@@ -351,8 +349,8 @@ function commerce_price_field_is_empty($item, $field) {
  * @param $weight
  *   The default weight of the field instance widget and display.
  * @param $calculation
- *   A string indicating the default value of the display formatter's
- *   calculation setting.
+ *   A string indicating the default value of the display formatter's calculation
+ *     setting.
  * @param $display
  *   An array of default display data used for the entity's current view modes.
  */

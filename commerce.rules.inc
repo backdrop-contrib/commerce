@@ -27,13 +27,13 @@ function commerce_rules_condition_info_alter(&$conditions) {
           'options list' => 'commerce_entity_type_options_list',
           'description' => t('Specifies the type of the entity that should be fetched.'),
           'restriction' => 'input',
-        ),
+         ),
         'property' => array(
           'type' => 'text',
           'label' => t('Property'),
           'description' => t('The property by which the entity is to be selected.'),
           'restriction' => 'input',
-        ),
+         ),
         'value' => array(
           'type' => 'text',
           'label' => t('Value'),
@@ -76,10 +76,7 @@ function commerce_condition_entity_exists($type, $property, $value) {
  * Info alteration callback for the entity query action.
  */
 function commerce_condition_entity_exists_info_alter(&$element_info, RulesAbstractPlugin $element) {
-  $element->settings += array(
-    'type' => NULL,
-    'property' => NULL,
-  );
+  $element->settings += array('type' => NULL, 'property' => NULL);
   if ($element->settings['type']) {
     $element_info['parameter']['property']['options list'] = 'commerce_condition_entity_exists_property_options_list';
 
@@ -109,10 +106,7 @@ function commerce_condition_entity_exists_property_options_list(RulesAbstractPlu
  */
 function commerce_condition_entity_exists_value_options_list(RulesAbstractPlugin $element) {
   // Get the possible values for the selected property.
-  $element->settings += array(
-    'type' => NULL,
-    'property' => NULL,
-  );
+  $element->settings += array('type' => NULL, 'property' => NULL);
   if ($element->settings['type'] && $element->settings['property']) {
     $wrapper = entity_metadata_wrapper($element->settings['type']);
 

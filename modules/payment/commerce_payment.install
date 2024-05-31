@@ -130,11 +130,12 @@ function commerce_payment_schema() {
       'payment_method' => array('payment_method'),
       'uid' => array('uid'),
       'order_id' => array('order_id'),
+      'remote_id' => array('remote_id'),
     ),
     'foreign keys' => array(
       'payment_transaction_revision' => array(
         'table' => 'commerce_payment_transaction_revision',
-        'columns' => array('revision_id' => 'revision_id'),
+        'columns'=> array('revision_id' => 'revision_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -142,7 +143,7 @@ function commerce_payment_schema() {
       ),
       'order_id' => array(
         'table' => 'commerce_order',
-        'columns' => array('order_id' => 'order_id'),
+        'columns'=> array('order_id' => 'order_id'),
       ),
     ),
   );
@@ -234,12 +235,13 @@ function commerce_payment_schema() {
     ),
     'indexes' => array(
       'transaction_id' => array('transaction_id'),
+      'remote_id' => array('remote_id'),
     ),
     'primary key' => array('revision_id'),
     'foreign keys' => array(
       'payment_transaction' => array(
         'table' => 'commerce_payment_transaction',
-        'columns' => array('transaction_id' => 'transaction_id'),
+        'columns'=> array('transaction_id' => 'transaction_id'),
       ),
       'creator' => array(
         'table' => 'users',
@@ -368,7 +370,6 @@ function commerce_payment_uninstall() {
 }
 
 function commerce_payment_update_1016() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_payment_order');
   if ($config_analysis->isNew()) {

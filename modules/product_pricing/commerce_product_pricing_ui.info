@@ -10,4 +10,3 @@ dependencies[] = commerce_product_reference
 backdrop = 1.x
 type = module
 configure = admin/commerce/config/product-pricing
-

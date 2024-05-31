@@ -7,8 +7,3 @@ dependencies[] = entity
 dependencies[] = rules
 backdrop = 1.x
 type = module
-
-; Module includes
-; Views handlers
-; Simple tests
-;

@@ -4,6 +4,3 @@ package = Commerce
 dependencies[] = commerce
 backdrop = 1.x
 type = module
-
-; Module file includes
-; Views handlers

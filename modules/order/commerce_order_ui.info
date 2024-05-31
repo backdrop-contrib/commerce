@@ -10,6 +10,3 @@ dependencies[] = views
 backdrop = 1.x
 type = module
 configure = admin/commerce/config/order
-
-; Views handlers
-; Simple tests

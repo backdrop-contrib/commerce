@@ -371,7 +371,8 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
       db_ignore_slave();
 
       return TRUE;
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       if (!empty($started_transaction)) {
         $transaction->rollback();
         watchdog_exception($this->entityType, $e);
@@ -415,7 +416,6 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
       }
 
       $this->invoke('presave', $entity);
-
 
       // When saving a new revision, unset any existing revision ID so as to
       // ensure that a new revision will actually be created, then store the old
@@ -548,7 +548,6 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
    * @param $langcode
    *   (optional) A language code to use for rendering. Defaults to the global
    *   content language of the current request.
-   *
    * @return
    *   The renderable array.
    */
@@ -594,7 +593,6 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
    *   of the entity, as returned by entity_uri().
    *   This parameter is only supported for entities which controller is a
    *   EntityAPIControllerInterface.
-   *
    * @return
    *   The renderable array.
    */

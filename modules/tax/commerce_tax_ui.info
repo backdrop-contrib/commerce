@@ -7,5 +7,3 @@ dependencies[] = commerce_tax
 backdrop = 1.x
 type = module
 configure = admin/commerce/config/taxes
-
-; Simple tests

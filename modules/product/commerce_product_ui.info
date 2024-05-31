@@ -9,6 +9,3 @@ dependencies[] = views
 backdrop = 1.x
 type = module
 configure = admin/commerce/products/types
-
-; Simple tests
-files[] = tests/commerce_product_ui.test

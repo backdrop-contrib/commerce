@@ -1312,15 +1312,12 @@ function commerce_cart_order_session_delete($order_id = NULL, $completed = FALSE
  * @param $uid
  *   The uid of the user whose cart you are adding the product to.
  * @param $line_item
- *   An unsaved product line item to be added to the cart with the following
- *   data on the line item being used to determine how to add the product to
- *   the cart:
+ *   An unsaved product line item to be added to the cart with the following data
+ *   on the line item being used to determine how to add the product to the cart:
  *   - $line_item->commerce_unit_price: a non-NULL default unit price.
- *   - $line_item->commerce_product: reference to the product to add to the
- *   cart.
+ *   - $line_item->commerce_product: reference to the product to add to the cart.
  *   - $line_item->quantity: quantity of this product to add to the cart.
- *   - $line_item->data: data array that is saved with the line item if the
- *   line
+ *   - $line_item->data: data array that is saved with the line item if the line
  *     item is added to the cart as a new item; merged into an existing line
  *     item if combination is possible.
  *   - $line_item->order_id: this property does not need to be set when calling
@@ -1328,19 +1325,16 @@ function commerce_cart_order_session_delete($order_id = NULL, $completed = FALSE
  *     order ID.
  *   Additional field data on the line item may be considered when determining
  *   whether or not line items can be combined in the cart. This includes the
- *   line item type, referenced product, and any line item fields that have
- *   been
+ *   line item type, referenced product, and any line item fields that have been
  *   exposed on the Add to Cart form.
  * @param $combine
- *   Boolean indicating whether or not to combine like products on the same
- *   line
+ *   Boolean indicating whether or not to combine like products on the same line
  *   item, incrementing an existing line item's quantity instead of adding a
  *   new line item to the cart order. When the incoming line item is combined
  *   into an existing line item, field data on the existing line item will be
  *   left unchanged. Only the quantity will be incremented and the data array
  *   will be updated by merging the data from the existing line item onto the
- *   data from the incoming line item, giving precedence to the most recent
- *   data.
+ *   data from the incoming line item, giving precedence to the most recent data.
  *
  * @return
  *   The new or updated line item object or FALSE on failure.
@@ -1460,16 +1454,14 @@ function commerce_cart_product_add($uid, $line_item, $combine = TRUE) {
  * specified product ID and adds it to a shopping cart. It does not offer the
  * full support of product line item fields that commerce_cart_product_add()
  * does, so you may still need to use the full function, especially if you need
- * to specify display_path field values or interact with custom line item
- * fields.
+ * to specify display_path field values or interact with custom line item fields.
  *
  * @param $product_id
  *   ID of the product to add to the cart.
  * @param $quantity
  *   Quantity of the specified product to add to the cart; defaults to 1.
  * @param $combine
- *   Boolean indicating whether or not to combine like products on the same
- *   line
+ *   Boolean indicating whether or not to combine like products on the same line
  *   item, incrementing an existing line item's quantity instead of adding a
  *   new line item to the cart order.
  * @param $uid

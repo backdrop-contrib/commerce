@@ -278,7 +278,6 @@ function commerce_order_configure_customer_profile_type($customer_profile_type, 
 
     field_create_instance($instance);
 
-    //variable_set('commerce_customer_profile_' . $customer_profile_type . '_field', $field_name);
     config_set('commerce_order.settings','commerce_customer_profile_' . $customer_profile_type . '_field', $field_name);
   }
 }

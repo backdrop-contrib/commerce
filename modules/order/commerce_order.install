@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Install, update and uninstall functions for the commerce_order module.
- *
- */
-
 
 /**
  * Implements hook_schema().
@@ -99,11 +93,17 @@ function commerce_order_schema() {
     ),
     'indexes' => array(
       'uid' => array('uid'),
+      'status' => array('status'),
+      'order_id_uid_status' => array('order_id', 'uid', 'status'),
+      'created' => array('created'),
+      'changed' => array('changed'),
+      'order_id_status_type' => array('order_id', 'status', 'type'),
+      'type' => array('type'),
     ),
     'foreign keys' => array(
       'current_revision' => array(
         'table' => 'commerce_order_revision',
-        'columns' => array('revision_id' => 'revision_id'),
+        'columns'=> array('revision_id' => 'revision_id'),
       ),
       'owner' => array(
         'table' => 'users',
@@ -152,6 +152,12 @@ function commerce_order_schema() {
         'length' => '255',
         'not null' => TRUE,
       ),
+      'placed' => array(
+        'description' => 'The Unix timestamp when the order was placed e.g. when checkout was completed.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'log' => array(
         'description' => 'The log entry explaining the changes in this version.',
         'type' => 'text',
@@ -186,7 +192,7 @@ function commerce_order_schema() {
     'foreign keys' => array(
       'order' => array(
         'table' => 'commerce_order',
-        'columns' => array('order_id' => 'order_id'),
+        'columns'=> array('order_id' => 'order_id'),
       ),
       'owner' => array(
         'table' => 'users',
@@ -223,7 +229,6 @@ function commerce_order_uninstall() {
 }
 
 function commerce_order_update_1016() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_order_revisions');
   if ($config_analysis->isNew()) {
@@ -237,7 +242,6 @@ function commerce_order_update_1016() {
 }
 
 function commerce_order_update_1017() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_orders');
   if ($config_analysis->isNew()) {
@@ -251,7 +255,6 @@ function commerce_order_update_1017() {
 }
 
 function commerce_order_update_1018() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_user_orders');
   if ($config_analysis->isNew()) {
@@ -294,6 +297,10 @@ function commerce_order_update_1500() {
  * a recalculated order total components array./
  */
 
+/**
+ * Loads and resaves all the products on the site, updating the default price
+ * field to have proper component price amount values.
+ */
 function commerce_order_update_7100(&$sandbox) {
   // Ensure there are no stale prices in the field cache.
   field_cache_clear();
@@ -443,7 +450,6 @@ function commerce_order_update_7103() {
   db_truncate('commerce_calculated_price')->execute();
   return t('The calculated price table has been cleared. If your site uses product sell price pre-calculation, you will need to recalculate these prices.');
 }
-
 
 /**
  * Update permission names for order entity management.

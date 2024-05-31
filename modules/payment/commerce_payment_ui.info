@@ -9,5 +9,3 @@ dependencies[] = commerce_payment
 backdrop = 1.x
 type = module
 configure = admin/commerce/config/payment-methods
-
-; Simple tests

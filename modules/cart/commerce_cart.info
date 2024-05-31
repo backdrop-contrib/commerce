@@ -14,7 +14,3 @@ dependencies[] = views
 dependencies[] = plugin_manager
 backdrop = 1.x
 type = module
-
-; Views handlers
-; Simple tests
-; Cart provider Interface.

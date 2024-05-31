@@ -891,15 +891,15 @@ function commerce_line_item_field_formatter_settings_form($field, $instance, $vi
     // Build an options array of Views available for the order contents pane.
     $options = array();
 
-    // Generate an option list from all user defined and module defined views.
-    foreach (views_get_all_views() as $name => $view) {
+     // Generate an option list from all user defined and module defined views.
+     foreach (views_get_all_views() as $name => $view) {
       // Only include line item Views.
       if ($view->base_table == 'commerce_line_item') {
-        foreach ($view->display as $display_name => $display) {
+         foreach ($view->display as $display_name => $display) {
           $options[check_plain($name)][$name .'|'. $display_name] = $display->display_title;
         }
-      }
-    }
+       }
+     }
 
     $element['view'] = array(
       '#type' => 'select',

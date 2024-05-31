@@ -102,7 +102,6 @@ function commerce_product_entity_property_info() {
     'clear' => array('uid'),
   );
 
-
   $info['commerce_product']['bundles'] = array();
   foreach (commerce_product_type_get_name() as $type => $name) {
     $info['commerce_product']['bundles'][$type] = array(

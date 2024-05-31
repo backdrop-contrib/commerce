@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Install, update and uninstall functions for the commerce_line_item module.
- *
- */
-
 
 /**
  * Implements hook_schema().
@@ -216,7 +210,6 @@ function commerce_line_item_update_7101() {
 }
 
 function commerce_line_item_update_1017() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_line_item_table');
   if ($config_analysis->isNew()) {
@@ -240,5 +233,4 @@ function commerce_line_item_update_1500() {
     $config->set('storage', 4);
     $config->save();
   }
-
 }

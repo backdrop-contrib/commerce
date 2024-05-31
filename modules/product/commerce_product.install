@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Install, update and uninstall functions for the commerce_product module.
- *
- */
-
 
 
 /**
@@ -259,6 +253,9 @@ function commerce_product_update_7102() {
   return t('Database index added to the uid column of the commerce_product table.');
 }
 
+/**
+ * Add support for product revisions.
+ */
 function commerce_product_update_7103(&$sandbox) {
   if (!isset($sandbox['progress'])) {
     $commerce_product_revision_schema = array(
@@ -422,6 +419,9 @@ function commerce_product_update_7103(&$sandbox) {
   return t('The update for commerce product revisions ran successfully.');
 }
 
+/**
+ * Remove the default value for revision_id on {commerce_product}.
+ */
 function commerce_product_update_7104() {
   db_change_field('commerce_product', 'revision_id', 'revision_id', array(
     'description' => 'The current {commerce_product_revision}.revision_id version identifier.',
@@ -456,7 +456,6 @@ function commerce_product_update_1000() {
  * Create webform_analysis views if it doesn't exist already.
  */
 function commerce_product_update_1016() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_product_revisions');
   if ($config_analysis->isNew()) {
@@ -470,7 +469,6 @@ function commerce_product_update_1016() {
 }
 
 function commerce_product_update_1017() {
-
   // See if there is already a webform_submissions view on this site.
   $config_analysis = config('views.view.commerce_products');
   if ($config_analysis->isNew()) {
@@ -495,7 +493,6 @@ function commerce_product_update_1500() {
     $config->set('storage', 4);
     $config->save();
   }
-
 }
 
 
