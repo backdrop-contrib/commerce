@@ -1,0 +1,7 @@
+{
+    "_config_name": "commerce_payment.settings",
+    "commerce_payment_pane_require_method": false,
+    "commerce_payment_pane_no_method_behavior": "message",
+    "commerce_order_auto_revision": true,
+    "anonymous": "Anonymous"
+}

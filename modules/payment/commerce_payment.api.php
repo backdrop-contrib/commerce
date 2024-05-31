@@ -454,7 +454,7 @@ function hook_commerce_payment_transaction_status_info() {
   $statuses[COMMERCE_PAYMENT_STATUS_SUCCESS] = array(
     'status' => COMMERCE_PAYMENT_STATUS_SUCCESS,
     'title' => t('Success'),
-    'icon' => drupal_get_path('module', 'commerce_payment') . '/theme/icon-success.png',
+    'icon' => backdrop_get_path('module', 'commerce_payment') . '/theme/icon-success.png',
     'total' => TRUE,
   );
 

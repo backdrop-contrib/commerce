@@ -59,7 +59,7 @@ class commerce_cart_handler_field_add_to_cart_form extends views_handler_field_e
       $form['line_item_type'] = array(
         '#type' => 'select',
         '#title' => t('Add to Cart line item type'),
-        '#options' => array_intersect_key(commerce_line_item_type_get_name(), drupal_map_assoc($types)),
+        '#options' => array_intersect_key(commerce_line_item_type_get_name(), backdrop_map_assoc($types)),
         '#default_value' => !empty($this->options['line_item_type']) ? $this->options['line_item_type'] : 'product',
       );
     }
@@ -121,9 +121,9 @@ class commerce_cart_handler_field_add_to_cart_form extends views_handler_field_e
       );
 
       // Build the Add to Cart form using the prepared values.
-      $form = drupal_get_form($form_id, $line_item, $this->options['show_quantity'], array());
+      $form = backdrop_get_form($form_id, $line_item, $this->options['show_quantity'], array());
 
-      return drupal_render($form);
+      return backdrop_render($form);
     }
   }
 }

@@ -4,19 +4,19 @@
  * Disable the continue buttons in the checkout process once they are clicked
  * and provide a notification to the user.
  */
-Drupal.behaviors.commerceCheckout = {
+Backdrop.behaviors.commerceCheckout = {
   attach: function (context, settings) {
-    $('input.checkout-continue', context).bind('click', Drupal.commerceCheckout.disableContinue);
+    $('input.checkout-continue', context).bind('click', Backdrop.commerceCheckout.disableContinue);
   },
     detach: function (context, settings, trigger) {
-    $('input.checkout-continue', context).unbind('click', Drupal.commerceCheckout.disableContinue);
+    $('input.checkout-continue', context).unbind('click', Backdrop.commerceCheckout.disableContinue);
   }
 }
 
   /**
    * Commerce checkout utility functions.
    */
-  Drupal.commerceCheckout = Drupal.commerceCheckout || {
+  Backdrop.commerceCheckout = Backdrop.commerceCheckout || {
     /**
      * Disable the continue button when clicked to avoid multiple submissions.
      */
@@ -25,7 +25,7 @@ Drupal.behaviors.commerceCheckout = {
       $this.addClass('checkout-processed');
       $this.clone().insertAfter(this).attr('disabled', true).next().removeClass('element-invisible');
       $this.hide();
-      $('form#' + $this[0].form.id).one('submit', Drupal.commerceCheckout.enableContinue);
+      $('form#' + $this[0].form.id).one('submit', Backdrop.commerceCheckout.enableContinue);
     },
     /**
      * Re-enable the continue button if the submit is prevented/cancelled.

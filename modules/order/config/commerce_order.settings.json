@@ -1,0 +1,11 @@
+{
+    "_config_name": "commerce_order.settings",
+    "commerce_order_auto_revision": true,
+    "commerce_order_help_text": "",
+    "commerce_order_account_pane_mail_double_entry": false,
+    "commerce_order_account_pane_auth_display": false,
+    "enable_commerce_checkout_order_created_date_update": true,
+    "skip_order_update_7113": false,
+    "skip_order_update_7112": false,
+    "anonymous": "Anonymous"
+}

@@ -49,7 +49,7 @@ class commerce_order_ui_handler_area_view_order_form extends views_handler_area 
   }
 
   function render($empty = FALSE) {
-    $form = drupal_get_form('commerce_order_ui_redirect_form', $this->options['redirect_page'], $this->options['identifier']);
-    return drupal_render($form);
+    $form = backdrop_get_form('commerce_order_ui_redirect_form', $this->options['redirect_page'], $this->options['identifier']);
+    return backdrop_render($form);
   }
 }

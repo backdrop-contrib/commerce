@@ -17,12 +17,13 @@ define('COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE_EVENT', 'message_event');
  * Checkout pane callback: returns the payment pane's settings form.
  */
 function commerce_payment_pane_settings_form($checkout_pane) {
+  $config = config('commerce_payment.settings');
   $form = array();
 
   $form['commerce_payment_pane_require_method'] = array(
     '#type' => 'checkbox',
     '#title' => t('Require a payment method at all times, preventing checkout if none is available.'),
-    '#default_value' => variable_get('commerce_payment_pane_require_method', FALSE),
+    '#default_value' => $config->get('commerce_payment_pane_require_method'),
   );
   $form['commerce_payment_pane_no_method_behavior'] = array(
     '#type' => 'radios',
@@ -34,7 +35,7 @@ function commerce_payment_pane_settings_form($checkout_pane) {
       COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE => t('Display a message in the pane indicating payment is not required for the order.'),
       COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE_EVENT => t('Display a message in the pane indicating payment is not required and trigger <em>When an order is first paid in full</em> on submission of free orders.'),
     ),
-    '#default_value' => variable_get('commerce_payment_pane_no_method_behavior', COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE),
+    '#default_value' => $config->get('commerce_payment_pane_no_method_behavior'),
     '#states' => array(
       'visible' => array(
         ':input[name="commerce_payment_pane_require_method"]' => array('checked' => FALSE),
@@ -49,6 +50,7 @@ function commerce_payment_pane_settings_form($checkout_pane) {
  * Payment pane: form callback.
  */
 function commerce_payment_pane_checkout_form($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_payment.settings');
   $pane_form = array();
 
   // Invoke the payment methods event that will populate the order with
@@ -74,8 +76,8 @@ function commerce_payment_pane_checkout_form($form, &$form_state, $checkout_pane
 
   // If no payment methods were found, return the empty form.
   if (empty($options)) {
-    if (!variable_get('commerce_payment_pane_require_method', FALSE)) {
-      $behavior = variable_get('commerce_payment_pane_no_method_behavior', COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE);
+    if (!$config->get('commerce_payment_pane_require_method')) {
+      $behavior = $config->get('commerce_payment_pane_no_method_behavior');
 
       switch ($behavior) {
         case COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE:
@@ -167,6 +169,7 @@ function commerce_payment_pane_checkout_form_details_refresh($form, $form_state)
  * Payment pane: validation callback.
  */
 function commerce_payment_pane_checkout_form_validate($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_payment.settings');
   $pane_id = $checkout_pane['pane_id'];
 
   // Only attempt validation if we actually had payment methods on the form.
@@ -206,8 +209,8 @@ function commerce_payment_pane_checkout_form_validate($form, &$form_state, $chec
         return $result === FALSE ? FALSE : TRUE;
       }
     }
-    elseif (variable_get('commerce_payment_pane_require_method', FALSE)) {
-      drupal_set_message(t('You cannot complete checkout without submitting payment. Please contact us if an error continues to prevent you from seeing valid payment methods for your order.'), 'error');
+    elseif ($config->get('commerce_payment_pane_require_method')) {
+      backdrop_set_message(t('You cannot complete checkout without submitting payment. Please contact us if an error continues to prevent you from seeing valid payment methods for your order.'), 'error');
       return FALSE;
     }
   }
@@ -225,10 +228,11 @@ function commerce_payment_pane_checkout_form_validate($form, &$form_state, $chec
  * Payment pane: submit callback.
  */
 function commerce_payment_pane_checkout_form_submit($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_payment.settings');
   // Check to make sure there are no validation issues with other form elements
   // before executing payment method callbacks.
   if (form_get_errors()) {
-    drupal_set_message(t('Your payment will not be processed until all errors on the page have been addressed.'), 'warning');
+    backdrop_set_message(t('Your payment will not be processed until all errors on the page have been addressed.'), 'warning');
     return FALSE;
   }
 
@@ -267,7 +271,7 @@ function commerce_payment_pane_checkout_form_submit($form, &$form_state, $checko
     // If there were no payment methods on the form, check to see if the pane is
     // configured to trigger "When an order is first paid in full" on submission
     // for free orders.
-    $behavior = variable_get('commerce_payment_pane_no_method_behavior', COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE);
+    $behavior = $config->get('commerce_payment_pane_no_method_behavior');
 
     if (in_array($behavior, array(COMMERCE_PAYMENT_PANE_NO_METHOD_EMPTY_EVENT, COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE_EVENT))) {
       // Check the balance of the order.
@@ -291,6 +295,7 @@ function commerce_payment_pane_checkout_form_submit($form, &$form_state, $checko
  * Payment pane: review callback.
  */
 function commerce_payment_pane_review($form, $form_state, &$checkout_pane, $order) {
+  $config = config('commerce_payment.settings');
   // Update the checkout pane info array passed in to give it a more specific
   // title in the review table.
   $checkout_pane['title'] = t('Payment method');
@@ -301,7 +306,7 @@ function commerce_payment_pane_review($form, $form_state, &$checkout_pane, $orde
     $payment_method = commerce_payment_method_instance_load($order->data['payment_method']);
     return $payment_method['display_title'];
   }
-  elseif (in_array(variable_get('commerce_payment_pane_no_method_behavior', COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE), array(COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE, COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE_EVENT))) {
+  elseif (in_array($config->get('commerce_payment_pane_no_method_behavior'), array(COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE, COMMERCE_PAYMENT_PANE_NO_METHOD_MESSAGE_EVENT))) {
     // In the event that the order does not have a selected payment method and
     // the checkout pane is configured to display a message that payment is not
     // required, show a similar message here.
@@ -334,7 +339,7 @@ function commerce_payment_redirect_pane_checkout_form(&$form, &$form_state, $che
 
     // Advance the customer to the next step of the checkout process.
     commerce_payment_redirect_pane_next_page($order, $log);
-    drupal_goto(commerce_checkout_order_uri($order));
+    backdrop_goto(commerce_checkout_order_uri($order));
   }
 
   // If the user came to the cancel URL...
@@ -346,7 +351,7 @@ function commerce_payment_redirect_pane_checkout_form(&$form, &$form_state, $che
 
     // Send the customer to the previous step of the checkout process.
     commerce_payment_redirect_pane_previous_page($order, t('Customer canceled payment at the payment gateway.'));
-    drupal_goto(commerce_checkout_order_uri($order));
+    backdrop_goto(commerce_checkout_order_uri($order));
   }
 
   // If the user came to the return URL...
@@ -363,14 +368,14 @@ function commerce_payment_redirect_pane_checkout_form(&$form, &$form_state, $che
 
       // Send the customer on to the next checkout page.
       commerce_payment_redirect_pane_next_page($order, t('Customer successfully submitted payment at the payment gateway.'));
-      drupal_goto(commerce_checkout_order_uri($order));
+      backdrop_goto(commerce_checkout_order_uri($order));
     }
     else {
       // Otherwise display the failure message and send the customer back.
-      drupal_set_message(t('Payment failed at the payment server. Please review your information and try again.'), 'error');
+      backdrop_set_message(t('Payment failed at the payment server. Please review your information and try again.'), 'error');
 
       commerce_payment_redirect_pane_previous_page($order, t('Customer payment submission failed at the payment gateway.'));
-      drupal_goto(commerce_checkout_order_uri($order));
+      backdrop_goto(commerce_checkout_order_uri($order));
     }
   }
 
@@ -379,27 +384,27 @@ function commerce_payment_redirect_pane_checkout_form(&$form, &$form_state, $che
     // Generate a key to use in the return URL from the redirected service if it
     // does not already exist.
     if (empty($order->data['payment_redirect_key'])) {
-      $order->data['payment_redirect_key'] = drupal_hash_base64(time());
+      $order->data['payment_redirect_key'] = backdrop_hash_base64(time());
       commerce_order_save($order);
     }
 
     // If the payment method has the 'offsite_autoredirect' option enabled, add
     // the redirection behavior.
     if (!empty($payment_method['offsite_autoredirect'])) {
-      $form['#attached']['js'][] = drupal_get_path('module', 'commerce_payment') . '/commerce_payment.js';
+      $form['#attached']['js'][] = backdrop_get_path('module', 'commerce_payment') . '/commerce_payment.js';
       $form['help']['#markup'] = '<div class="checkout-help">' . t('Please wait while you are redirected to the payment server. If nothing happens within 10 seconds, please click on the button below.') . '</div>';
     }
 
     // Merge the new form into the current form array, preserving the help text
     // if it exists. We also add a wrapper so the form can be easily submitted.
-    $form += drupal_get_form($callback, $order, $payment_method);
+    $form += backdrop_get_form($callback, $order, $payment_method);
 
     $form['#prefix'] = '<div class="payment-redirect-form">';
     $form['#suffix'] = '</div>';
   }
   else {
     // Alert the administrator that the module does not provide a required form.
-    drupal_set_message(t('The %title payment method indicates it is offsite but does not define the necessary form to process the redirect.', array('%title' => $payment_method['title'])), 'error');
+    backdrop_set_message(t('The %title payment method indicates it is offsite but does not define the necessary form to process the redirect.', array('%title' => $payment_method['title'])), 'error');
   }
 }
 
@@ -439,7 +444,7 @@ function commerce_payment_post_redirect_form($action, array $values = array()) {
   return array(
     'form' => array(
       '#type' => 'markup',
-      '#markup' => drupal_render($form),
+      '#markup' => backdrop_render($form),
     ),
   );
 }

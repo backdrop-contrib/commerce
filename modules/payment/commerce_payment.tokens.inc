@@ -130,11 +130,12 @@ function commerce_payment_token_info_alter(&$data) {
  * Implements hook_tokens().
  */
 function commerce_payment_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $config = config('commerce_payment.settings');
   $url_options = array('absolute' => TRUE);
 
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+    $language_code = $options['language']->langcode;
   }
   else {
     $language_code = NULL;
@@ -219,7 +220,7 @@ function commerce_payment_tokens($type, $tokens, array $data = array(), array $o
 
         case 'creator':
           if ($transaction->uid == 0) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name =t( $config->get('anonymous'));
           }
           else {
             $creator = user_load($transaction->uid);

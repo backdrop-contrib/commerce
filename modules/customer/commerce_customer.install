@@ -185,6 +185,17 @@ function commerce_customer_uninstall() {
 
   // Delete any customer profile reference fields.
   commerce_delete_fields('commerce_customer_profile_reference');
+
+  $names = array(
+    'views.view.commerce_customer_profiles',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
+  }
+  // Clear admin bar cache to remove views from menu
+  cache('admin_bar')->flush();
 }
 
 /**
@@ -264,4 +275,51 @@ function commerce_customer_update_7102() {
   ));
 
   return t('Schema for the commerce_customer_profile table has been updated.');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_customer_update_last_removed() {
+  return 7102;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_customer_update_1000() {
+  $config = config('commerce_customer.settings');
+  $config->set('commerce_customer_profile_type_field', update_variable_get('commerce_customer_profile_type_field', ''));
+  $config->set('commerce_customer_profile_billing_field', update_variable_get('commerce_customer_profile_billing_field', ''));
+  $config->set('anonymous', update_variable_get('anonymous', 'Anonymous'));
+  $config->save();
+  update_variable_del('commerce_customer_profile_type_field');
+  update_variable_del('anonymous');
+  update_variable_del('commerce_customer_profile_billing_field');
+}
+
+function commerce_customer_update_1017() {
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_customer_profiles');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_customer') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_customer_profiles.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_customer_update_1500() {
+  $names = array(
+    'views.view.commerce_customer_profiles',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->set('module', 'commerce_customer');
+    $config->set('storage', 4);
+    $config->save();
+  }
 }

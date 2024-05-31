@@ -4,8 +4,6 @@ package = Commerce
 dependencies[] = commerce
 dependencies[] = commerce_ui
 dependencies[] = commerce_tax
-core = 7.x
+backdrop = 1.x
+type = module
 configure = admin/commerce/config/taxes
-
-; Simple tests
-files[] = tests/commerce_tax_ui.test

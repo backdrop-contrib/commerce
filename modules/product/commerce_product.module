@@ -70,6 +70,26 @@ function commerce_product_hook_info() {
 }
 
 /**
+ * Implements hook_autoload_info().
+ */
+function commerce_product_autoload_info() {
+  return [
+    'CommerceProductEntityController' => 'includes/commerce_product.controller.inc',
+    'commerce_product_handler_area_empty_text' => 'includes/views/handlers/commerce_product_handler_area_empty_text.inc',
+    'commerce_product_handler_argument_product_id' => 'includes/views/handlers/commerce_product_handler_argument_product_id.inc',
+    'commerce_product_handler_field_product' => 'includes/views/handlers/commerce_product_handler_field_product.inc',
+    'commerce_product_handler_field_product_link' => 'includes/views/handlers/commerce_product_handler_field_product_link.inc',
+    'commerce_product_handler_field_product_link_delete' => 'includes/views/handlers/commerce_product_handler_field_product_link_delete.inc',
+    'commerce_product_handler_field_product_link_edit' => 'includes/views/handlers/commerce_product_handler_field_product_link_edit.inc',
+    'commerce_product_handler_field_product_operations' => 'includes/views/handlers/commerce_product_handler_field_product_operations.inc',
+    'commerce_product_handler_field_product_type' => 'includes/views/handlers/commerce_product_handler_field_product_type.inc',
+    'commerce_product_handler_filter_product_type' => 'includes/views/handlers/commerce_product_handler_filter_product_type.inc',
+    'commerce_product.views'=> 'includes/views/commerce_product.views.inc',
+    'commerce_product_ui.views_default'=>'includes/views/commerce_product_ui.views_default.inc'
+  ];
+}
+
+/**
  * Implements hook_entity_info().
  */
 function commerce_product_entity_info() {
@@ -207,7 +227,7 @@ function commerce_product_file_download_access($field, $entity_type, $entity) {
  * Implements hook_field_extra_fields().
  */
 function commerce_product_field_extra_fields() {
-  $extra = &drupal_static(__FUNCTION__);
+  $extra = &backdrop_static(__FUNCTION__);
 
   if (!isset($extra)) {
     foreach (commerce_product_types() as $type => $product_type) {
@@ -263,17 +283,17 @@ function commerce_product_theme() {
   return array(
     'commerce_product_sku' => array(
       'variables' => array('sku' => NULL, 'label' => NULL, 'product' => NULL),
-      'path' => drupal_get_path('module', 'commerce_product') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_product') . '/theme',
       'template' => 'commerce-product-sku',
     ),
     'commerce_product_title' => array(
       'variables' => array('title' => NULL, 'label' => NULL, 'product' => NULL),
-      'path' => drupal_get_path('module', 'commerce_product') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_product') . '/theme',
       'template' => 'commerce-product-title',
     ),
     'commerce_product_status' => array(
       'variables' => array('status' => NULL, 'label' => NULL, 'product' => NULL),
-      'path' => drupal_get_path('module', 'commerce_product') . '/theme',
+      'path' => backdrop_get_path('module', 'commerce_product') . '/theme',
       'template' => 'commerce-product-status',
     ),
   );
@@ -285,7 +305,7 @@ function commerce_product_theme() {
 function commerce_product_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_product') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_product') . '/includes/views',
   );
 }
 
@@ -373,7 +393,7 @@ function commerce_product_configure_product_fields($modules = NULL) {
  */
 function commerce_product_types() {
   // First check the static cache for a product types array.
-  $product_types = &drupal_static(__FUNCTION__);
+  $product_types = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the types now.
   if (!isset($product_types)) {
@@ -393,7 +413,7 @@ function commerce_product_types() {
     }
 
     // Last allow the info to be altered by other modules.
-    drupal_alter('commerce_product_type_info', $product_types);
+    backdrop_alter('commerce_product_type_info', $product_types);
   }
 
   return $product_types;
@@ -403,7 +423,7 @@ function commerce_product_types() {
  * Resets the cached list of product types.
  */
 function commerce_product_types_reset() {
-  $product_types = &drupal_static('commerce_product_types');
+  $product_types = &backdrop_static('commerce_product_types');
   $product_types = NULL;
   entity_info_cache_clear();
 }
@@ -517,7 +537,7 @@ function commerce_product_load($product_id) {
  *    Boolean to reset static cache.
  */
 function commerce_product_load_by_sku($sku, $reset = FALSE) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &backdrop_static(__FUNCTION__, array());
   if (!isset($cache[$sku]) || $reset) {
     $products = commerce_product_load_multiple(array(), array('sku' => $sku));
     $cache[$sku] = $products ? reset($products) : FALSE;
@@ -769,7 +789,7 @@ function commerce_product_autocomplete($entity_type = 'commerce_product', $field
   $args = explode('/', request_path());
 
   if (count($args) <= 5) {
-    drupal_json_output($matches);
+    backdrop_json_output($matches);
     return;
   }
 
@@ -780,8 +800,8 @@ function commerce_product_autocomplete($entity_type = 'commerce_product', $field
   $string = implode('/', $args);
 
   // The user enters a comma-separated list of tags. We only autocomplete the last tag.
-  $tags_typed = drupal_explode_tags($string);
-  $tag_last = drupal_strtolower(array_pop($tags_typed));
+  $tags_typed = backdrop_explode_tags($string);
+  $tag_last = backdrop_strtolower(array_pop($tags_typed));
 
   if (!empty($tag_last)) {
     $prefix = count($tags_typed) ? implode(', ', $tags_typed) . ', ' : '';
@@ -801,7 +821,7 @@ function commerce_product_autocomplete($entity_type = 'commerce_product', $field
     }
   }
 
-  drupal_json_output($matches);
+  backdrop_json_output($matches);
 }
 
 /**
@@ -843,7 +863,8 @@ function commerce_product_autocomplete($entity_type = 'commerce_product', $field
  *   )
  */
 function commerce_product_match_products($field, $instance = NULL, $string = '', $match = 'contains', $ids = array(), $limit = NULL, $access_tag = FALSE) {
-  $results = &drupal_static(__FUNCTION__, array());
+  $config = config('commerce_product.settings');
+  $results = &backdrop_static(__FUNCTION__, array());
 
   // Create unique id for static cache.
   $cid = implode(':', array(
@@ -869,7 +890,7 @@ function commerce_product_match_products($field, $instance = NULL, $string = '',
     // settings.php file. Additionally, you may need to set the product
     // reference options list limit variable as explained in the comments
     // inline in commerce_product_reference_options_list().
-    if (variable_get('commerce_product_match_products_efq', FALSE)) {
+    if ($config->get('commerce_product_match_products_efq')) {
       $matches = _commerce_product_match_products_efq($instance, $string, $match, $ids, $limit, $access_tag);
     }
     else {
@@ -1108,7 +1129,11 @@ function commerce_product_entity_translation_tab_access($product) {
  *   TRUE or FALSE indicating translation support for the requested type.
  */
 function commerce_product_entity_translation_supported_type($type) {
-  return variable_get('language_product_type_' . $type, 0) == ENTITY_TRANSLATION_ENABLED;
+  $lang = config_get('commerce_product.settings','language_product_type_' . $type);
+  if ($lang == NULL || empty($lang) || !isset($lang)){
+    $lang = 0;
+  }
+  return $lang == ENTITY_TRANSLATION_ENABLED;
 }
 
 /**
@@ -1140,4 +1165,15 @@ function commerce_product_status_options_list() {
  */
 function template_preprocess_commerce_product_status(&$variables) {
   $variables['status'] = empty($variables['status']) ? t('Disabled') : t('Active');
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function commerce_product_config_info() {
+  $prefixes['commerce_product.settings'] = array(
+    'label' => t('Commerce Product UI settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
 }

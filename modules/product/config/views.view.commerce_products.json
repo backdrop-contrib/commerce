@@ -1,0 +1,194 @@
+{
+    "_config_name": "views.view.commerce_products",
+    "name": "commerce_products",
+    "description": "Display a list of products for store admin.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_product",
+    "human_name": "Products",
+    "core": 0,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "title": "Products",
+                "use_more_always": false,
+                "access": {
+                    "type": "perm",
+                    "perm": "administer commerce_product entities"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic",
+                    "options": {
+                        "reset_button": true
+                    }
+                },
+                "pager": {
+                    "type": "full",
+                    "options": {
+                        "items_per_page": 50
+                    }
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "sku": "sku",
+                        "title": "title",
+                        "type": "type",
+                        "commerce_price": "commerce_price",
+                        "status": "status",
+                        "operations": "operations"
+                    },
+                    "default": "sku",
+                    "info": {
+                        "sku": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "title": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "type": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "commerce_price": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "status": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "operations": {
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        }
+                    },
+                    "empty_table": true
+                },
+                "empty": {
+                    "empty_text": {
+                        "id": "empty_text",
+                        "table": "commerce_product",
+                        "field": "empty_text",
+                        "add_path": "admin/commerce/products/add"
+                    }
+                },
+                "fields": {
+                    "sku": {
+                        "id": "sku",
+                        "table": "commerce_product",
+                        "field": "sku",
+                        "link_to_product": 0
+                    },
+                    "title": {
+                        "id": "title",
+                        "table": "commerce_product",
+                        "field": "title",
+                        "link_to_product": 1
+                    },
+                    "type": {
+                        "id": "type",
+                        "table": "commerce_product",
+                        "field": "type",
+                        "link_to_product": 0
+                    },
+                    "commerce_price": {
+                        "id": "commerce_price",
+                        "table": "field_data_commerce_price",
+                        "field": "commerce_price",
+                        "click_sort_column": "amount",
+                        "type": "commerce_price_formatted_amount"
+                    },
+                    "status": {
+                        "id": "status",
+                        "table": "commerce_product",
+                        "field": "status",
+                        "type": "active-disabled",
+                        "not": 0
+                    },
+                    "operations": {
+                        "id": "operations",
+                        "table": "commerce_product",
+                        "field": "operations",
+                        "label": "Operations",
+                        "add_destination": 1
+                    }
+                },
+                "sorts": {
+                    "sku": {
+                        "id": "sku",
+                        "table": "commerce_product",
+                        "field": "sku"
+                    }
+                },
+                "filters": {
+                    "sku": {
+                        "id": "sku",
+                        "table": "commerce_product",
+                        "field": "sku",
+                        "operator": "contains",
+                        "exposed": true,
+                        "expose": {
+                            "operator_id": "sku_op",
+                            "label": "Filter by SKUs containing",
+                            "operator": "sku_op",
+                            "identifier": "sku"
+                        }
+                    }
+                }
+            }
+        },
+        "admin_page": {
+            "display_title": "Admin page",
+            "display_plugin": "page",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": []
+                },
+                "path": "admin/commerce/products/list",
+                "menu": {
+                    "type": "default tab",
+                    "title": "List",
+                    "weight": "-10"
+                },
+                "tab_options": {
+                    "type": "normal",
+                    "title": "Products",
+                    "description": "Manage products and product types in the store.",
+                    "weight": "",
+                    "name": "management"
+                }
+            }
+        }
+    }
+}

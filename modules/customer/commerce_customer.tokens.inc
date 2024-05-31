@@ -62,11 +62,12 @@ function commerce_customer_token_info() {
  * Implements hook_tokens().
  */
 function commerce_customer_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $config = config('commerce_customer.settings');
   $url_options = array('absolute' => TRUE);
 
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+    $language_code = $options['language']->langcode;
   }
   else {
     $language_code = NULL;
@@ -101,7 +102,7 @@ function commerce_customer_tokens($type, $tokens, array $data = array(), array $
         // Default values for the chained tokens handled below.
         case 'owner':
           if ($profile->uid == 0) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = t($config->get('anonymous'));
           }
           else {
             $account = user_load($profile->uid);

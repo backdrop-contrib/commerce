@@ -26,14 +26,30 @@ function commerce_product_reference_field_schema($field) {
   }
 }
 
-/**
- * Implements hook_uninstall().
- */
 function commerce_product_reference_uninstall() {
   // Delete any product reference fields.
   module_load_include('module', 'commerce');
   commerce_delete_fields('commerce_product_reference');
 
   // Delete any variables.
-  variable_del('commerce_product_reference_default_product_behavior');
+  config_clear('commerce_product_reference.settings','commerce_product_reference_default_product_behavior');
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_product_reference_update_1000() {
+  $config = config('commerce_product_reference.settings');
+  $config->set('commerce_product_reference_default_options_list_limit', update_variable_get('commerce_product_reference_default_options_list_limit', null));
+  $config->set('commerce_product_reference_default_product_behavior', update_variable_get('commerce_product_reference_default_product_behavior', 1));
+  $config->save();
+  update_variable_del('commerce_product_reference_default_options_list_limit');
+  update_variable_del('commerce_product_reference_default_product_behavior');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_product_reference_install() {
+  // Dynamically generated variable data was detected.
 }

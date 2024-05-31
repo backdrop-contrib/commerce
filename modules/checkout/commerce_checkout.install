@@ -75,21 +75,23 @@ function commerce_checkout_schema() {
  * Implements hook_uninstall().
  */
 function commerce_checkout_uninstall() {
-  variable_del('commerce_checkout_completion_message');
+  config_clear('commerce_checkout.settings', 'commerce_checkout_completion_message');
 }
 
 /**
  * Delete the deprecated checkout completion message override variable.
  */
 function commerce_checkout_update_7100() {
-  variable_del('commerce_checkout_completion_message_override');
+  config_clear('commerce_checkout.settings', 'commerce_checkout_completion_message_override');
 }
 
 /**
  * Disable the new local action to simulate checkout completion for an order.
  */
 function commerce_checkout_update_7101() {
-  variable_set('commerce_order_simulate_checkout_link', FALSE);
+  $config = config('commerce_checkout.settings');
+  $config->set('commerce_order_simulate_checkout_link', update_variable_get('commerce_order_simulate_checkout_link', false));
+  $config->save();
   return t('A new local action link on order edit forms for simulating checkout completion for an order has been disabled by default; enable it on the order settings form if desired.');
 }
 
@@ -98,7 +100,9 @@ function commerce_checkout_update_7101() {
  * the checkout completion date.
  */
 function commerce_checkout_update_7102() {
-  variable_set('enable_commerce_checkout_order_created_date_update', FALSE);
+  $config = config('commerce_checkout.settings');
+  $config->set('enable_commerce_checkout_order_created_date_update', update_variable_get('enable_commerce_checkout_order_created_date_update', false));
+  $config->save();
   return t('A new core checkout completion rule has been added that updates order creation timestamps to the time of checkout completion. It has been disabled by default to not interfere with existing order workflows, but you may enable it in your checkout settings if desired.');
 }
 
@@ -110,10 +114,11 @@ function commerce_checkout_update_7102() {
  * Otherwise you are responsible to clean the usernames on your own.
  */
 function commerce_checkout_update_7103(&$sandbox) {
+  $config = config('commerce_checkout.settings');
   // Every site may not want to disrupt all their account usernames with this
   // update, so we require sites to set a variable explicitly to run the update.
   // Sites that do not must do their own handling of the security issue.
-  if (!variable_get('commerce_checkout_run_update_7103', FALSE)) {
+  if (!$config->get('commerce_checkout_run_update_7103')) {
     return t('Skipped update 7103 because the variable commerce_checkout_run_update_7103 is not set. You must make sure usernames are not valid e-mail adresses on your own.');
   }
 
@@ -140,4 +145,44 @@ function commerce_checkout_update_7103(&$sandbox) {
   $sandbox['#finished'] = empty($names) ? 1 : ($sandbox['progress'] / $sandbox['max']);
 
   return t('Usernames resembling e-mail addresses have been cleaned.');
+}
+
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_checkout_update_last_removed() {
+  return 7103;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_checkout_update_1000() {
+  $config = config('commerce_checkout.settings');
+  $config->set('commerce_checkout_run_update_7103', update_variable_get('commerce_checkout_run_update_7103', false));
+  $config->set('commerce_checkout_completion_message', update_variable_get('commerce_checkout_completion_message', commerce_checkout_completion_message_default()));
+  $config->set('commerce_checkout_completion_message_override', update_variable_get('commerce_checkout_completion_message_override', ''));
+  $config->set('enable_commerce_checkout_order_created_date_update', update_variable_get('enable_commerce_checkout_order_created_date_update', false));
+  $config->set('commerce_order_simulate_checkout_link', update_variable_get('commerce_order_simulate_checkout_link', false));
+  $config->set('commerce_order_auto_revision', update_variable_get('commerce_order_auto_revision', true));
+  $config->set('commerce_checkout_permit_multiple_completions', update_variable_get('commerce_checkout_permit_multiple_completions', true));
+  $config->set('commerce_password_length', update_variable_get('commerce_password_length', 8));
+  $config->save();
+  update_variable_del('commerce_checkout_run_update_7103');
+  update_variable_del('commerce_checkout_completion_message');
+  update_variable_del('commerce_checkout_completion_message_override');
+  update_variable_del('enable_commerce_checkout_order_created_date_update');
+  update_variable_del('commerce_order_simulate_checkout_link');
+  update_variable_del('commerce_order_auto_revision');
+  update_variable_del('commerce_checkout_permit_multiple_completions');
+  update_variable_del('commerce_password_length');
+}
+
+/**
+ * Implements hook_install().
+ */
+function commerce_checkout_install() {
+  // Dynamically generated variable data was detected.
+  // /commerce/modules/checkout/includes/commerce_checkout.checkout_pane.inc line 95
 }

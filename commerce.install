@@ -26,16 +26,16 @@ function commerce_install() {
  * Implements hook_uninstall().
  */
 function commerce_uninstall() {
-  variable_del('commerce_default_currency');
-  variable_del('commerce_enabled_currencies');
-  variable_del('commerce_password_length');
+  config_clear('commerce.settings', 'commerce_default_currency');
+  config_clear('commerce.settings', 'commerce_enabled_currencies');
+  config_clear('commerce.settings', 'commerce_password_length');
 }
 
 /**
  * Update Rules to use new prefixed parameter names and tokens.
  */
 function commerce_update_7100() {
-  drupal_flush_all_caches();
+  backdrop_flush_all_caches();
 
   // Loop over all defined Rules configurations.
   foreach (rules_config_load_multiple(FALSE) as $rule) {
@@ -322,4 +322,23 @@ function commerce_update_7102() {
     ->condition('name', 'commerce', '=')
     ->execute();
   return t('The module weight for Commerce has been increased.');
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function commerce_update_last_removed() {
+  return 7102;
+}
+
+/**
+ * Implements hook_update_N().
+ */
+function commerce_update_1000() {
+  $config = config('commerce.settings');
+  $config->set('commerce_default_currency', update_variable_get('commerce_default_currency', 'USD'));
+  $config->set('commerce_enabled_currencies', update_variable_get('commerce_enabled_currencies', 'USD'));
+  $config->save();
+  update_variable_del('commerce_default_currency');
+  update_variable_del('commerce_enabled_currencies');
 }

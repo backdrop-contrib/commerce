@@ -47,7 +47,7 @@ function commerce_line_item_ui_menu() {
  * Redirects a line item type URL to its fields management page.
  */
 function commerce_line_item_ui_line_item_type_redirect($type) {
-  drupal_goto('admin/commerce/config/line-items/' . $type . '/fields');
+  backdrop_goto('admin/commerce/config/line-items/' . $type . '/fields');
 }
 
 /**
@@ -99,7 +99,7 @@ function commerce_line_item_ui_form_alter(&$form, &$form_state, $form_id) {
       // Load the line item type being modified for this form.
       $line_item_type = commerce_line_item_type_load($form['#bundle']);
 
-      drupal_set_title($line_item_type['name']);
+      backdrop_set_title($line_item_type['name']);
     }
   }
 }

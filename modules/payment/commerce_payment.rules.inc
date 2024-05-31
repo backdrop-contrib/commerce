@@ -20,13 +20,13 @@ function commerce_payment_rules_event_info() {
   $events['commerce_payment_methods'] = array(
     'label' => t('Select available payment methods for an order'),
     'group' => t('Commerce Payment'),
-    'variables' => entity_rules_events_variables('commerce_order', t('Order', array(), array('context' => 'a drupal commerce order'))),
+    'variables' => rules_entity_events_variables('commerce_order', t('Order', array(), array('context' => 'a drupal commerce order'))),
     'access callback' => 'commerce_order_rules_access',
   );
 
   $variables = array_merge(
-    entity_rules_events_variables('commerce_order', t('Order', array(), array('context' => 'a drupal commerce order')), TRUE, TRUE),
-    entity_rules_events_variables('commerce_payment_transaction', t('Last completed transaction'), TRUE)
+    rules_entity_events_variables('commerce_order', t('Order', array(), array('context' => 'a drupal commerce order')), TRUE, TRUE),
+    rules_entity_events_variables('commerce_payment_transaction', t('Last completed transaction'), TRUE)
   );
 
   $events['commerce_payment_order_paid_in_full'] = array(

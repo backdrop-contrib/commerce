@@ -13,8 +13,9 @@
  *   The order object to edit through the form.
  */
 function commerce_order_order_form($form, &$form_state, $order) {
+  $config = config('commerce_order.settings');
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_order') . '/includes/commerce_order.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_order') . '/includes/commerce_order.forms.inc';
 
   // Ensure the owner name is accessible if the uid is set.
   if (!empty($order->uid) && $owner = user_load($order->uid)) {
@@ -59,7 +60,7 @@ function commerce_order_order_form($form, &$form_state, $order) {
     '#group' => 'additional_settings',
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'commerce_order') . '/commerce_order.js',
+        backdrop_get_path('module', 'commerce_order') . '/commerce_order.js',
         array(
           'type' => 'setting',
           'data' => array('status_titles' => commerce_order_status_get_title()),
@@ -96,10 +97,10 @@ function commerce_order_order_form($form, &$form_state, $order) {
     '#group' => 'additional_settings',
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'commerce_order') . '/commerce_order.js',
+        backdrop_get_path('module', 'commerce_order') . '/commerce_order.js',
         array(
           'type' => 'setting',
-          'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+          'data' => array('anonymous' => t($config->get('anonymous'))),
         ),
       ),
     ),
@@ -108,7 +109,7 @@ function commerce_order_order_form($form, &$form_state, $order) {
   $form['user']['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Owned by'),
-    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => t($config->get('anonymous')))),
     '#maxlength' => 60,
     '#autocomplete_path' => 'user/autocomplete',
     '#default_value' => !empty($order->name) ? $order->name : '',
@@ -132,7 +133,7 @@ function commerce_order_order_form($form, &$form_state, $order) {
     '#collapsed' => FALSE,
     '#group' => 'additional_settings',
     '#attached' => array(
-      'js' => array(drupal_get_path('module', 'commerce_order') . '/commerce_order.js'),
+      'js' => array(backdrop_get_path('module', 'commerce_order') . '/commerce_order.js'),
     ),
     '#weight' => 40,
   );
@@ -140,7 +141,7 @@ function commerce_order_order_form($form, &$form_state, $order) {
     '#type' => 'checkbox',
     '#title' => t('Create new revision on update'),
     '#description' => t('If an update log message is entered, a revision will be created even if this is unchecked.'),
-    '#default_value' => variable_get('commerce_order_auto_revision', TRUE),
+    '#default_value' => $config->get('commerce_order_auto_revision'),
     '#access' => user_access('administer commerce_order entities'),
   );
   $form['order_history']['date_created'] = array(
@@ -296,7 +297,7 @@ function commerce_order_order_form_submit($form, &$form_state) {
         if (!is_null($wrapper->{$field_name}->value()) &&
           $wrapper->{$field_name}->uid->value() == 0) {
           $wrapper->{$field_name}->uid = $order->uid;
-          $wrapper->{$field_name}->save();
+          entity_plus_save($wrapper->{$field_name}->type(), $wrapper->{$field_name}->value());
         }
       }
     }
@@ -337,7 +338,7 @@ function commerce_order_order_delete_form($form, &$form_state, $order) {
   $form_state['order'] = $order;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_order') . '/includes/commerce_order.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_order') . '/includes/commerce_order.forms.inc';
 
   $form['#submit'][] = 'commerce_order_order_delete_form_submit';
 
@@ -360,10 +361,10 @@ function commerce_order_order_delete_form_submit($form, &$form_state) {
   $order = $form_state['order'];
 
   if (commerce_order_delete($order->order_id)) {
-    drupal_set_message(t('Order @number has been deleted.', array('@number' => $order->order_number)));
+    backdrop_set_message(t('Order @number has been deleted.', array('@number' => $order->order_number)));
     watchdog('commerce_order', 'Deleted order @number.', array('@number' => $order->order_number), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('Order @number could not be deleted.', array('@number' => $order->order_number)), 'error');
+    backdrop_set_message(t('Order @number could not be deleted.', array('@number' => $order->order_number)), 'error');
   }
 }

@@ -10,7 +10,7 @@
  * transaction CRUD operations. The load method is inherited from the default
  * controller.
  */
-class CommercePaymentTransactionEntityController extends DrupalCommerceEntityController {
+class CommercePaymentTransactionEntityController extends BackdropCommerceEntityController {
 
   /**
    * Create a default payment transaction.
@@ -199,7 +199,7 @@ class CommercePaymentTransactionEntityController extends DrupalCommerceEntityCon
     $content['transaction_table'] = array(
       '#attached' => array(
         'css' => array(
-          drupal_get_path('module', 'commerce_payment') . '/theme/commerce_payment.admin.css',
+          backdrop_get_path('module', 'commerce_payment') . '/theme/commerce_payment.admin.css',
         ),
       ),
       '#markup' => theme('table', array('rows' => $rows, 'attributes' => array('class' => array('payment-transaction')))),

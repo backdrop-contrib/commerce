@@ -53,14 +53,19 @@ function commerce_checkout_review_pane_checkout_form($form, &$form_state, $check
  * completion message.
  */
 function commerce_checkout_completion_message_pane_settings_form($checkout_pane) {
+  $config = config('commerce_checkout.settings');
   $form = array();
-
-  $message = variable_get('commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+  if (empty($config->get('commerce_checkout_completion_message')['value'])){
+    $config->set( 'commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+    $config->save();
+  }
+  $message = $config->get('commerce_checkout_completion_message');
 
   $form['container'] = array(
     '#type' => 'container',
     '#access' => filter_access(filter_format_load($message['format'])),
   );
+
   $form['container']['commerce_checkout_completion_message'] = array(
     '#type' => 'text_format',
     '#title' => t('Checkout completion message'),
@@ -89,10 +94,15 @@ function commerce_checkout_completion_message_pane_settings_form($checkout_pane)
  * Checkout pane callback: presents a completion message on the complete page.
  */
 function commerce_checkout_completion_message_pane_checkout_form($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_checkout.settings');
   $pane_form = array();
 
+  if (empty($config->get('commerce_checkout_completion_message')['value'])){
+    $config->set( 'commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+    $config->save();
+  }
   // Load the completion message.
-  $message = variable_get('commerce_checkout_completion_message', commerce_checkout_completion_message_default());
+  $message = $config->get('commerce_checkout_completion_message');
 
   // Perform translation.
   $message['value'] = commerce_i18n_string('commerce:checkout:complete:message', $message['value'], array('sanitize' => FALSE));

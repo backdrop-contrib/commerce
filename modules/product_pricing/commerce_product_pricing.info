@@ -6,4 +6,6 @@ dependencies[] = commerce_price
 dependencies[] = commerce_product_reference
 dependencies[] = entity
 dependencies[] = rules
-core = 7.x
+backdrop = 1.x
+type = module
+

@@ -49,7 +49,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
   $form['credit_card'] = array(
     '#tree' => TRUE,
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'commerce_payment') . '/theme/commerce_payment.theme.css'),
+      'css' => array(backdrop_get_path('module', 'commerce_payment') . '/theme/commerce_payment.theme.css'),
     ),
   );
 
@@ -58,7 +58,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
     $form['credit_card']['type'] = array(
       '#type' => 'select',
       '#title' => t('Card type'),
-      '#options' => array_intersect_key(commerce_payment_credit_card_types(), drupal_map_assoc((array) $fields['type'])),
+      '#options' => array_intersect_key(commerce_payment_credit_card_types(), backdrop_map_assoc((array) $fields['type'])),
       '#default_value' => $default['type'],
     );
     $form['credit_card']['valid_types'] = array(
@@ -102,7 +102,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
     $form['credit_card']['start_month'] = array(
       '#type' => 'select',
       '#title' => t('Start date'),
-      '#options' => drupal_map_assoc(array_keys(commerce_months())),
+      '#options' => backdrop_map_assoc(array_keys(commerce_months())),
       '#default_value' => strlen($default['start_month']) == 1 ? '0' . $default['start_month'] : $default['start_month'],
       '#required' => TRUE,
       '#prefix' => '<div class="commerce-credit-card-start">',
@@ -128,7 +128,7 @@ function commerce_payment_credit_card_form($fields = array(), $default = array()
   $form['credit_card']['exp_month'] = array(
     '#type' => 'select',
     '#title' => t('Expiration'),
-    '#options' => drupal_map_assoc(array_keys(commerce_months())),
+    '#options' => backdrop_map_assoc(array_keys(commerce_months())),
     '#default_value' => strlen($default['exp_month']) == 1 ? '0' . $default['exp_month'] : $default['exp_month'],
     '#required' => TRUE,
     '#prefix' => '<div class="commerce-credit-card-expiration">',
@@ -474,7 +474,7 @@ final class CommercePaymentCreditCard {
       ),
     );
 
-    drupal_alter('commerce_card_type_info', $definitions);
+    backdrop_alter('commerce_card_type_info', $definitions);
 
     foreach ($definitions as &$definition) {
       $definition += array(

@@ -6,23 +6,27 @@
  */
 
 /**
- * The controller class for products contains methods for the product CRUD operations.
+ * The controller class for products contains methods for the product CRUD
+ * operations.
  *
  * Mainly relies on the EntityAPIController class provided by the Entity
  * module, just overrides specific features.
  */
-class CommerceProductEntityController extends DrupalCommerceEntityController implements EntityAPIControllerRevisionableInterface {
+class CommerceProductEntityController extends BackdropCommerceEntityController implements EntityPlusControllerRevisionableInterface {
+
+  public $is_active_revision = TRUE;
 
   /**
    * Create a default product.
    *
    * @param array $values
    *   An array of values to set, keyed by property name.
+   *
    * @return
    *   A product object with all default fields initialized.
    */
-  public function create(array $values = array()) {
-    $values += array(
+  public function create(array $values = []) {
+    $values += [
       'product_id' => NULL,
       'is_new' => TRUE,
       'sku' => '',
@@ -32,15 +36,30 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
       'status' => 1,
       'created' => '',
       'changed' => '',
-    );
+      'is_active_revision' => TRUE,
+    ];
 
     return parent::create($values);
   }
 
   /**
+   * Implements Backdrop\entity\EntityInterface::isActiveRevision().
+   */
+  public function isActiveRevision() {
+    return $this->is_active_revision;
+  }
+
+  /**
+   * Implements Backdrop\entity\EntityInterface::setActiveRevision().
+   */
+  public function setIsActiveRevision() {
+    $this->is_active_revision = TRUE;
+  }
+
+  /**
    * Saves a product.
    *
-   * @param $product
+   * @param $entity
    *   The full product object to save.
    * @param $transaction
    *   An optional transaction object.
@@ -48,16 +67,16 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
    * @return
    *   SAVED_NEW or SAVED_UPDATED depending on the operation performed.
    */
-  public function save($product, DatabaseTransaction $transaction = NULL) {
+  public function save($entity, DatabaseTransaction $transaction = NULL) {
     global $user;
 
     // Hardcode the changed time.
-    $product->changed = REQUEST_TIME;
+    $entity->changed = REQUEST_TIME;
 
-    if (empty($product->{$this->idKey}) || !empty($product->is_new)) {
+    if (empty($entity->{$this->idKey}) || !empty($entity->is_new)) {
       // Set the creation timestamp if not set, for new entities.
-      if (empty($product->created)) {
-        $product->created = REQUEST_TIME;
+      if (empty($entity->created)) {
+        $entity->created = REQUEST_TIME;
       }
     }
     else {
@@ -65,51 +84,52 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
       // or similar function call that initializes the created timestamp and uid
       // value to empty strings, unset them to prevent destroying existing data
       // in those properties on update.
-      if ($product->created === '') {
-        unset($product->created);
+      if ($entity->created === '') {
+        unset($entity->created);
       }
-      if ($product->uid === '') {
-        unset($product->uid);
+      if ($entity->uid === '') {
+        unset($entity->uid);
       }
     }
 
-    $product->revision_timestamp = REQUEST_TIME;
-    $product->revision_uid = $user->uid;
+    $entity->revision_timestamp = REQUEST_TIME;
+    $entity->revision_uid = $user->uid;
 
     // Determine if we will be inserting a new product.
-    $product->is_new = empty($product->product_id);
+    $entity->is_new = empty($entity->product_id);
 
-    if ($product->is_new || !empty($product->revision)) {
+    if ($entity->is_new || !empty($entity->revision)) {
       // When inserting either a new product or revision, $entity->log must be set
       // because {commerce_product_revision}.log is a text column and therefore
       // cannot have a default value. However, it might not be set at this
       // point, so we ensure that it is at least an empty string in that case.
-      if (!isset($product->log)) {
-        $product->log = '';
+      if (!isset($entity->log)) {
+        $entity->log = '';
       }
     }
-    elseif (empty($product->log)) {
+    elseif (empty($entity->log)) {
       // If we are updating an existing product without adding a new revision,
       // we need to make sure $entity->log is unset whenever it is empty. As
       // long as $entity->log is unset, drupal_write_record() will not attempt
       // to update the existing database column when re-saving the revision.
-      unset($product->log);
+      unset($entity->log);
     }
 
     // Remove price components from any price fields attached to the product.
     // Default price components should instead be rebuilt each load using
     // hook_field_attach_load().
-    foreach (field_info_instances('commerce_product', $product->type) as $field_name => $instance) {
+    foreach (field_info_instances('commerce_product', $entity->type) as $field_name => $instance) {
       // Load the instance's field data.
+
       $field = field_info_field($instance['field_name']);
 
       // If the instance is a price field with data on this product...
-      if ($field['type'] == 'commerce_price' && !empty($product->{$field_name})) {
+      if ($field['type'] == 'commerce_price' && !empty($entity->{$field_name})) {
         // Remove the price components from every price value.
-        foreach ($product->{$field_name} as $langcode => &$items) {
+        foreach ($entity->{$field_name} as $langcode => &$items) {
           foreach ($items as $delta => &$item) {
             if (!empty($item['data'])) {
-              $item['data']['components'] = array();
+              $item['data']['components'] = [];
             }
           }
         }
@@ -117,9 +137,9 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
     }
 
     // Reset load by SKU static cache.
-    drupal_static_reset('commerce_product_load_by_sku');
+    backdrop_static_reset('commerce_product_load_by_sku');
 
-    return parent::save($product, $transaction);
+    return parent::save($entity, $transaction);
   }
 
   /**
@@ -148,7 +168,7 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
    */
   public function delete($product_ids, DatabaseTransaction $transaction = NULL) {
     if (!empty($product_ids)) {
-      $products = $this->load($product_ids, array());
+      $products = $this->load($product_ids, []);
 
       // Ensure the products can actually be deleted.
       foreach ((array) $products as $product_id => $product) {
@@ -174,7 +194,7 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
    * {@inheritdoc}
    */
   public function deleteRevision($revision_id) {
-    if ($revisions = commerce_product_load_multiple(array(), array('revision_id' => $revision_id))) {
+    if ($revisions = commerce_product_load_multiple([], ['revision_id' => $revision_id])) {
       $revision = $revisions ? reset($revisions) : FALSE;
       // Prevent deleting the current revision.
       if (!$revision || commerce_product_is_latest_revision($revision)) {
@@ -207,29 +227,43 @@ class CommerceProductEntityController extends DrupalCommerceEntityController imp
    * @param $langcode
    *   (optional) A language code to use for rendering. Defaults to the global
    *   content language of the current request.
+   *
    * @return
    *   The renderable array.
    */
-  public function buildContent($product, $view_mode = 'full', $langcode = NULL, $content = array()) {
+  public function buildContent($product, $view_mode = 'full', $langcode = NULL, $content = []) {
     // Prepare a reusable array representing the CSS file to attach to the view.
-    $attached = array(
-      'css' => array(drupal_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'),
-    );
+    $attached = [
+      'css' => [backdrop_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'],
+    ];
 
     // Add the default fields inherent to the product entity.
-    $content['sku'] = array(
-      '#markup' => theme('commerce_product_sku', array('sku' => $product->sku, 'label' => t('SKU:'), 'product' => $product)),
+    $content['sku'] = [
+      '#markup' => theme('commerce_product_sku', [
+        'sku' => $product->sku,
+        'label' => t('SKU:'),
+        'product' => $product,
+      ]),
       '#attached' => $attached,
-    );
-    $content['title'] = array(
-      '#markup' => theme('commerce_product_title', array('title' => $product->title, 'label' => t('Title:'), 'product' => $product)),
+    ];
+    $content['title'] = [
+      '#markup' => theme('commerce_product_title', [
+        'title' => $product->title,
+        'label' => t('Title:'),
+        'product' => $product,
+      ]),
       '#attached' => $attached,
-    );
-    $content['status'] = array(
-      '#markup' => theme('commerce_product_status', array('status' => $product->status, 'label' => t('Status:'), 'product' => $product)),
+    ];
+    $content['status'] = [
+      '#markup' => theme('commerce_product_status', [
+        'status' => $product->status,
+        'label' => t('Status:'),
+        'product' => $product,
+      ]),
       '#attached' => $attached,
-    );
+    ];
 
     return parent::buildContent($product, $view_mode, $langcode, $content);
   }
+
 }

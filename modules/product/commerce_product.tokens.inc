@@ -67,11 +67,12 @@ function commerce_product_token_info() {
  * Implements hook_tokens().
  */
 function commerce_product_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $config = config('commerce_product.settings');
   $url_options = array('absolute' => TRUE);
 
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+    $language_code = $options['language']->langcode;
   }
   else {
     $language_code = NULL;
@@ -110,7 +111,7 @@ function commerce_product_tokens($type, $tokens, array $data = array(), array $o
         // Default values for the chained tokens handled below.
         case 'creator':
           if (!$product->uid) {
-            $name = variable_get('anonymous', t('Anonymous'));
+            $name = $config->get('anonymous');
           }
           else {
             $creator = user_load($product->uid);

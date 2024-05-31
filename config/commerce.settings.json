@@ -1,0 +1,6 @@
+{
+    "_config_name": "commerce.settings",
+    "commerce_default_currency": "USD",
+    "site_mail": "",
+    "commerce_enabled_currencies": "USD"
+}

@@ -14,7 +14,7 @@
  */
 function commerce_payment_order_transaction_add_form($form, &$form_state, $order) {
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_payment') . '/includes/commerce_payment.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_payment') . '/includes/commerce_payment.forms.inc';
 
   // Store the initial order in the form state.
   $form_state['order'] = $order;
@@ -237,7 +237,7 @@ function commerce_payment_order_transaction_add_form_submit($form, &$form_state)
         $form_state['rebuild'] = TRUE;
       }
       else {
-        drupal_set_message(t('Payment transaction created.'));
+        backdrop_set_message(t('Payment transaction created.'));
       }
     }
   }
@@ -260,7 +260,7 @@ function commerce_payment_payment_transaction_delete_form($form, &$form_state, $
   $form_state['payment_method'] = $payment_method;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_payment') . '/includes/commerce_payment.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_payment') . '/includes/commerce_payment.forms.inc';
 
   $form['#submit'][] = 'commerce_payment_payment_transaction_delete_form_submit';
 
@@ -283,10 +283,10 @@ function commerce_payment_payment_transaction_delete_form_submit($form, &$form_s
   $transaction = $form_state['transaction'];
 
   if (commerce_payment_transaction_delete($transaction->transaction_id)) {
-    drupal_set_message(t('Payment transaction deleted.'));
+    backdrop_set_message(t('Payment transaction deleted.'));
     watchdog('commerce_payment', 'Deleted payment transaction @transaction.', array('@transaction' => $transaction->transaction_id), WATCHDOG_NOTICE);
   }
   else {
-    drupal_set_message(t('The payment transaction could not be deleted.'), 'error');
+    backdrop_set_message(t('The payment transaction could not be deleted.'), 'error');
   }
 }

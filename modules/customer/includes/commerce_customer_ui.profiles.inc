@@ -17,7 +17,7 @@ function commerce_customer_ui_customer_profile_add_page() {
   // customer profile available.
   if (count($content) == 1) {
     $item = array_shift($content);
-    drupal_goto($item['href']);
+    backdrop_goto($item['href']);
   }
 
   return theme('customer_profile_add_list', array('content' => $content));
@@ -63,7 +63,7 @@ function theme_customer_profile_add_list($variables) {
 function commerce_customer_ui_customer_profile_form_wrapper($profile) {
   // Include the forms file from the Customer module.
   module_load_include('inc', 'commerce_customer', 'includes/commerce_customer_profile.forms');
-  return drupal_get_form('commerce_customer_ui_customer_profile_form', $profile);
+  return backdrop_get_form('commerce_customer_ui_customer_profile_form', $profile);
 }
 
 /**
@@ -77,5 +77,5 @@ function commerce_customer_ui_customer_profile_form_wrapper($profile) {
 function commerce_customer_ui_customer_profile_delete_form_wrapper($profile) {
   // Include the forms file from the Customer module.
   module_load_include('inc', 'commerce_customer', 'includes/commerce_customer_profile.forms');
-  return drupal_get_form('commerce_customer_ui_customer_profile_delete_form', $profile);
+  return backdrop_get_form('commerce_customer_ui_customer_profile_delete_form', $profile);
 }

@@ -40,7 +40,7 @@ function commerce_checkout_router($order, $checkout_page = NULL) {
     // Only redirect if the target page is different from the page the user was
     // trying to access. Otherwise give a 403 error.
     if (!empty($target_uri) && $target_uri !== $_GET['q']) {
-      drupal_goto($target_uri);
+      backdrop_goto($target_uri);
     }
     else {
       return MENU_ACCESS_DENIED;
@@ -49,7 +49,7 @@ function commerce_checkout_router($order, $checkout_page = NULL) {
 
   // Ensure the order can proceed to checkout; if not, redirect away.
   if (!commerce_checkout_order_can_checkout($order)) {
-    drupal_goto('<front>');
+    backdrop_goto('<front>');
   }
 
   // Prior to displaying the checkout form, allow other modules to route the
@@ -58,10 +58,10 @@ function commerce_checkout_router($order, $checkout_page = NULL) {
 
   // Update the page title if specified.
   if (!empty($checkout_page['title'])) {
-    drupal_set_title($checkout_page['title']);
+    backdrop_set_title($checkout_page['title']);
   }
 
-  return drupal_get_form('commerce_checkout_form_' . $checkout_page['page_id'], $order, $checkout_page);
+  return backdrop_get_form('commerce_checkout_form_' . $checkout_page['page_id'], $order, $checkout_page);
 }
 
 /**
@@ -76,11 +76,11 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
   global $user;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_checkout') . '/includes/commerce_checkout.pages.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_checkout') . '/includes/commerce_checkout.pages.inc';
 
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_checkout') .'/theme/commerce_checkout.base.css';
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_checkout') .'/theme/commerce_checkout.theme.css';
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_checkout') . '/commerce_checkout.js';
+  $form['#attached']['css'][] = backdrop_get_path('module', 'commerce_checkout') .'/theme/commerce_checkout.base.css';
+  $form['#attached']['css'][] = backdrop_get_path('module', 'commerce_checkout') .'/theme/commerce_checkout.theme.css';
+  $form['#attached']['js'][] = backdrop_get_path('module', 'commerce_checkout') . '/commerce_checkout.js';
 
   // Refresh the order object in case it has been altered outside the checkout
   // process so cache_form has a stale version.
@@ -101,14 +101,14 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
 
   // Restore form errors.
   if (!empty($form_state['storage']['errors'])) {
-    $form_errors = &drupal_static('form_set_error', array());
+    $form_errors = &backdrop_static('form_set_error', array());
     $form_errors = $form_state['storage']['errors'];
   }
 
   $form['#after_build'][] = 'commerce_checkout_form_process_errors';
 
   // Catch and clear already pushed messages.
-  $previous_messages = drupal_get_messages();
+  $previous_messages = backdrop_get_messages();
   $show_errors_message = FALSE;
   $visible_panes = 0;
 
@@ -127,7 +127,7 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
       // submit process with any that were created during the pane generation
       // and merge them into the session's current messages array.
       if (!empty($form_state['storage']['messages'][$pane_id])) {
-        $_SESSION['messages'] = array_merge_recursive($form_state['storage']['messages'][$pane_id], drupal_get_messages());
+        $_SESSION['messages'] = array_merge_recursive($form_state['storage']['messages'][$pane_id], backdrop_get_messages());
       }
 
       // If there are messages in the session right now for this pane, theme
@@ -173,7 +173,7 @@ function commerce_checkout_form($form, &$form_state, $order, $checkout_page) {
   }
 
   // Restore general messages to the current session's messages array.
-  $_SESSION['messages'] = array_merge_recursive(array_filter($previous_messages), drupal_get_messages());
+  $_SESSION['messages'] = array_merge_recursive(array_filter($previous_messages), backdrop_get_messages());
 
   // If there are errors on the form, add a message to the top of the page.
   if ($show_errors_message) {
@@ -292,7 +292,7 @@ function commerce_checkout_form_validate($form, &$form_state) {
   $order = commerce_order_load($form_state['order']->order_id);
 
   // Catch and clear already pushed messages.
-  $previous_messages = drupal_get_messages();
+  $previous_messages = backdrop_get_messages();
 
   // Load any pre-existing validation errors for the elements.
   $form_errors = form_get_errors();
@@ -323,7 +323,7 @@ function commerce_checkout_form_validate($form, &$form_state) {
 
       foreach ($errors[$pane_id] as $element_path => $message) {
         if ($message) {
-          drupal_set_message($message, 'error');
+          backdrop_set_message($message, 'error');
         }
       }
 
@@ -339,7 +339,7 @@ function commerce_checkout_form_validate($form, &$form_state) {
     }
 
     // Catch and clear panes' messages.
-    $pane_messages = drupal_get_messages();
+    $pane_messages = backdrop_get_messages();
 
     // Submit the pane if it validated.
     if ($validate && $callback = commerce_checkout_pane_callback($checkout_pane, 'checkout_form_submit')) {
@@ -347,15 +347,15 @@ function commerce_checkout_form_validate($form, &$form_state) {
     }
 
     // Generate status messages.
-    $form_state['storage']['messages'][$pane_id] = array_merge_recursive($pane_messages, drupal_get_messages());
+    $form_state['storage']['messages'][$pane_id] = array_merge_recursive($pane_messages, backdrop_get_messages());
 
     // A failed pane makes the form fail.
     $form_validate &= $validate;
   }
 
   // Restore messages and form errors.
-  $_SESSION['messages'] = array_merge_recursive(array_filter($previous_messages), drupal_get_messages());
-  $form_errors = &drupal_static('form_set_error', array());
+  $_SESSION['messages'] = array_merge_recursive(array_filter($previous_messages), backdrop_get_messages());
+  $form_errors = &backdrop_static('form_set_error', array());
   $form_state['storage']['errors'] = $form_errors;
   $form_errors = array();
 
@@ -433,6 +433,7 @@ function commerce_checkout_form_back_submit($form, &$form_state) {
  * Special submit handler for the cancel button to avoid processing orders.
  */
 function commerce_checkout_form_cancel_submit($form, &$form_state) {
+  $config = config('commerce_checkout.settings');
   $order = commerce_order_load($form_state['order']->order_id);
 
   // Set the order status back to the first checkout page's status.
@@ -441,14 +442,14 @@ function commerce_checkout_form_cancel_submit($form, &$form_state) {
 
   // Skip saving in the status update and manually save here to force a save
   // even when the status doesn't actually change.
-  if (variable_get('commerce_order_auto_revision', TRUE)) {
+  if ($config->get('commerce_order_auto_revision')) {
     $form_state['order']->revision = TRUE;
     $form_state['order']->log = t('Customer manually canceled the checkout process.');
   }
 
   commerce_order_save($form_state['order']);
 
-  drupal_set_message(t('Checkout of your current order has been canceled and may be resumed when you are ready.'));
+  backdrop_set_message(t('Checkout of your current order has been canceled and may be resumed when you are ready.'));
 
   $form_state['redirect'] = $form_state['cancel_redirect'];
 }

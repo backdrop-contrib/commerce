@@ -1,0 +1,194 @@
+{
+    "_config_name": "views.view.commerce_product_revisions",
+    "name": "commerce_product_revisions",
+    "description": "Display a list of product revisions for the store admin.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_product_revision",
+    "human_name": "Product revisions",
+    "core": 7,
+    "display": {
+        "default": {
+            "display_title": "Master",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "title": "Revisions",
+                "use_more_always": false,
+                "access": {
+                    "type": "perm",
+                    "perm": "administer commerce_product entities"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic"
+                },
+                "pager": {
+                    "type": "full",
+                    "options": {
+                        "items_per_page": "50"
+                    }
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "revision_id": "revision_id",
+                        "revision_timestamp": "revision_timestamp",
+                        "name": "name",
+                        "sku": "sku",
+                        "title": "title",
+                        "status": "status",
+                        "log": "log"
+                    },
+                    "default": "revision_id",
+                    "info": {
+                        "revision_id": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "revision_timestamp": {
+                            "sortable": 1,
+                            "default_sort_order": "desc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "name": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "sku": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "title": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "status": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        },
+                        "log": {
+                            "align": "",
+                            "separator": "",
+                            "empty_column": 0
+                        }
+                    }
+                },
+                "relationships": {
+                    "revision_uid": {
+                        "id": "revision_uid",
+                        "table": "commerce_product_revision",
+                        "field": "revision_uid"
+                    }
+                },
+                "fields": {
+                    "revision_id": {
+                        "id": "revision_id",
+                        "table": "commerce_product_revision",
+                        "field": "revision_id",
+                        "label": "Revision"
+                    },
+                    "revision_timestamp": {
+                        "id": "revision_timestamp",
+                        "table": "commerce_product_revision",
+                        "field": "revision_timestamp",
+                        "label": "Created on",
+                        "date_format": "short"
+                    },
+                    "name": {
+                        "id": "name",
+                        "table": "users",
+                        "field": "name",
+                        "relationship": "revision_uid",
+                        "label": "Created by"
+                    },
+                    "sku": {
+                        "id": "sku",
+                        "table": "commerce_product_revision",
+                        "field": "sku",
+                        "link_to_product": 0
+                    },
+                    "title": {
+                        "id": "title",
+                        "table": "commerce_product_revision",
+                        "field": "title",
+                        "link_to_product": 0
+                    },
+                    "status": {
+                        "id": "status",
+                        "table": "commerce_product_revision",
+                        "field": "status",
+                        "label": "Active",
+                        "not": 0
+                    },
+                    "log": {
+                        "id": "log",
+                        "table": "commerce_product_revision",
+                        "field": "log"
+                    }
+                },
+                "arguments": {
+                    "product_id": {
+                        "id": "product_id",
+                        "table": "commerce_product_revision",
+                        "field": "product_id",
+                        "default_action": "empty",
+                        "default_argument_type": "fixed",
+                        "summary": {
+                            "number_of_records": "0",
+                            "format": "default_summary"
+                        },
+                        "summary_options": {
+                            "items_per_page": "25"
+                        }
+                    }
+                }
+            }
+        },
+        "product_revisions_page": {
+            "display_title": "Product Revisions",
+            "display_plugin": "page",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": []
+                },
+                "defaults": {
+                    "hide_admin_links": false
+                },
+                "path": "admin/commerce/products/%/revisions",
+                "menu": {
+                    "type": "tab",
+                    "title": "Revisions",
+                    "description": "View revisions of this product.",
+                    "weight": "0",
+                    "context": 0
+                }
+            }
+        }
+    }
+}

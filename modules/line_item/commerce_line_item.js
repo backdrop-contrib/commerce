@@ -4,7 +4,7 @@
   /**
    * Trigger the Update button when hitting the enter key.
    */
-  Drupal.behaviors.commerceLineItemForm = {
+  Backdrop.behaviors.commerceLineItemForm = {
     attach: function (context, settings) {
       // Click the update button, not the remove button on enter key if we are
       // on a text field.

@@ -10,20 +10,21 @@
  * Account pane: settings form callback.
  */
 function commerce_order_account_pane_settings_form($checkout_pane) {
+  $config = config('commerce_order.settings');
   $form = array();
 
   $form['commerce_order_account_pane_mail_double_entry'] = array(
     '#type' => 'checkbox',
     '#title' => t('Require double entry of email address.'),
     '#description' => t('Forces anonymous users to enter their email address in two consecutive fields, which must have indentical values.'),
-    '#default_value' => variable_get('commerce_order_account_pane_mail_double_entry', FALSE)
+    '#default_value' => $config->get('commerce_order_account_pane_mail_double_entry')
   );
 
   $form['commerce_order_account_pane_auth_display'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display the account information pane for authenticated users.'),
     '#description' => t('If checked, the pane will show account information to authenticated users but not allow changes.'),
-    '#default_value' => variable_get('commerce_order_account_pane_auth_display', FALSE)
+    '#default_value' => $config->get('commerce_order_account_pane_auth_display')
   );
 
   return $form;
@@ -33,6 +34,7 @@ function commerce_order_account_pane_settings_form($checkout_pane) {
  * Account pane: form callback.
  */
 function commerce_order_account_pane_checkout_form($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_order.settings');
   global $user;
 
   $pane_form = array();
@@ -40,7 +42,7 @@ function commerce_order_account_pane_checkout_form($form, &$form_state, $checkou
   // If the user is logged in...
   if ($user->uid > 0) {
     // And the pane has been configured to display account information...
-    if (variable_get('commerce_order_account_pane_auth_display', FALSE)) {
+    if ($config->get('commerce_order_account_pane_auth_display')) {
       // Note we're not using theme_username() to avoid linking out of checkout.
       $pane_form['username'] = array(
         '#type' => 'item',
@@ -73,7 +75,7 @@ function commerce_order_account_pane_checkout_form($form, &$form_state, $checkou
       ),
     );
 
-    if (variable_get('commerce_order_account_pane_mail_double_entry', FALSE)) {
+    if ($config->get('commerce_order_account_pane_mail_double_entry')) {
       $pane_form['login']['mail_confirm'] = array(
         '#type' => 'textfield',
         '#title' => t('Confirm e-mail address'),
@@ -92,17 +94,18 @@ function commerce_order_account_pane_checkout_form($form, &$form_state, $checkou
  * Account pane: validation callback.
  */
 function commerce_order_account_pane_checkout_form_validate($form, &$form_state, $checkout_pane, $order) {
+  $config = config('commerce_order.settings');
   if (!empty($form_state['values'][$checkout_pane['pane_id']])) {
     $pane_values = $form_state['values'][$checkout_pane['pane_id']];
 
     // If the e-mail address field was present on the form...
     if (!empty($pane_values['login']['mail'])) {
       // Display an error if an invalid e-mail address was given.
-      if ($error = user_validate_mail($pane_values['login']['mail'])) {
+      if ($error = commerce_order_validate_mail($pane_values['login']['mail'])) {
         form_set_error($checkout_pane['pane_id'] . '][login][mail', $error);
         return FALSE;
       }
-      if (variable_get('commerce_order_account_pane_mail_double_entry', FALSE)) {
+      if ($config->get('commerce_order_account_pane_mail_double_entry')) {
         // Display an error if the two email addresses don't match.
         if ($pane_values['login']['mail'] != $pane_values['login']['mail_confirm']) {
           form_set_error($checkout_pane['pane_id'] . '][login][mail_confirm', t('The specified e-mail addresses do not match.'));
@@ -113,6 +116,15 @@ function commerce_order_account_pane_checkout_form_validate($form, &$form_state,
   }
 
   return TRUE;
+}
+
+function commerce_order_validate_mail($mail) {
+  if (!$mail) {
+    return t('You must enter an e-mail address.');
+  }
+  if (!valid_email_address($mail)) {
+    return t('The e-mail address %mail is not valid.', array('%mail' => $mail));
+  }
 }
 
 /**
@@ -154,5 +166,5 @@ function commerce_order_account_pane_review($form, $form_state, $checkout_pane, 
     '#markup' => check_plain($order->mail),
   );
 
-  return drupal_render($content);
+  return backdrop_render($content);
 }

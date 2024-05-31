@@ -10,6 +10,7 @@
  * Redirects invalid checkout attempts or displays the checkout form if valid.
  */
 function commerce_cart_checkout_router() {
+  $config = config('commerce_cart.settings');
   global $user;
 
   // Load the shopping cart order.
@@ -21,11 +22,11 @@ function commerce_cart_checkout_router() {
   // TODO: Redirect to the cart page instead which would then appear as an
   // empty shopping cart page.
   if (empty($order) || commerce_line_items_quantity($wrapper->commerce_line_items, commerce_product_line_item_types()) == 0) {
-    drupal_set_message(t('Add some items to your cart and then try checking out.'));
-    drupal_goto(variable_get('commerce_checkout_empty_redirect', ''));
+    backdrop_set_message(t('Add some items to your cart and then try checking out.'));
+    backdrop_goto($config->get('commerce_checkout_empty_redirect'));
   }
 
-  drupal_goto('checkout/' . $order->order_id);
+  backdrop_goto('checkout/' . $order->order_id);
 }
 
 /**

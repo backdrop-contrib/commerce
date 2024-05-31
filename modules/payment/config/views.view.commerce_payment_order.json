@@ -1,0 +1,167 @@
+{
+    "_config_name": "views.view.commerce_payment_order",
+    "name": "commerce_payment_order",
+    "description": "Display and total an order's payment transaction history.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_payment_transaction",
+    "human_name": "Order payments",
+    "core": 0,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "use_more_always": false,
+                "access": {
+                    "type": "perm",
+                    "perm": "administer payments"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic"
+                },
+                "pager": {
+                    "type": "none",
+                    "options": {
+                        "offset": "0"
+                    }
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "status": "status",
+                        "created": "created",
+                        "payment_method": "payment_method",
+                        "remote_id": "remote_id",
+                        "message": "message",
+                        "amount": "amount",
+                        "operations": "operations"
+                    },
+                    "default": "created",
+                    "info": {
+                        "status": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "views-align-center",
+                            "separator": ""
+                        },
+                        "created": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "views-align-left",
+                            "separator": ""
+                        },
+                        "payment_method": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "views-align-left",
+                            "separator": ""
+                        },
+                        "remote_id": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "views-align-left",
+                            "separator": ""
+                        },
+                        "message": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "views-align-left",
+                            "separator": ""
+                        },
+                        "amount": {
+                            "sortable": 1,
+                            "default_sort_order": "asc",
+                            "align": "views-align-right",
+                            "separator": ""
+                        },
+                        "operations": {
+                            "align": "views-align-left",
+                            "separator": ""
+                        }
+                    }
+                },
+                "footer": {
+                    "totals": {
+                        "id": "totals",
+                        "table": "commerce_payment_transaction",
+                        "field": "totals",
+                        "empty": true,
+                        "add_payment_form": 1
+                    }
+                },
+                "fields": {
+                    "status": {
+                        "id": "status",
+                        "table": "commerce_payment_transaction",
+                        "field": "status"
+                    },
+                    "created": {
+                        "id": "created",
+                        "table": "commerce_payment_transaction",
+                        "field": "created",
+                        "label": "Date",
+                        "date_format": "short",
+                        "custom_date_format": "m/d/Y"
+                    },
+                    "payment_method": {
+                        "id": "payment_method",
+                        "table": "commerce_payment_transaction",
+                        "field": "payment_method",
+                        "label": "Method"
+                    },
+                    "remote_id": {
+                        "id": "remote_id",
+                        "table": "commerce_payment_transaction",
+                        "field": "remote_id",
+                        "empty": "-",
+                        "hide_alter_empty": false
+                    },
+                    "message": {
+                        "id": "message",
+                        "table": "commerce_payment_transaction",
+                        "field": "message",
+                        "label": "Result message",
+                        "empty": "-"
+                    },
+                    "amount": {
+                        "id": "amount",
+                        "table": "commerce_payment_transaction",
+                        "field": "amount"
+                    },
+                    "operations": {
+                        "id": "operations",
+                        "table": "commerce_payment_transaction",
+                        "field": "operations",
+                        "label": "Operations"
+                    }
+                },
+                "arguments": {
+                    "order_id": {
+                        "id": "order_id",
+                        "table": "commerce_payment_transaction",
+                        "field": "order_id",
+                        "default_action": "empty",
+                        "default_argument_type": "fixed",
+                        "summary": {
+                            "number_of_records": "0",
+                            "format": "default_summary"
+                        },
+                        "summary_options": {
+                            "items_per_page": "25"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

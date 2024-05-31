@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Rules integration for Drupal Commerce.
+ * Rules integration for Backdrop Commerce.
  *
  * @addtogroup rules
  * @{
@@ -68,7 +68,7 @@ function commerce_entity_type_options_list() {
  *   property value.
  */
 function commerce_condition_entity_exists($type, $property, $value) {
-  $result = entity_property_query($type, $property, $value, 1);
+  $result = entity_plus_property_query($type, $property, $value, 1);
   return !empty($result);
 }
 
@@ -96,7 +96,7 @@ function commerce_condition_entity_exists_info_alter(&$element_info, RulesAbstra
 function commerce_condition_entity_exists_property_options_list(RulesAbstractPlugin $element) {
   $element->settings += array('type' => NULL);
   if ($element->settings['type']) {
-    $properties = entity_get_all_property_info($element->settings['type']);
+    $properties = entity_plus_get_all_property_info($element->settings['type']);
     return rules_extract_property($properties, 'label');
   }
 }

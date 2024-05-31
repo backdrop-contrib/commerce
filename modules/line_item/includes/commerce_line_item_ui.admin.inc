@@ -36,7 +36,7 @@ function commerce_line_item_ui_orphaned_line_items_form_submit($form, &$form_sta
       ),
     ),
     'finished' => 'commerce_line_item_ui_delete_orphaned_line_items_finished',
-    'file' => drupal_get_path('module', 'commerce_line_item') . '/includes/commerce_line_item_ui.admin.inc',
+    'file' => backdrop_get_path('module', 'commerce_line_item') . '/includes/commerce_line_item_ui.admin.inc',
   );
   batch_set($batch);
 }
@@ -93,5 +93,5 @@ function commerce_line_item_ui_delete_orphaned_line_items_finished($success, $re
   else {
     $message = t('Finished with an error.');
   }
-  drupal_set_message($message);
+  backdrop_set_message($message);
 }

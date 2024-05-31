@@ -9,6 +9,7 @@
  * Implements hook_default_rules_configuration().
  */
 function commerce_checkout_default_rules_configuration() {
+  $config = config('commerce_checkout.settings');
   // Store the customer profile entity info for use in default rules.
   $customer_profile_entity_info = entity_get_info('commerce_customer_profile');
 
@@ -22,7 +23,7 @@ function commerce_checkout_default_rules_configuration() {
 
   $rule->label = t('Set the order created date to the checkout completion date');
   $rule->tags = array('Commerce Checkout');
-  $rule->active = variable_get('enable_commerce_checkout_order_created_date_update', FALSE);
+  $rule->active = $config->get('enable_commerce_checkout_order_created_date_update');
 
   $rule
     ->event('commerce_checkout_complete')

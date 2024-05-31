@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Provides a central controller for Drupal Commerce.
+ * Provides a central controller for Backdrop Commerce.
  *
  * A full fork of Entity API's controller, with support for revisions.
  */
@@ -11,7 +11,7 @@
 /**
  * Interface for the default Drupal Commerce entity controller.
  */
-interface DrupalCommerceEntityControllerInterface extends EntityAPIControllerInterface {
+interface BackdropCommerceEntityControllerInterface extends EntityPlusControllerInterface {
 
   /**
    * Determines whether or not the given entity object was loaded directly from
@@ -28,11 +28,13 @@ interface DrupalCommerceEntityControllerInterface extends EntityAPIControllerInt
 }
 
 /**
- * Default implementation of DrupalCommerceEntityControllerInterface.
+ * Default implementation of BackdropCommerceEntityControllerInterface.
  *
- * Provides base entity controller for Drupal Commerce entities.
+ * Provides base entity controller for Backdrop Commerce entities.
  */
-class DrupalCommerceEntityController extends DrupalDefaultEntityController implements DrupalCommerceEntityControllerInterface {
+class BackdropCommerceEntityController extends DefaultEntityController implements BackdropCommerceEntityControllerInterface {
+
+  protected $statusKey;
 
   /**
    * Stores our transaction object, necessary for pessimistic locking to work.
@@ -43,20 +45,21 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
    * Stores the ids of locked entities, necessary for knowing when to release a
    * lock by committing the transaction.
    */
-  protected $lockedEntities = array();
+  protected $lockedEntities = [];
 
   /**
    * Stores the ids of unchanged entities, necessary for knowing if we're
    * dealing with unchanged entities before acting on them.
    */
-  protected $unchangedEntities = array();
+  protected $unchangedEntities = [];
+
 
   /**
-   * Override of DrupalDefaultEntityController::buildQuery().
+   * Override of BackdropDefaultEntityController::buildQuery().
    *
    * Handle pessimistic locking.
    */
-  protected function buildQuery($ids, $conditions = array(), $revision_id = FALSE) {
+  protected function buildQuery($ids, $conditions = [], $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $conditions, $revision_id);
 
     if (isset($this->entityInfo['locking mode']) && $this->entityInfo['locking mode'] == 'pessimistic') {
@@ -91,7 +94,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
         }
       }
       else {
-        $this->lockedEntities = array();
+        $this->lockedEntities = [];
       }
     }
 
@@ -128,19 +131,201 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
    * the attacher is called too.
    */
   public function invoke($hook, $entity) {
-    if (!empty($this->entityInfo['fieldable']) && function_exists($function = 'field_attach_' . $hook)) {
-      $function($this->entityType, $entity);
+    if ($hook == 'delete' || $hook == 'presave') {
+      if (!empty($this->entityInfo['fieldable']) && function_exists($function = 'field_attach_' . $hook)) {
+        $function($this->entityType, $entity);
+      }
+    }
+    if ($hook == 'insert') {
+      if (!empty($this->entityInfo['fieldable'])) {
+        $this->commerce_field_attach_insert($this->entityType, $entity);
+      }
+    }
+    if ($hook == 'update') {
+      $this->commerce_field_attach_update($this->entityType, $entity);
     }
 
     // Invoke the hook.
     module_invoke_all($this->entityType . '_' . $hook, $entity);
     // Invoke the respective entity level hook.
     if ($hook == 'presave' || $hook == 'insert' || $hook == 'update' || $hook == 'delete') {
-      module_invoke_all('entity_' . $hook, $entity, $this->entityType);
+      module_invoke_all('entity_plus_' . $hook, $entity, $this->entityType);
     }
     // Invoke rules.
     if (module_exists('rules')) {
       rules_invoke_event($this->entityType . '_' . $hook, $entity);
+    }
+  }
+
+  function commerce_field_attach_insert($entity_type, $entity) {
+    _field_invoke_default('insert', $entity_type, $entity);
+
+    [$id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
+    $langcode = $GLOBALS['language_content']->langcode;
+
+    $fields = field_info_fields($entity_type);
+    foreach ($fields as $field) {
+      if ($field['type'] == 'image' || $field['type'] == 'file') {
+        $items = field_get_items($entity_type, $entity, $field['field_name'], $langcode);
+        $this->commerce_file_field_insert($entity_type, $entity, $field, "", $langcode, $items);
+      }
+    }
+    //_field_invoke('insert', $entity_type, $entity);
+
+    [$id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
+
+    // Let any module insert field data before the storage engine, accumulating
+    // saved fields along the way.
+    $skip_fields = [];
+    foreach (module_implements('field_storage_pre_insert') as $module) {
+      $function = $module . '_field_storage_pre_insert';
+      $function($entity_type, $entity, $skip_fields);
+    }
+
+    // Collect the storage backends used by the remaining fields in the entities.
+    $storages = [];
+    foreach (field_info_instances($entity_type, $bundle) as $instance) {
+      $field = field_info_field($instance['field_name']);
+      $field_name = $field['field_name'];
+      if (!empty($entity->$field_name)) {
+        // Collect the storage backend if the field has not been written yet.
+        if (!isset($skip_fields[$field_name])) {
+          $storages[$field['storage']['type']][$field_name] = $field_name;
+        }
+      }
+    }
+
+    // Field storage backends save any remaining unsaved fields.
+    foreach ($storages as $storage => $fields) {
+
+      $storage_info = field_info_storage_types($storage);
+      $storage_info['module'] = 'commerce_price';
+      module_invoke($storage_info['module'], 'field_storage_write', $entity_type, $entity, FIELD_STORAGE_INSERT, $fields);
+    }
+
+    // Let other modules act on inserting the entity.
+    module_invoke_all('field_attach_insert', $entity_type, $entity);
+
+    $entity_info = entity_get_info($entity_type);
+  }
+
+  function commerce_field_attach_update($entity_type, $entity) {
+    [$id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
+    $langcode = $GLOBALS['language_content']->langcode;
+
+    $fields = field_info_fields($entity_type);
+    foreach ($fields as $field) {
+      if ($field['type'] == 'image' || $field['type'] == 'file') {
+        $items = field_get_items($entity_type, $entity, $field['field_name'], $langcode);
+        $this->commerce_file_field_update($entity_type, $entity, $field, "", $langcode, $items);
+      }
+    }
+    //_field_invoke('update', $entity_type, $entity);
+
+    // Let any module update field data before the storage engine, accumulating
+    // saved fields along the way.
+    $skip_fields = [];
+    foreach (module_implements('field_storage_pre_update') as $module) {
+      $function = $module . '_field_storage_pre_update';
+      $function($entity_type, $entity, $skip_fields);
+    }
+
+    // Collect the storage backends used by the remaining fields in the entities.
+    $storages = [];
+    foreach (field_info_instances($entity_type, $bundle) as $instance) {
+      $field = field_info_field($instance['field_name']);
+      $field_name = $field['field_name'];
+      // Leave the field untouched if $entity comes with no $field_name property,
+      // but empty the field if it comes as a NULL value or an empty array.
+      // Function property_exists() is slower, so we catch the more frequent
+      // cases where it's an empty array with the faster isset().
+      if (isset($entity->$field_name) || property_exists($entity, $field_name)) {
+        // Collect the storage backend if the field has not been written yet.
+        if (!isset($skip_fields[$field_name])) {
+          $storages[$field['storage']['type']][$field_name] = $field_name;
+        }
+      }
+    }
+
+    // Field storage backends save any remaining unsaved fields.
+    foreach ($storages as $storage => $fields) {
+      $storage_info = field_info_storage_types($storage);
+      $storage_info['module'] = 'commerce_price';
+      module_invoke($storage_info['module'], 'field_storage_write', $entity_type, $entity, FIELD_STORAGE_UPDATE, $fields);
+    }
+
+    // Let other modules act on updating the entity.
+    module_invoke_all('field_attach_update', $entity_type, $entity);
+
+    $entity_info = entity_get_info($entity_type);
+    if ($entity_info['field cache']) {
+      cache('field')->delete("field:$entity_type:$id");
+    }
+  }
+
+  /**
+   * Implements hook_field_insert().
+   */
+  function commerce_file_field_insert($entity_type, $entity, $field, $instance, $langcode, $items) {
+    [$entity_id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
+    // Add a new usage of each uploaded file.
+    foreach ($items as $item) {
+      if ($file = file_load($item['fid'])) {
+        file_usage_add($file, 'file', $entity_type, $entity_id);
+      }
+    }
+  }
+
+
+  /**
+   * Implements hook_field_update().
+   *
+   * Checks for files that have been removed from the object.
+   */
+  function commerce_file_field_update($entity_type, $entity, $field, $instance, $langcode, $items) {
+    [$entity_id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
+    $id = $entity_id;
+
+    // On new revisions, all files are considered to be a new usage and no
+    // deletion of previous file usages are necessary.
+    if (!empty($entity->revision)) {
+        foreach ($items as $item) {
+          if ($file = file_load($item['fid'])) {
+            file_usage_add($file, 'file', $entity_type, $id);
+          }
+        }
+        return;
+
+    }
+
+    // Build a display of the current FIDs.
+    $current_fids = [];
+    foreach ($items as $item) {
+      $current_fids[] = $item['fid'];
+    }
+
+    // Compare the original field values with the ones that are being saved.
+    $original = $entity->original;
+    $original_fids = [];
+    if (!empty($original->{$field['field_name']}[$langcode])) {
+      foreach ($original->{$field['field_name']}[$langcode] as $original_item) {
+        $original_fids[] = $original_item['fid'];
+        if (isset($original_item['fid']) && !in_array($original_item['fid'], $current_fids)) {
+          // Decrement the file usage count by 1.
+          if ($file = file_load($original_item['fid'])) {
+            file_usage_delete($file, 'file', $entity_type, $id);
+          }
+        }
+      }
+    }
+
+    // Add new usage entries for newly added files.
+    foreach ($items as $item) {
+      if (!in_array($item['fid'], $original_fids)) {
+        if ($file = file_load($item['fid'])) {
+          file_usage_add($file, 'file', $entity_type, $id);
+        }
+      }
     }
   }
 
@@ -244,23 +429,23 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
         // For new entities, create the row in the base table, then save the
         // revision.
         $op = 'insert';
-        $return = drupal_write_record($this->entityInfo['base table'], $entity);
+        $return = backdrop_write_record($this->entityInfo['base table'], $entity);
         if (!empty($this->revisionKey)) {
-          drupal_write_record($this->entityInfo['revision table'], $entity);
+          backdrop_write_record($this->entityInfo['revision table'], $entity);
           $update_base_table = TRUE;
         }
       }
       else {
         $op = 'update';
-        $return = drupal_write_record($this->entityInfo['base table'], $entity, $this->idKey);
+        $return = backdrop_write_record($this->entityInfo['base table'], $entity, $this->idKey);
 
         if (!empty($this->revisionKey)) {
           if (!empty($entity->revision)) {
-            drupal_write_record($this->entityInfo['revision table'], $entity);
+            backdrop_write_record($this->entityInfo['revision table'], $entity);
             $update_base_table = TRUE;
           }
           else {
-            drupal_write_record($this->entityInfo['revision table'], $entity, $this->revisionKey);
+            backdrop_write_record($this->entityInfo['revision table'], $entity, $this->revisionKey);
           }
         }
       }
@@ -268,9 +453,9 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
       if (!empty($update_base_table)) {
         // Go back to the base table and update the pointer to the revision ID.
         db_update($this->entityInfo['base table'])
-        ->fields(array($this->revisionKey => $entity->{$this->revisionKey}))
-        ->condition($this->idKey, $entity->{$this->idKey})
-        ->execute();
+          ->fields([$this->revisionKey => $entity->{$this->revisionKey}])
+          ->condition($this->idKey, $entity->{$this->idKey})
+          ->execute();
       }
 
       // Update the static cache so that the next entity_load() will return this
@@ -282,6 +467,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
       $this->releaseLock();
 
       $this->invoke($op, $entity);
+
 
       // Ignore slave server temporarily.
       db_ignore_slave();
@@ -298,8 +484,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
       unset($entity->revision);
 
       return $return;
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       if (!empty($started_transaction)) {
         $transaction->rollback();
         watchdog_exception($this->entityType, $e);
@@ -313,12 +498,13 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
    *
    * @param array $values
    *   An array of values to set, keyed by property name.
+   *
    * @return
    *   A new instance of the entity type.
    */
-  public function create(array $values = array()) {
+  public function create(array $values = []) {
     // Add is_new property if it is not set.
-    $values += array('is_new' => TRUE);
+    $values += ['is_new' => TRUE];
 
     // If there is a class for this entity type, instantiate it now.
     if (isset($this->entityInfo['entity class']) && $class = $this->entityInfo['entity class']) {
@@ -330,7 +516,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
     }
 
     // Allow other modules to alter the created entity.
-    drupal_alter('commerce_entity_create', $this->entityType, $entity);
+    backdrop_alter('commerce_entity_create', $this->entityType, $entity);
 
     return $entity;
   }
@@ -365,10 +551,10 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
    * @return
    *   The renderable array.
    */
-  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = []) {
     // Remove previously built content, if exists.
     $entity->content = $content;
-    $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->language;
+    $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->langcode;
 
     // Add in fields.
     if (!empty($this->entityInfo['fieldable'])) {
@@ -412,7 +598,7 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
    */
   public function view($entities, $view_mode = '', $langcode = NULL, $page = NULL) {
     // Create a new entities array keyed by entity ID.
-    $rekeyed_entities = array();
+    $rekeyed_entities = [];
 
     foreach ($entities as $key => $entity) {
       // Use the entity's ID if available and fallback to its existing key value
@@ -437,30 +623,39 @@ class DrupalCommerceEntityController extends DrupalDefaultEntityController imple
     }
 
     entity_prepare_view($this->entityType, $entities);
-    $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->language;
-    $view = array();
+    $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->langcode;
+    $view = [];
 
     // Build the content array for each entity passed in.
     foreach ($entities as $key => $entity) {
-      $build = entity_build_content($this->entityType, $entity, $view_mode, $langcode);
+      $build = entity_plus_build_content($this->entityType, $entity, $view_mode, $langcode);
 
       // Add default properties to the array to ensure the content is passed
       // through the theme layer.
-      $build += array(
+      $build += [
         '#theme' => 'entity',
         '#entity_type' => $this->entityType,
         '#entity' => $entity,
         '#view_mode' => $view_mode,
         '#language' => $langcode,
         '#page' => $page,
-      );
+      ];
 
       // Allow modules to modify the structured entity.
-      drupal_alter(array($this->entityType . '_view', 'entity_view'), $build, $this->entityType);
+      backdrop_alter([
+        $this->entityType . '_view',
+        'entity_view',
+      ], $build, $this->entityType);
       $view[$this->entityType][$key] = $build;
     }
 
     return $view;
+  }
+
+  public function hasStatus($status) {
+    if (!empty($this->entityInfo['exportable'])) {
+      return isset($this->{$this->statusKey}) && ($this->{$this->statusKey} & $status) == $status;
+    }
   }
 
 }

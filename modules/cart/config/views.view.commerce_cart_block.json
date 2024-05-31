@@ -1,0 +1,168 @@
+{
+    "_config_name": "views.view.commerce_cart_block",
+    "name": "commerce_cart_block",
+    "description": "Display a list of line items added to cart.",
+    "tag": "commerce",
+    "disabled": false,
+    "base_table": "commerce_order",
+    "human_name": "Shopping cart block",
+    "core": 0,
+    "display": {
+        "default": {
+            "display_title": "Defaults",
+            "display_plugin": "default",
+            "display_options": {
+                "query": {
+                    "type": "views_query",
+                    "options": {
+                        "query_comment": false
+                    }
+                },
+                "title": "Shopping cart",
+                "use_more_always": false,
+                "access": {
+                    "type": "none"
+                },
+                "cache": {
+                    "type": "none"
+                },
+                "exposed_form": {
+                    "type": "basic"
+                },
+                "pager": {
+                    "type": "none"
+                },
+                "style_plugin": "table",
+                "style_options": {
+                    "columns": {
+                        "quantity": "quantity",
+                        "commerce_display_path": "commerce_display_path",
+                        "line_item_title": "line_item_title",
+                        "commerce_total": "commerce_total"
+                    },
+                    "default": "-1",
+                    "info": {
+                        "quantity": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "commerce_display_path": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "",
+                            "separator": ""
+                        },
+                        "line_item_title": {
+                            "align": "",
+                            "separator": ""
+                        },
+                        "commerce_total": {
+                            "sortable": 0,
+                            "default_sort_order": "asc",
+                            "align": "views-align-right",
+                            "separator": ""
+                        }
+                    }
+                },
+                "footer": {
+                    "line_item_summary": {
+                        "id": "line_item_summary",
+                        "table": "commerce_line_item",
+                        "field": "line_item_summary",
+                        "links": {
+                            "view_cart": "view_cart",
+                            "checkout": "checkout"
+                        },
+                        "info": {
+                            "quantity": "quantity",
+                            "total": "total"
+                        }
+                    }
+                },
+                "relationships": {
+                    "commerce_line_items_line_item_id": {
+                        "id": "commerce_line_items_line_item_id",
+                        "table": "field_data_commerce_line_items",
+                        "field": "commerce_line_items_line_item_id",
+                        "required": true
+                    }
+                },
+                "fields": {
+                    "quantity": {
+                        "id": "quantity",
+                        "table": "commerce_line_item",
+                        "field": "quantity",
+                        "relationship": "commerce_line_items_line_item_id",
+                        "label": "",
+                        "precision": "0",
+                        "suffix": " × "
+                    },
+                    "commerce_display_path": {
+                        "id": "commerce_display_path",
+                        "table": "field_data_commerce_display_path",
+                        "field": "commerce_display_path",
+                        "relationship": "commerce_line_items_line_item_id",
+                        "label": "",
+                        "exclude": true
+                    },
+                    "line_item_title": {
+                        "id": "line_item_title",
+                        "table": "commerce_line_item",
+                        "field": "line_item_title",
+                        "relationship": "commerce_line_items_line_item_id",
+                        "label": "",
+                        "alter": {
+                            "make_link": true,
+                            "path": "[commerce_display_path]"
+                        }
+                    },
+                    "commerce_total": {
+                        "id": "commerce_total",
+                        "table": "field_data_commerce_total",
+                        "field": "commerce_total",
+                        "relationship": "commerce_line_items_line_item_id",
+                        "label": "",
+                        "element_class": "price",
+                        "element_label_colon": false,
+                        "click_sort_column": "amount",
+                        "type": "commerce_price_formatted_amount"
+                    }
+                },
+                "sorts": {
+                    "line_item_id": {
+                        "id": "line_item_id",
+                        "table": "commerce_line_item",
+                        "field": "line_item_id",
+                        "relationship": "commerce_line_items_line_item_id"
+                    }
+                },
+                "arguments": {
+                    "order_id": {
+                        "id": "order_id",
+                        "table": "commerce_order",
+                        "field": "order_id",
+                        "default_argument_type": "fixed",
+                        "summary": {
+                            "number_of_records": "0",
+                            "format": "default_summary"
+                        },
+                        "summary_options": {
+                            "items_per_page": "25"
+                        }
+                    }
+                },
+                "filters": {
+                    "product_line_item_type": {
+                        "id": "product_line_item_type",
+                        "table": "commerce_line_item",
+                        "field": "product_line_item_type",
+                        "relationship": "commerce_line_items_line_item_id",
+                        "value": "1"
+                    }
+                }
+            }
+        }
+    }
+}

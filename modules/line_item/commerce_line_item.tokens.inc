@@ -71,7 +71,7 @@ function commerce_line_item_tokens($type, $tokens, array $data = array(), array 
 
   if (isset($options['language'])) {
     $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
+    $language_code = $options['language']->langcode;
   }
   else {
     $language_code = NULL;

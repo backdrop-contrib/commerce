@@ -14,8 +14,13 @@
  *     array with properties instantiated but not populated.
  */
 function commerce_product_ui_product_type_form($form, &$form_state, $product_type) {
+  $lang = config_get('commerce_product.settings', 'language_product_type_' . $product_type['type']);
+  if (!isset($lang)|| empty($lang) || $lang == NULL){
+    $lang = 0;
+  }
+
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_product_ui') . '/includes/commerce_product_ui.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_product_ui') . '/includes/commerce_product_ui.forms.inc';
 
   // Store the initial product type in the form state.
   $form_state['product_type'] = $product_type;
@@ -79,7 +84,7 @@ function commerce_product_ui_product_type_form($form, &$form_state, $product_typ
         0 => t('Disabled'),
         ENTITY_TRANSLATION_ENABLED => t('Enabled via <em>Entity translation</em>'),
       ),
-      '#default_value' => variable_get('language_product_type_' . $product_type['type'], 0),
+      '#default_value' => $lang,
     );
   }
 
@@ -144,6 +149,7 @@ function commerce_product_ui_product_type_form_validate($form, &$form_state) {
  * Form submit handler: save a product type.
  */
 function commerce_product_ui_product_type_form_submit($form, &$form_state) {
+  $config = config('commerce_product.settings');
   $product_type = $form_state['product_type'];
   $updated = !empty($product_type['type']);
 
@@ -163,11 +169,11 @@ function commerce_product_ui_product_type_form_submit($form, &$form_state) {
 
   // Set the multingual value for the product type if entity translation is enabled.
   if (module_exists('entity_translation')) {
-    variable_set('language_product_type_' . $product_type['type'], $product_type['multilingual']);
+    $config->set('language_product_type_' . $product_type['type'], update_variable_get('language_product_type_' . $product_type['type'], $product_type['multilingual']));
   }
 
   // Redirect based on the button clicked.
-  drupal_set_message(t('Product type saved.'));
+  backdrop_set_message(t('Product type saved.'));
 
   if ($form_state['triggering_element']['#parents'][0] == 'save_continue') {
     $form_state['redirect'] = 'admin/commerce/products/types/' . strtr($product_type['type'], '_', '-') . '/fields';
@@ -198,7 +204,7 @@ function commerce_product_ui_product_type_delete_form($form, &$form_state, $prod
   $form_state['product_type'] = $product_type;
 
   // Ensure this include file is loaded when the form is rebuilt from the cache.
-  $form_state['build_info']['files']['form'] = drupal_get_path('module', 'commerce_product_ui') . '/includes/commerce_product_ui.forms.inc';
+  $form_state['build_info']['files']['form'] = backdrop_get_path('module', 'commerce_product_ui') . '/includes/commerce_product_ui.forms.inc';
 
   $form['#submit'][] = 'commerce_product_ui_product_type_delete_form_submit';
 
@@ -222,7 +228,7 @@ function commerce_product_ui_product_type_delete_form_submit($form, &$form_state
 
   commerce_product_ui_product_type_delete($product_type['type']);
 
-  drupal_set_message(t('The product type %name has been deleted.', array('%name' => $product_type['name'])));
+  backdrop_set_message(t('The product type %name has been deleted.', array('%name' => $product_type['name'])));
   watchdog('commerce_product', 'Deleted product type %name.', array('%name' => $product_type['name']), WATCHDOG_NOTICE);
 
   $form_state['redirect'] = 'admin/commerce/products/types';

@@ -1133,7 +1133,7 @@ function commerce_commerce_currency_info() {
     'NOK' => array(
       'code' => 'NOK',
       'numeric_code' => '578',
-      'symbol' => 'kr',
+      'symbol' => 'NOK',
       'name' => t('Norwegian Krone'),
       'symbol_placement' => 'before',
       'code_placement' => 'hidden',

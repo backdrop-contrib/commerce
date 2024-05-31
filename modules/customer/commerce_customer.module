@@ -350,7 +350,7 @@ function commerce_customer_modules_disabled($modules) {
 function commerce_customer_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_customer') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_customer') . '/includes/views',
   );
 }
 
@@ -407,7 +407,11 @@ function commerce_customer_commerce_checkout_pane_info() {
 
   foreach (commerce_customer_profile_types() as $type => $profile_type) {
     // Get instance data for the customer profile reference field.
-    $field_name = variable_get('commerce_customer_profile_' . $type . '_field', '');
+    $customer = config_get('commerce_customer.settings', 'commerce_customer_profile_' . $type . '_field');
+    if (!isset($customer) || empty($customer) || $customer == NULL) {
+      $customer = '';
+    }
+    $field_name = $customer;
     $instance = field_info_instance('commerce_order', $field_name, 'commerce_order');
     $translated_instance = commerce_i18n_object('field_instance', $instance);
 
@@ -428,6 +432,7 @@ function commerce_customer_commerce_checkout_pane_info() {
  * Implements hook_field_delete_instance().
  */
 function commerce_customer_field_delete_instance($instance) {
+  $config = config('commerce_customer.settings');
   // If the checkout module is enabled, we need to react to the deletion of a
   // profile reference field from the core order bundle by updating the related
   // checkout pane so it is no longer configured to use the deleted field.
@@ -441,9 +446,14 @@ function commerce_customer_field_delete_instance($instance) {
       // Loop through the customer profile types to see if there's a checkout
       // pane that used the deleted field.
       foreach (commerce_customer_profile_types() as $type => $profile_type) {
-        if (variable_get('commerce_customer_profile_' . $type . '_field', '') == $field['field_name']) {
+        $customer = config_get('commerce_customer.settings', 'commerce_customer_profile_' . $type . '_field');
+        if (!isset($customer) || empty($customer) || $customer == NULL) {
+          $customer = '';
+        }
+        if ($customer == $field['field_name']) {
           // Unset the field variable and disable the checkout pane.
-          variable_set('commerce_customer_profile_' . $type . '_field', '');
+          $config->set('commerce_customer_profile_' . $type . '_field', update_variable_get('commerce_customer_profile_' . $type . '_field', ''));
+         // variable_set('commerce_customer_profile_' . $type . '_field', '');
 
           $checkout_pane = commerce_checkout_pane_load('customer_profile_' . $type);
           $checkout_pane['enabled'] = FALSE;
@@ -451,7 +461,7 @@ function commerce_customer_field_delete_instance($instance) {
 
           commerce_checkout_pane_save($checkout_pane);
 
-          drupal_static_reset('commerce_checkout_panes');
+          backdrop_static_reset('commerce_checkout_panes');
         }
       }
     }
@@ -463,7 +473,7 @@ function commerce_customer_field_delete_instance($instance) {
  */
 function commerce_customer_profile_types() {
   // First check the static cache for a profile types array.
-  $profile_types = &drupal_static(__FUNCTION__);
+  $profile_types = &backdrop_static(__FUNCTION__);
 
   // If it did not exist, fetch the types now.
   if (!isset($profile_types)) {
@@ -486,7 +496,7 @@ function commerce_customer_profile_types() {
     }
 
     // Last allow the info to be altered by other modules.
-    drupal_alter('commerce_customer_profile_type_info', $profile_types);
+    backdrop_alter('commerce_customer_profile_type_info', $profile_types);
   }
 
   return $profile_types;
@@ -510,7 +520,7 @@ function commerce_customer_profile_type_load($type) {
  * Resets the cached list of customer profile types.
  */
 function commerce_customer_profile_types_reset() {
-  $profile_types = &drupal_static('commerce_customer_profile_types');
+  $profile_types = &backdrop_static('commerce_customer_profile_types');
   $profile_types = NULL;
   entity_info_cache_clear();
 }
@@ -714,7 +724,7 @@ function commerce_customer_commerce_customer_profile_delete($profile) {
           commerce_entity_reference_delete($entity, $field_name, 'profile_id', $profile->profile_id);
 
           // Store the changes to the entity.
-          entity_save($entity_type, $entity);
+          entity_plus_save($entity_type, $entity);
         }
       }
     }
@@ -881,10 +891,10 @@ function commerce_customer_field_formatter_view($entity_type, $entity, $field, $
         $profile = commerce_customer_profile_load($item['profile_id']);
 
         if ($profile) {
-          $content = entity_view('commerce_customer_profile', array($profile->profile_id => $profile), 'customer', $langcode);
+          $content = entity_plus_view('commerce_customer_profile', array($profile->profile_id => $profile), 'customer', $langcode);
 
           $result[$delta] = array(
-            '#markup' => drupal_render($content),
+            '#markup' => backdrop_render($content),
           );
         }
       }
@@ -983,7 +993,7 @@ function commerce_customer_field_widget_form(&$form, &$form_state, $field, $inst
 
     // Do not attempt to render the widget for a non-existent profile type.
     if (empty($profile_type)) {
-      drupal_set_message(t('Field %field_name attempted to use the non-existing customer profile type %type.', array('%field_name' => $field['field_name'], '%type' => $field['settings']['profile_type'])), 'error');
+      backdrop_set_message(t('Field %field_name attempted to use the non-existing customer profile type %type.', array('%field_name' => $field['field_name'], '%type' => $field['settings']['profile_type'])), 'error');
       return array();
     }
 
@@ -1315,7 +1325,7 @@ function commerce_customer_profile_property_info_callback(&$info, $entity_type, 
  *   )
  */
 function commerce_customer_match_customer_profiles($field, $ids = array(), $limit = NULL) {
-  $results = &drupal_static(__FUNCTION__, array());
+  $results = &backdrop_static(__FUNCTION__, array());
 
   // Create unique id for static cache.
   $cid = implode(':', array(
@@ -1526,4 +1536,30 @@ function commerce_customer_profile_copy_fields($info, &$target, $source, &$form_
       }
     }
   }
+}
+
+function commerce_customer_config_info() {
+  $prefixes['commerce_customer.settings'] = array(
+    'label' => t('Commerce Customer UI settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function commerce_customer_autoload_info() {
+  return [
+    'CommerceCustomerProfileEntityController' => 'includes/commerce_customer_profile.controller.inc',
+    'commerce_customer_handler_area_empty_text' => 'includes/views/handlers/commerce_customer_handler_area_empty_text.inc',
+    'commerce_customer_handler_field_customer_profile' => 'includes/views/handlers/commerce_customer_handler_field_customer_profile.inc',
+    'commerce_customer_handler_field_customer_profile_link' => 'includes/views/handlers/commerce_customer_handler_field_customer_profile_link.inc',
+    'commerce_customer_handler_field_customer_profile_link_delete' => 'includes/views/handlers/commerce_customer_handler_field_customer_profile_link_delete.inc',
+    'commerce_customer_handler_field_customer_profile_link_edit' => 'includes/views/handlers/commerce_customer_handler_field_customer_profile_link_edit.inc',
+    'commerce_customer_handler_field_customer_profile_type' => 'includes/views/handlers/commerce_customer_handler_field_customer_profile_type.inc',
+    'commerce_customer_handler_filter_customer_profile_type' => 'includes/views/handlers/commerce_customer_handler_filter_customer_profile_type.inc',
+    'commerce_customer.views'=> 'includes/views/commerce_customer.views.inc',
+    'commerce_customer_ui.views_default'=>'includes/views/commerce_customer_ui.views_default.inc'
+  ];
 }

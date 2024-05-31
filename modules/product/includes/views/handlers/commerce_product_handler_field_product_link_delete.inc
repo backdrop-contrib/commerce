@@ -24,6 +24,6 @@ class commerce_product_handler_field_product_link_delete extends commerce_produc
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('delete');
 
-    return l($text, 'admin/commerce/products/' . $product->product_id . '/delete', array('query' => drupal_get_destination()));
+    return l($text, 'admin/commerce/products/' . $product->product_id . '/delete', array('query' => backdrop_get_destination()));
   }
 }

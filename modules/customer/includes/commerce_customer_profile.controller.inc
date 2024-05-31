@@ -9,8 +9,7 @@
  * The controller class for customer profiles contains methods for the profile
  * CRUD operations. The load method is inherited from the default controller.
  */
-class CommerceCustomerProfileEntityController extends DrupalCommerceEntityController {
-
+class CommerceCustomerProfileEntityController extends BackdropCommerceEntityController {
   /**
    * Create a default customer profile.
    *

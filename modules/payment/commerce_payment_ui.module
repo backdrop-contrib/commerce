@@ -70,10 +70,10 @@ function commerce_payment_ui_menu() {
   $items['admin/commerce/config/payment-methods/add'] = array(
     'title' => 'Add a payment method rule',
     'description' => 'Adds an additional payment method rule configuration.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('commerce_payment_ui_add_payment_rule_form', 'admin/commerce/config/payment-methods'),
     'access arguments' => array('administer payment methods'),
-    'file path' => drupal_get_path('module', 'rules_admin'),
+    'file path' => backdrop_get_path('module', 'rules_admin'),
     'file' => 'rules_admin.inc',
   );
 
@@ -161,7 +161,7 @@ function commerce_payment_ui_payment_transaction_uri($transaction) {
 function commerce_payment_ui_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_payment_ui') . '/includes/views',
+    'path' => backdrop_get_path('module', 'commerce_payment_ui') . '/includes/views',
   );
 }
 

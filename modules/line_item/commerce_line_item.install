@@ -115,6 +115,17 @@ function commerce_line_item_uninstall() {
 
   // Delete any line item reference fields.
   commerce_delete_fields('commerce_line_item_reference');
+
+  $names = array(
+    'views.view.commerce_line_item_table',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
+  }
+  // Clear admin bar cache to remove views from menu
+  cache('admin_bar')->flush();
 }
 
 /**
@@ -122,7 +133,7 @@ function commerce_line_item_uninstall() {
  * the rounding mode to use on the updated unit price amount.
  */
 function commerce_line_item_update_7000() {
-  drupal_flush_all_caches();
+  backdrop_flush_all_caches();
 
   // Loop over all defined Rules configurations.
   foreach (rules_config_load_multiple(FALSE) as $rule) {
@@ -196,4 +207,30 @@ function commerce_line_item_update_7101() {
   db_add_index('commerce_line_item', 'line_item_type', array('type'));
 
   return t('Database indexes added to the order_id and type columns of the commerce_line_item table.');
+}
+
+function commerce_line_item_update_1017() {
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_line_item_table');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_line_item') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_line_item_table.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_line_item_update_1500() {
+  $names = array(
+    'views.view.commerce_line_item_table',
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->set('module', 'commerce_line_item');
+    $config->set('storage', 4);
+    $config->save();
+  }
 }

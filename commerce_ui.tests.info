@@ -1,0 +1,12 @@
+[CommerceBaseTestCase]
+name = CommerceBaseTestCase
+description = CommerceBaseTestCase
+group = commerce_ui
+file = tests/commerce_base.test
+
+[CommerceBaseTesterTestCase]
+name = Commerce base
+description = Test the functionality of the base test class. Essentially, these are meta-tests.
+group = Drupal Commerce
+file = tests/commerce_base.test
+

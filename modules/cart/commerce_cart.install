@@ -1,53 +1,132 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_cart module.
+ *
+ */
+
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_cart_update_7100() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_cart_update_7101() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_cart_update_7102() { }
+
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function commerce_cart_update_7103() { }
 
 /**
- * Make all fields that were previously eligible for attribute selection on the
- * Add to Cart form continue to use the attribute selection widget.
+ * Implements hook_update_last_removed().
  */
-function commerce_cart_update_7100() {
-  // Loop over all the field instances on product bundles.
-  foreach (field_info_instances('commerce_product') as $bundle_name => $instances) {
-    foreach ($instances as $instance) {
-      $field = field_info_field_by_id($instance['field_id']);
+function commerce_cart_update_last_removed() {
+  return 7103;
+}
 
-      // If the field meets attribute eligibility, it should continue to use the
-      // select widget as an attribute field on the Add to Cart form.
-      if ($field['cardinality'] == 1 && function_exists($field['module'] . '_options_list')) {
-        $instance['commerce_cart_settings'] = array(
-          'attribute_field' => TRUE,
-          'attribute_widget' => 'select',
-        );
-      }
+/**
+ * Implements hook_update_N().
+ */
+function commerce_cart_update_1000() {
+  $config = config('commerce_cart.settings');
+  $config->set('commerce_cart_provider', update_variable_get('commerce_cart_provider', 'session'));
+  $config->set('commerce_cart_refresh_mode', update_variable_get('commerce_cart_refresh_mode', 'owner_only'));
+  $config->set('commerce_cart_refresh_frequency', update_variable_get('commerce_cart_refresh_frequency', 15));
+  $config->set('commerce_cart_refresh_force', update_variable_get('commerce_cart_refresh_force', true));
+  $config->set('commerce_cart_contents_pane_view', update_variable_get('commerce_cart_contents_pane_view', 'commerce_cart_summary|default'));
+  $config->set('commerce_order_apply_pricing_rules_link', update_variable_get('commerce_order_apply_pricing_rules_link', true));
+  $config->set('commerce_order_auto_revision', update_variable_get('commerce_order_apply_pricing_rules_link', true));
+  $config->set('commerce_checkout_empty_redirect', update_variable_get('commerce_order_apply_pricing_rules_link', ''));
+  $config->save();
+  update_variable_del('commerce_cart_provider');
+  update_variable_del('commerce_cart_refresh_mode');
+  update_variable_del('commerce_cart_refresh_frequency');
+  update_variable_del('commerce_cart_refresh_force');
+  update_variable_del('commerce_cart_contents_pane_view');
+  update_variable_del('commerce_order_apply_pricing_rules_link');
+  update_variable_del('commerce_order_auto_revision');
+  update_variable_del('commerce_checkout_empty_redirect');
+}
 
-      // Save the updated field instance.
-      field_update_instance($instance);
-    }
+/**
+ * Implements hook_install().
+ */
+function commerce_cart_install() {
+  // Dynamically generated variable data was detected.
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_cart_uninstall() {
+  $names = array(
+    'views.view.commerce_cart_block',
+    'views.view.commerce_cart_form',
+    'views.view.commerce_cart_summary'
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->delete();
   }
-
-  return t('All eligible product attribute fields have been updated to continue using the attribute selection widget.');
+  // Clear admin bar cache to remove views from menu
+  cache('admin_bar')->flush();
 }
 
 /**
- * Disable the new local action to apply pricing rules to an order.
+ * Create webform_analysis views if it doesn't exist already.
  */
-function commerce_cart_update_7101() {
-  variable_set('commerce_order_apply_pricing_rules_link', FALSE);
-  return t('A new local action link on order edit forms for applying pricing rules to an order has been disabled by default; enable it on the order settings form if desired.');
+function commerce_cart_update_1016() {
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_cart_block');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_cart') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_cart_block.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
 }
 
-/**
- * Adjust the new shopping cart refresh frequency to occur continuously to match
- * the long-standing behavior of the process.
- */
-function commerce_cart_update_7102() {
-  variable_set('commerce_cart_refresh_frequency', 0);
-  return t('New order settings have been added to let you reduce the frequency of the shopping cart refresh. This update set it to occur continuously as it has been, but we recommend you implement some delay unless you have a unique product pricing situation that demands pricing updates every time a shopping cart is loaded.');
+function commerce_cart_update_1017() {
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_cart_form');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_cart') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_cart_form.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
 }
 
-/**
- * Rebuild registry to ensure autoloading for cart provider plugins.
- */
-function commerce_cart_update_7103() {
-  registry_rebuild();
-  return t('Registry has been rebuilt');
+function commerce_cart_update_1018() {
+  // See if there is already a webform_submissions view on this site.
+  $config_analysis = config('views.view.commerce_cart_summary');
+  if ($config_analysis->isNew()) {
+    // If not, create the new webform_webforms view.
+    $path = backdrop_get_path('module', 'commerce_cart') . '/config/';
+    $contents = file_get_contents($path . 'views.view.commerce_cart_summary.json');
+    $data = json_decode($contents, true);
+    $config_analysis->setData($data);
+    $config_analysis->save();
+  }
+}
+
+function commerce_cart_update_1500() {
+  $names = array(
+    'views.view.commerce_cart_block',
+    'views.view.commerce_cart_form',
+    'views.view.commerce_cart_summary'
+  );
+
+  foreach ($names as $config_name) {
+    $config = config($config_name);
+    $config->set('module', 'commerce_cart');
+    $config->set('storage', 4);
+    $config->save();
+  }
 }

@@ -103,7 +103,7 @@ class RulesDataUICommercePrice extends RulesDataUI implements RulesDataDirectInp
       );
     }
     else {
-      $form[$name]['#attached']['css'][] = drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
+      $form[$name]['#attached']['css'][] = backdrop_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css';
       $form[$name]['amount']['#prefix'] = '<div class="commerce-price-full">';
 
       $form[$name]['currency_code'] = array(
