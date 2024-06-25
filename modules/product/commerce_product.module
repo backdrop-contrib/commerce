@@ -74,6 +74,8 @@ function commerce_product_hook_info() {
  */
 function commerce_product_autoload_info() {
   return [
+    'CommerceProduct' => 'includes/commerce_product.entity.inc',
+    'CommerceProductType' => 'includes/commerce_product.entity.inc',
     'CommerceProductEntityController' => 'includes/commerce_product.controller.inc',
     'commerce_product_handler_area_empty_text' => 'includes/views/handlers/commerce_product_handler_area_empty_text.inc',
     'commerce_product_handler_argument_product_id' => 'includes/views/handlers/commerce_product_handler_argument_product_id.inc',
@@ -96,6 +98,7 @@ function commerce_product_entity_info() {
   $return = array(
     'commerce_product' => array(
       'label' => t('Commerce Product'),
+      'entity class' => 'CommerceProduct',
       'controller class' => 'CommerceProductEntityController',
       'base table' => 'commerce_product',
       'revision table' => 'commerce_product_revision',

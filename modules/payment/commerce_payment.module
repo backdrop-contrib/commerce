@@ -59,6 +59,7 @@ function commerce_payment_entity_info() {
   $return = array(
     'commerce_payment_transaction' => array(
       'label' => t('Commerce Payment transaction'),
+      'entity class' => 'CommercePaymentTransaction',
       'controller class' => 'CommercePaymentTransactionEntityController',
       'base table' => 'commerce_payment_transaction',
       'revision table' => 'commerce_payment_transaction_revision',
@@ -1330,6 +1331,8 @@ function commerce_payment_form_rules_ui_edit_element_alter(&$form, &$form_state)
  */
 function commerce_payment_autoload_info() {
   return [
+    'CommercePaymentTransaction' => 'includes/commerce_payment_transaction.entity.inc',
+    'CommercePaymentTransactionType' => 'includes/commerce_payment_transaction.entity.inc',
     'CommercePaymentTransactionEntityController'=>'includes/commerce_payment_transaction.controller.inc',
     'commerce_payment_handler_area_totals' => 'includes/views/handlers/commerce_payment_handler_area_totals.inc',
     'commerce_payment_handler_field_amount' => 'includes/views/handlers/commerce_payment_handler_field_amount.inc',

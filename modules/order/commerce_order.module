@@ -13,6 +13,7 @@ function commerce_order_entity_info() {
   $return = array(
     'commerce_order' => array(
       'label' => t('Commerce Order', array(), array('context' => 'a drupal commerce order')),
+      'entity class' => 'CommerceOrder',
       'controller class' => 'CommerceOrderEntityController',
       'locking mode' => 'pessimistic',
       'base table' => 'commerce_order',
@@ -1617,6 +1618,8 @@ function commerce_order_config_info() {
  */
 function commerce_order_autoload_info() {
   return [
+    'CommerceOrder' => 'includes/commerce_order.entity.inc',
+    'CommerceOrderType' => 'includes/commerce_order.entity.inc',
     'CommerceOrderEntityController' => 'includes/commerce_order.controller.inc',
     'commerce_order_handler_area_empty_text' => 'includes/views/handlers/commerce_order_handler_area_empty_text.inc',
     'commerce_order_handler_area_order_total' => 'includes/views/handlers/commerce_order_handler_area_order_total.inc',

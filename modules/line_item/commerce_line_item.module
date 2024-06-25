@@ -13,6 +13,7 @@ function commerce_line_item_entity_info() {
   $return = array(
     'commerce_line_item' => array(
       'label' => t('Commerce Line item'),
+      'entity class' => 'CommerceLineItem',
       'controller class' => 'CommerceLineItemEntityController',
       'base table' => 'commerce_line_item',
       'fieldable' => TRUE,
@@ -1634,6 +1635,8 @@ function commerce_line_item_field_views_data($field) {
  */
 function commerce_line_item_autoload_info() {
   return [
+    'CommerceLineItem' => 'includes/commerce_line_item.entity.inc',
+    'CommerceLineItemType' => 'includes/commerce_line_item.entity.inc',
     'CommerceLineItemEntityController' => 'includes/commerce_line_item.controller.inc',
     'commerce_line_item_handler_area_line_item_summary' => 'includes/views/handlers/commerce_line_item_handler_area_line_item_summary.inc',
     'commerce_line_item_handler_argument_line_item_line_item_id' => 'includes/views/handlers/commerce_line_item_handler_argument_line_item_line_item_id.inc',
