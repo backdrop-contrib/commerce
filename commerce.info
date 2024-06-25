@@ -4,6 +4,5 @@ package = Commerce
 dependencies[] = system
 dependencies[] = entity
 dependencies[] = rules
-dependencies[] = i18n
 backdrop = 1.x
 type = module
