@@ -75,7 +75,6 @@ function commerce_product_hook_info() {
 function commerce_product_autoload_info() {
   return [
     'CommerceProduct' => 'includes/commerce_product.entity.inc',
-    'CommerceProductType' => 'includes/commerce_product.entity.inc',
     'CommerceProductEntityController' => 'includes/commerce_product.controller.inc',
     'commerce_product_handler_area_empty_text' => 'includes/views/handlers/commerce_product_handler_area_empty_text.inc',
     'commerce_product_handler_argument_product_id' => 'includes/views/handlers/commerce_product_handler_argument_product_id.inc',
