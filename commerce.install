@@ -299,32 +299,6 @@ function commerce_update_rename_permissions($map) {
 }
 
 /**
- * Clear the cache of currency data so it can be rebuilt to include new
- * formatting parameters.
- */
-function commerce_update_7101() {
-  cache_clear_all('commerce_currencies:', 'cache', TRUE);
-  return t('Cached currency data has been deleted and will be rebuilt to include new formatting parameters.');
-}
-
-/**
- * Give commerce.module a higher weight than field.module so we can use
- * hook_system_info_alter() to remove the dependencies it adds.
- */
-function commerce_update_7102() {
-  $weight = db_select('system', 's')
-              ->fields('s', array('weight'))
-              ->condition('name', 'field', '=')
-              ->execute()
-              ->fetchField();
-  db_update('system')
-    ->fields(array('weight' => $weight + 1))
-    ->condition('name', 'commerce', '=')
-    ->execute();
-  return t('The module weight for Commerce has been increased.');
-}
-
-/**
  * Implements hook_update_last_removed().
  */
 function commerce_update_last_removed() {
@@ -337,7 +311,7 @@ function commerce_update_last_removed() {
 function commerce_update_1000() {
   $config = config('commerce.settings');
   $config->set('commerce_default_currency', update_variable_get('commerce_default_currency', 'USD'));
-  $config->set('commerce_enabled_currencies', update_variable_get('commerce_enabled_currencies', 'USD'));
+  $config->set('commerce_enabled_currencies', update_variable_get('commerce_enabled_currencies', ['USD']));
   $config->save();
   update_variable_del('commerce_default_currency');
   update_variable_del('commerce_enabled_currencies');
