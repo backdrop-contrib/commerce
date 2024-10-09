@@ -10,7 +10,7 @@ class CommercePaymentTransaction extends Entity {
   }
 
   public function id() {
-    return $this->id;
+    return $this->transaction_id;
   }
 
   public function entityType() {

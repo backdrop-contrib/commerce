@@ -10,7 +10,7 @@ class CommerceCustomerProfile extends Entity {
   }
 
   public function id() {
-    return $this->id;
+    return $this->profile_id;
   }
 
   public function entityType() {

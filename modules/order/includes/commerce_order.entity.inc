@@ -10,7 +10,7 @@ class CommerceOrder extends Entity {
   }
 
   public function id() {
-    return $this->id;
+    return $this->order_id;
   }
 
   public function entityType() {

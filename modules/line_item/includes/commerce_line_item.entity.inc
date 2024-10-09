@@ -10,7 +10,7 @@ class CommerceLineItem extends Entity {
   }
 
   public function id() {
-    return $this->id;
+    return $this->line_item_id;
   }
 
   public function entityType() {

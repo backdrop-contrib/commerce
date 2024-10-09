@@ -10,7 +10,7 @@ class CommerceProduct extends Entity {
   }
 
   public function id() {
-    return $this->id;
+    return $this->product_id;
   }
 
   public function entityType() {
