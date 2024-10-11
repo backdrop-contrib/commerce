@@ -1,8 +1,10 @@
 name = Commerce
 description = Defines features and functions common to the Commerce modules. Must be enabled to uninstall other Commerce modules.
 package = Commerce
-dependencies[] = system
-dependencies[] = entity
-dependencies[] = rules
 backdrop = 1.x
 type = module
+
+dependencies[] = system
+dependencies[] = entity
+dependencies[] = entity_plus
+dependencies[] = rules
