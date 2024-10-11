@@ -231,7 +231,7 @@ class CommerceProductEntityController extends BackdropCommerceEntityController i
    * @return
    *   The renderable array.
    */
-  public function buildContent($product, $view_mode = 'full', $langcode = NULL, $content = []) {
+  public function buildContent(EntityInterface $product, $view_mode = 'full', $langcode = NULL, $content = []) {
     // Prepare a reusable array representing the CSS file to attach to the view.
     $attached = [
       'css' => [backdrop_get_path('module', 'commerce_product') . '/theme/commerce_product.theme.css'],

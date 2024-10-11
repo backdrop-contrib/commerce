@@ -551,7 +551,7 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
    * @return
    *   The renderable array.
    */
-  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = []) {
+  public function buildContent(EntityInterface $entity, $view_mode = 'full', $langcode = NULL, $content = []) {
     // Remove previously built content, if exists.
     $entity->content = $content;
     $langcode = isset($langcode) ? $langcode : $GLOBALS['language_content']->langcode;

@@ -158,7 +158,7 @@ class CommercePaymentTransactionEntityController extends BackdropCommerceEntityC
    * @return
    *   The renderable array.
    */
-  public function buildContent($transaction, $view_mode = 'administrator', $langcode = NULL, $content = array()) {
+  public function buildContent(EntityInterface $transaction, $view_mode = 'administrator', $langcode = NULL, $content = array()) {
     // Load the order this transaction is attached to.
     $order = commerce_order_load($transaction->order_id);
 
