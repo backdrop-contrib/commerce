@@ -269,9 +269,11 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
   function commerce_file_field_insert($entity_type, $entity, $field, $instance, $langcode, $items) {
     [$entity_id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
     // Add a new usage of each uploaded file.
-    foreach ($items as $item) {
-      if ($file = file_load($item['fid'])) {
-        file_usage_add($file, 'file', $entity_type, $entity_id);
+    if ($items) {
+      foreach ($items as $item) {
+        if ($file = file_load($item['fid'])) {
+          file_usage_add($file, 'file', $entity_type, $entity_id);
+        }
       }
     }
   }
