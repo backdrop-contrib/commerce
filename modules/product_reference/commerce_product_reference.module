@@ -1163,10 +1163,10 @@ function commerce_product_reference_field_widget_settings_form($field, $instance
       '#description' => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of nodes.'),
     );
     $form['size'] = array(
-      '#type' => 'textfield',
+      '#type' => 'number',
       '#title' => t('Size of textfield'),
       '#default_value' => $settings['size'],
-      '#element_validate' => array('_element_validate_integer_positive'),
+      '#min' => 0,
       '#required' => TRUE,
     );
   }
