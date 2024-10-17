@@ -2923,8 +2923,6 @@ function commerce_cart_add_to_cart_form_product_ids($line_item) {
 
     // Load the specified entity.
     $entity = entity_load($entity_data['entity_type'], $entity_data['entity_id']);
-    $entity = reset($entity);
-    //$entity = entity_load_single($entity_data['entity_type'], $entity_data['entity_id']);
 
     // Extract the product IDs from the specified product reference field.
     if (!empty($entity->{$entity_data['product_reference_field_name']})) {
