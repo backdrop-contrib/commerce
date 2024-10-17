@@ -86,7 +86,6 @@ function commerce_product_autoload_info() {
     'commerce_product_handler_field_product_type' => 'includes/views/handlers/commerce_product_handler_field_product_type.inc',
     'commerce_product_handler_filter_product_type' => 'includes/views/handlers/commerce_product_handler_filter_product_type.inc',
     'commerce_product.views'=> 'includes/views/commerce_product.views.inc',
-    'commerce_product_ui.views_default'=>'includes/views/commerce_product_ui.views_default.inc'
   ];
 }
 
@@ -1174,7 +1173,7 @@ function template_preprocess_commerce_product_status(&$variables) {
  */
 function commerce_product_config_info() {
   $prefixes['commerce_product.settings'] = array(
-    'label' => t('Commerce Product UI settings'),
+    'label' => t('Commerce Product settings'),
     'group' => t('Configuration'),
   );
   return $prefixes;

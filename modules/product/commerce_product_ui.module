@@ -539,30 +539,10 @@ function commerce_product_ui_set_breadcrumb($product_types = FALSE) {
 }
 
 /**
- * Implements hook_config_info().
- */
-function commerce_product_ui_config_info() {
-  $prefixes['commerce_product.settings'] = array(
-    'label' => t('Commerce UI settings'),
-    'group' => t('Configuration'),
-  );
-  return $prefixes;
-}
-/**
  * Implements hook_autoload_info().
  */
 function commerce_product_ui_autoload_info() {
   return [
-    'CommerceProductEntityController' => 'includes/commerce_product.controller.inc',
-    'commerce_product_handler_area_empty_text' => 'includes/views/handlers/commerce_product_handler_area_empty_text.inc',
-    'commerce_product_handler_field_product' => 'includes/views/handlers/commerce_product_handler_field_product.inc',
-    'commerce_product_handler_field_product_link' => 'includes/views/handlers/commerce_product_handler_field_product_link.inc',
-    'commerce_product_handler_field_product_link_delete' => 'includes/views/handlers/commerce_product_handler_field_product_link_delete.inc',
-    'commerce_product_handler_field_product_link_edit' => 'includes/views/handlers/commerce_product_handler_field_product_link_edit.inc',
-    'commerce_product_handler_field_product_operations' => 'includes/views/handlers/commerce_product_handler_field_product_operations.inc',
-    'commerce_product_handler_field_product_type' => 'includes/views/handlers/commerce_product_handler_field_product_type.inc',
-    'commerce_product_handler_filter_product_type' => 'includes/views/handlers/commerce_product_handler_filter_product_type.inc',
-    'commerce_product.views'=> 'includes/views/commerce_product.views.inc',
-    'commerce_product_ui.views_default'=>'includes/views/commerce_product_ui.views_default.inc'
+    'commerce_product_ui.views_default'=>'includes/views/commerce_product_ui.views_default.inc',
   ];
 }
