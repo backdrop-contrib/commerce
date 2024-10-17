@@ -287,6 +287,9 @@ class BackdropCommerceEntityController extends DefaultEntityController implement
   function commerce_file_field_update($entity_type, $entity, $field, $instance, $langcode, $items) {
     [$entity_id, $vid, $bundle] = entity_extract_ids($entity_type, $entity);
     $id = $entity_id;
+    if (!$items) {
+      $items = array();
+    }
 
     // On new revisions, all files are considered to be a new usage and no
     // deletion of previous file usages are necessary.
