@@ -869,7 +869,7 @@ function commerce_product_match_products($field, $instance = NULL, $string = '',
 
   // Create unique id for static cache.
   $cid = implode(':', array(
-    $field['field_name'],
+    (isset($field['field_name']) ? $field['field_name'] : ''),
     $match,
     ($string !== '' ? $string : implode('-', $ids)),
     $limit,
