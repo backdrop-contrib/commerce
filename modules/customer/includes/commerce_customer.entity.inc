@@ -6,6 +6,7 @@
 class CommerceCustomerProfile extends Entity {
 
   public $langcode = LANGUAGE_NONE;
+  public $name = '';
 
   public function __construct($values = array()) {
     parent::__construct($values, 'commerce_customer_profile');
@@ -25,7 +26,7 @@ class CommerceCustomerProfile extends Entity {
 
   public function uri() {
     if (empty($this->id)) {
-      return NULL;
+      return array();
     }
     return [
       'path' => 'commerce_customer_profile/' . $this->id,

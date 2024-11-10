@@ -28,6 +28,7 @@ class CommerceCustomerProfileEntityController extends BackdropCommerceEntityCont
       'status' => 1,
       'created' => '',
       'changed' => '',
+      'name' => '',
     );
 
     return parent::create($values);
