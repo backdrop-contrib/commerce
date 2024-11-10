@@ -25,7 +25,7 @@ class CommerceLineItem extends Entity {
 
   public function uri() {
     if (empty($this->id)) {
-      return NULL;
+      return array();
     }
     return [
       'path' => 'commerce_line_item/' . $this->id,
