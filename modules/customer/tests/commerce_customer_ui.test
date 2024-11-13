@@ -33,7 +33,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     $this->store_customer = $this->createStoreCustomer();
 
     // Set the default country to US.
-    variable_set('site_default_country', 'US');
+    config_set('system.date', 'default_country', 'US');
   }
 
   /**
@@ -184,7 +184,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
 
     // Fill the profile information and click on Save and add another.
     $billing_country = $this->xpath("//select[starts-with(@name, 'commerce_customer_address')]");
-    $this->backdropPostAJAX(NULL, array((string) $billing_country[0]['name'] => variable_get('site_default_country', 'US')), (string) $billing_country[0]['name']);
+    $this->backdropPostAJAX(NULL, array((string) $billing_country[0]['name'] => config_get('system.date', 'default_country')), (string) $billing_country[0]['name']);
 
     // Generate random information, as city, postal code, etc.
     $address_info = $this->generateAddressInformation();
@@ -362,7 +362,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
 
     // Check the integrity of the delete form.
     $this->pass(t('Test the integrity of the delete customer profile form:'));
-    $this->assertTitle(t('Are you sure you want to delete this profile?') . ' | Backdrop', t('The title of the deletion page is correct'));
+    $this->assertText(t('Are you sure you want to delete this profile?'), t('The title of the deletion page is correct'));
     $this->assertText(t('Deleting this profile cannot be undone'), t('A warning message for deleting the profile is displayed'));
     $this->assertFieldById('edit-submit', t('Delete'), '\'Delete\' button is present');
     $this->assertLink(t('Cancel'), 0, t('Cancel link is present'));
@@ -454,7 +454,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     $address_info = $this->generateAddressInformation();
 
     $billing_country = $this->xpath("//select[starts-with(@name, 'commerce_customer_billing')]");
-    $this->backdropPostAJAX(NULL, array((string) $billing_country[0]['name'] => variable_get('site_default_country', 'US')), (string) $billing_country[0]['name']);
+    $this->backdropPostAJAX(NULL, array((string) $billing_country[0]['name'] => config_get('system.date', 'default_country')), (string) $billing_country[0]['name']);
 
     // Fill the profile information and Save.
     $info = array(
@@ -618,9 +618,9 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
 
     // Configure the dummy profile type's checkout pane to allow copying from
     // the billing information customer profile type.
-    variable_set('commerce_customer_profile_dummy_profile_copy', TRUE);
-    variable_set('commerce_customer_profile_dummy_profile_copy_source', 'billing');
-    variable_set('commerce_customer_profile_dummy_profile_copy_default', $default_enabled);
+    config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy', TRUE);
+    config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy_source', 'billing');
+    config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy_default', $default_enabled);
 
     // Create an order.
     $order = $this->createDummyOrder($this->store_customer->uid);

@@ -107,8 +107,8 @@ class CommerceOrderUIAdminTest extends CommerceBaseTestCase {
     $edit = array(
       'name' => '',
       'log' => $this->randomName(),
-      'date_created' => format_date($timestamp, 'custom', 'Y-m-d H:i:s O'),
-      'date_placed' => format_date($timestamp, 'custom', 'Y-m-d H:i:s O'),
+      'date_created' => format_date($timestamp, 'custom', 'Y-m-d H:i:s +0000'),
+      'date_placed' => format_date($timestamp, 'custom', 'Y-m-d H:i:s +0000'),
       'status' => 'completed',
     );
 
@@ -211,7 +211,7 @@ class CommerceOrderUIAdminTest extends CommerceBaseTestCase {
 
     // Check the existance of the fields for quantity and price of the line
     // item just created.
-    $this->pass(t('Check the existance of quantiy, price and currency code fields'));
+    $this->pass(t('Check the existance of quantity, price and currency code fields'));
     $this->assertFieldById('edit-commerce-line-items-und-line-items-' . $line_item_id . '-quantity', 1, t('Quantity field is present and has value 1'));
     $this->assertFieldById('edit-commerce-line-items-und-line-items-' . $line_item_id . '-commerce-unit-price-und-0-amount', $price, t('Price of the product is correct'));
     $this->assertOptionSelected('edit-commerce-line-items-und-line-items-' . $line_item_id . '-commerce-unit-price-und-0-currency-code', $product_wrapper->commerce_price->currency_code->value(), t('Currency code is valid'));

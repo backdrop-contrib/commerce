@@ -595,8 +595,8 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
    *  Array of currency codes to be enabled
    */
   public function enableCurrencies($currencies) {
-    $currencies = array_merge(backdrop_map_assoc($currencies), variable_get('commerce_enabled_currencies', array('USD' => 'USD')));
-    variable_set('commerce_enabled_currencies', $currencies);
+    $currencies = array_merge(backdrop_map_assoc($currencies), config_get('commerce.settings', 'commerce_enabled_currencies'));
+    config_set('commerce.settings', 'commerce_enabled_currencies', $currencies);
   }
 
   // =============== Helper functions ===============
