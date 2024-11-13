@@ -128,6 +128,7 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
       'administer users',
       'administer rules',
       'administer fields',
+      'administer account settings',
     );
     $store_admin = array(
       'access administration pages',

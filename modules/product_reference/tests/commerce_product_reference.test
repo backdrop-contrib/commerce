@@ -153,7 +153,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
   public function testCommerceProductReferenceAttachToUser() {
 
     // Access user manage fields page.
-    $this->backdropGet('admin/config/people/accounts/fields');
+    $this->backdropGet('admin/config/people/manage');
 
     // Add a new product reference field
     $edit = array(
@@ -180,7 +180,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
     $this->assertTrue($field_instance['field_name'] == 'field_user_product', t('Field instance is present in the user bundle'));
 
     // Check in the admin page for the user display.
-    $this->backdropGet('admin/config/people/accounts/fields');
+    $this->backdropGet('admin/config/people/manage');
     $this->assertText('Product', t('Reference product field label found'));
     $this->assertText('field_user_product', t('Reference product field name found'));
 
