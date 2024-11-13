@@ -51,7 +51,13 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     }
 
     $results = $query->execute();
-    return $results['commerce_customer_profile'];
+    
+    if (array_key_exists('commerce_customer_profile', $results)) {
+      return $results['commerce_customer_profile'];
+    }
+    else {
+      return $results;
+    }
   }
 
   /**

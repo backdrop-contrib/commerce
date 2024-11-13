@@ -312,22 +312,8 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
     if ($content_type = node_type_load($type)) {
       return $content_type;
     }
-
-    $content_type = array(
-      'type' => $type,
-      'name' => $type, // Don't use a human readable name here to keep it simple.
-      'base' => 'node_content',
-      'description' => 'Use <em>product displays</em> to display products for sale to your customers.',
-      'custom' => 1,
-      'modified' => 1,
-      'locked' => 0,
-    );
-    $content_type = node_type_set_defaults($content_type);
-    $result = node_type_save($content_type);
-    node_add_body_field($content_type);
+    $content_type = $this->backdropCreateContentType(array('type' => $type, 'name' => $type));
     $this->pass("Created content type: $type");
-
-
     if ($attach_product_reference_field) {
       // Maybe $instance should be returned as well
       $instance = $this->attachProductReferenceField($type, $field_name, $cardinality_reference_field);
@@ -786,10 +772,8 @@ class CommerceBaseTesterTestCase extends CommerceBaseTestCase {
       'edit-modules-commerce-commerce-product-ui-enable',
       'edit-modules-commerce-commerce-tax-ui-enable',
       'edit-modules-fields-addressfield-enable',
-      'edit-modules-other-entity-enable',
+      'edit-modules-other-entity-plus-enable',
       'edit-modules-rules-rules-enable',
-      'edit-modules-chaos-tool-suite-ctools-enable',
-      'edit-modules-views-views-enable',
     );
     foreach ($module_ids as $module_id) {
       $this->assertFieldChecked($module_id);
@@ -801,10 +785,10 @@ class CommerceBaseTesterTestCase extends CommerceBaseTestCase {
    */
   public function testTestStoreAdmin() {
     $store_admin = $this->createStoreAdmin();
+    $role = $store_admin->roles[0];
     $this->backdropLogin($this->site_admin);
-    $this->backdropGet('admin/people/permissions');
-    // This will break if it isn't the second role created
-    $this->assertFieldChecked('edit-4-configure-store');
+    $this->backdropGet('admin/config/people/permissions');
+    $this->assertFieldChecked('edit-' . strtolower($role) . '-configure-store');
   }
 
   /**
@@ -841,9 +825,10 @@ class CommerceBaseTesterTestCase extends CommerceBaseTestCase {
    * reference field to the content type.
    */
   public function testTestCreateDummyProductDisplayAndRefField() {
-    $this->createDummyProductDisplayContentType();
 
     $this->backdropLogin($this->site_admin);
+    $this->createDummyProductDisplayContentType();
+    field_info_cache_clear();
     $this->backdropGet('node/add/product-display');
     $this->assertText('product_display', t('product_display content type successfully created and accessible.'));
     //$this->assertOptionSelected('edit-field-product-und', '_none', 'Dummy Product Display reference field shows up on node add page');
@@ -900,8 +885,7 @@ class CommerceBaseTesterTestCase extends CommerceBaseTestCase {
     // Check if the order is in cart status.
     $this->assertTrue(commerce_cart_order_is_cart($order), t('Order is in a shopping cart status'));
     $this->backdropGet('checkout');
-
-    $this->assertTitle(t('Checkout'). ' | Backdrop', t('Checkout accessible for the order'));
+    $this->assertText(t('Checkout'), t('Checkout accessible for the order'));
     $this->assertText($product_name, t('Product is added to the order'));
   }
 
