@@ -17,6 +17,8 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
   protected $fields;
   protected $checkout_url;
   protected $profile = 'minimal';
+  protected $product;
+  protected $product_node;
 
   /**
    * Helper function to determine which modules should be enabled. Should be

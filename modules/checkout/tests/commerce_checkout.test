@@ -123,7 +123,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
 
     // Check if the page resolves and if the default panes are present.
     $this->assertResponse(200, t('The owner of the order can access to the checkout page'));
-    $this->assertTitle(t('Checkout') . ' | Backdrop', t('Title of the checkout phase is correct'));
+    $this->assertText(t('Checkout'), t('Title of the checkout phase is correct'));
     $this->assertText(t('Shopping cart contents'), t('Shopping cart contents pane is present'));
     $this->assertText(t('Billing information'), t('Billing information pane is present'));
 
@@ -154,7 +154,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
 
     // Check for default panes and information in this checkout phase.
     $this->pass(t('Checking the default panes and the page information:'));
-    $this->assertTitle(t('Review order') . ' | Backdrop', t('Title of the checkout phase \'Review order\' is correct'));
+    $this->assertText(t('Review order'), t('Title of the checkout phase \'Review order\' is correct'));
     $this->assertText($address_info['name_line'], t('Billing information for \'name_line\' is correct'));
     $this->assertText($address_info['thoroughfare'], t('Billing information for \'thoroughfare\' is correct'));
     $this->assertText($address_info['locality'], t('Billing information for \'locality\' is correct'));
@@ -172,9 +172,9 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
 
     // Test the back & continue buttons.
     $this->backdropPost(NULL, array(), t('Go back'));
-    $this->assertTitle(t('Checkout') . ' | Backdrop', t('When clicking in the \'Back\' button, the title displayed corresponds with the current checkout phase: \'Checkout\''));
+    $this->assertText(t('Checkout'), t('When clicking in the \'Back\' button, the title displayed corresponds with the current checkout phase: \'Checkout\''));
     $this->backdropPost(NULL, array(), t('Continue to next step'));
-    $this->assertTitle(t('Review order') . ' | Backdrop', t('When clicking in the \'Continue\' button, the title displayed corresponds with the current checkout phase: \'Review order\''));
+    $this->assertText(t('Review order'), t('When clicking in the \'Continue\' button, the title displayed corresponds with the current checkout phase: \'Review order\''));
 
     // Finish checkout process
     $this->backdropPost(NULL, array(), t('Continue to next step'));
@@ -185,7 +185,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
     // Order status should be pending when completing checkout process.
     $this->assertEqual(reset($order)->status, 'pending', t('Order status is \'Pending\' after completing checkout'));
     // Check if the completion message has been displayed.
-    $this->assertTitle(t('Checkout complete') . ' | Backdrop', t('Title of the page is \'Checkout complete\' when finishing the checkout process'));
+    $this->assertText(t('Checkout complete'), t('Title of the page is \'Checkout complete\' when finishing the checkout process'));
     $this->assertText(t('Your order number is @order-number.', array('@order-number' => $this->order->order_number)), t('Completion message for the checkout is correctly displayed'));
   }
 
@@ -279,7 +279,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
 
     // Check if the page resolves and if the default panes are present
     $this->assertResponse(200, t('Anonymous user can access to the checkout page for the order.'));
-    $this->assertTitle(t('Checkout') . ' | Backdrop', t('Title of the checkout phase is correct'));
+    $this->assertText(t('Checkout'), t('Title of the checkout phase is correct'));
     $this->assertText(t('Shopping cart contents'), t('Shopping cart contents pane is present'));
     $this->assertText(t('Billing information'), t('Billing information pane is present'));
     $this->assertText(t('Account information'), t('Account information pane is present'));
@@ -315,7 +315,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
 
     // Check for default panes and information in this checkout phase.
     $this->pass(t('Checking the default panes and the page information:'));
-    $this->assertTitle(t('Review order') . ' | Backdrop', t('Title of the checkout phase \'Review order\' is correct'));
+    $this->assertText(t('Review order'), t('Title of the checkout phase \'Review order\' is correct'));
     $this->assertText($address_info['name_line'], t('Billing information for \'name_line\' is correct'));
     $this->assertText($address_info['thoroughfare'], t('Billing information for \'thoroughfare\' is correct'));
     $this->assertText($address_info['locality'], t('Billing information for \'locality\' is correct'));
@@ -342,7 +342,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
     $this->assertEqual(reset($order)->status, 'pending', t('Order status is \'Pending\' after completing checkout.'));
 
     // Check if the completion message has been displayed.
-    $this->assertTitle(t('Checkout complete') . ' | Backdrop', t('Title of the page is \'Checkout complete\' when finishing the checkout process'));
+    $this->assertText(t('Checkout complete'), t('Title of the page is \'Checkout complete\' when finishing the checkout process'));
     // Check completion message.
     $this->assertText(t('Your order number is @order-number.', array('@order-number' => $this->order->order_number)), t('Completion message for the checkout is correctly displayed'));
   }
