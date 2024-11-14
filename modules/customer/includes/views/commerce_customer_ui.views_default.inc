@@ -118,7 +118,7 @@ function commerce_customer_ui_views_default_views() {
   $handler->display->display_options['fields']['commerce_customer_address']['settings'] = array(
     'use_widget_handlers' => 0,
     'format_handlers' => array(
-      0 => 'name-oneline',
+      0 => 'name_oneline',
     ),
   );
   /* Field: User: Name */

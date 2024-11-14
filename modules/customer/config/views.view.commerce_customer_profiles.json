@@ -133,7 +133,7 @@
                         "settings": {
                             "use_widget_handlers": 0,
                             "format_handlers": [
-                                "name-oneline"
+                                "name_oneline"
                             ]
                         }
                     },

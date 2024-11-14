@@ -1,0 +1,19 @@
+{
+    "_config_name": "field.field.field_commerce_customer_address",
+    "field_name": "field_commerce_customer_address",
+    "type": "addressfield",
+    "translatable": false,
+    "module": "addressfield",
+    "active": 1,
+    "locked": 0,
+    "cardinality": "1",
+    "deleted": 0,
+    "entity_types": [],
+    "settings": [],
+    "storage": {
+        "type": "field_sql_storage",
+        "settings": [],
+        "module": "field_sql_storage",
+        "active": 1
+    }
+}

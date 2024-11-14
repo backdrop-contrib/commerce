@@ -51,7 +51,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     }
 
     $results = $query->execute();
-    
+
     if (array_key_exists('commerce_customer_profile', $results)) {
       return $results['commerce_customer_profile'];
     }
@@ -273,7 +273,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
 
     // Load the profile and check if the field is filled.
     $profiles = $this->loadCustomerProfile($conditions);
-    $profile = commerce_customer_profile_load(reset($profiles)->profile_id);
+    $profile = commerce_customer_profile_load(reset($profiles)->entity_id);
     $this->assertTrue($profile->{'field_' . $edit['fields[_add_new_field][field_name]']}[LANGUAGE_NONE][0]['value'] == $field_value, t('The extra field !field created for the customer profile exists and it has the correct value: !value', array('!field' => $edit['fields[_add_new_field][field_name]'], '!value' => $field_value)));
   }
 
