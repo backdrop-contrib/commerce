@@ -496,19 +496,19 @@ function commerce_cart_form_field_ui_field_edit_form_alter(&$form, &$form_state)
     // Get the current instance's attribute settings for use as default values.
     $commerce_cart_settings = commerce_cart_field_instance_attribute_settings($instance);
 
-    $form['instance']['commerce_cart_settings'] = array(
+    $form['instance']['settings']['commerce_cart_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Attribute field settings'),
       '#description' => t('Single value fields attached to products can function as attribute selection fields on Add to Cart forms. When an Add to Cart form contains multiple products, attribute field data can be used to allow customers to select a product based on the values of the field instead of just from a list of product titles.'),
       '#weight' => 5,
       '#collapsible' => FALSE,
     );
-    $form['instance']['commerce_cart_settings']['attribute_field'] = array(
+    $form['instance']['settings']['commerce_cart_settings']['attribute_field'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable this field to function as an attribute field on Add to Cart forms.'),
       '#default_value' => $commerce_cart_settings['attribute_field'],
     );
-    $form['instance']['commerce_cart_settings']['attribute_widget'] = array(
+    $form['instance']['settings']['commerce_cart_settings']['attribute_widget'] = array(
       '#type' => 'radios',
       '#title' => t('Attribute selection widget'),
       '#description' => t('The type of element used to select an option if used on an Add to Cart form.'),
@@ -531,7 +531,7 @@ function commerce_cart_form_field_ui_field_edit_form_alter(&$form, &$form_state)
       $attribute_widget_title = $instance['label'];
     }
 
-    $form['instance']['commerce_cart_settings']['attribute_widget_title'] = array(
+    $form['instance']['settings']['commerce_cart_settings']['attribute_widget_title'] = array(
       '#type' => 'textfield',
       '#title' => t('Attribute widget title'),
       '#description' => t('Specify the title to use for the attribute widget on the Add to Cart form.'),
@@ -553,14 +553,14 @@ function commerce_cart_form_field_ui_field_edit_form_alter(&$form, &$form_state)
     // Get the current instance's line item form settings for use as default values.
     $commerce_cart_settings = commerce_cart_field_instance_access_settings($instance);
 
-    $form['instance']['commerce_cart_settings'] = array(
+    $form['instance']['settings']['commerce_cart_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Add to Cart form settings'),
       '#description' =>t('Fields attached to product line item types can be included in the Add to Cart form to collect additional information from customers in conjunction with their purchase of particular products.'),
       '#weight' => 5,
       '#collapsible' => FALSE,
     );
-    $form['instance']['commerce_cart_settings']['field_access'] = array(
+    $form['instance']['settings']['commerce_cart_settings']['field_access'] = array(
       '#type' => 'checkbox',
       '#title' => t('Include this field on Add to Cart forms for line items of this type.'),
       '#default_value' => $commerce_cart_settings['field_access'],
@@ -1611,11 +1611,11 @@ function commerce_cart_field_attribute_eligible($field) {
  *     element on the Add to Cart form.
  */
 function commerce_cart_field_instance_attribute_settings($instance) {
-  if (empty($instance['commerce_cart_settings']) || !is_array($instance['commerce_cart_settings'])) {
+  if (empty($instance['settings']['commerce_cart_settings']) || !is_array($instance['settings']['commerce_cart_settings'])) {
     $commerce_cart_settings = array();
   }
   else {
-    $commerce_cart_settings = $instance['commerce_cart_settings'];
+    $commerce_cart_settings = $instance['settings']['commerce_cart_settings'];
   }
   // Supply default values for the cart settings pertaining here to
   // product attribute fields.
@@ -1662,11 +1662,11 @@ function commerce_cart_field_instance_is_attribute($instance) {
  *     should appear on the Add to Cart form.
  */
 function commerce_cart_field_instance_access_settings($instance) {
-  if (empty($instance['commerce_cart_settings']) || !is_array($instance['commerce_cart_settings'])) {
+  if (empty($instance['settings']['commerce_cart_settings']) || !is_array($instance['settings']['commerce_cart_settings'])) {
     $commerce_cart_settings = array();
   }
   else {
-    $commerce_cart_settings = $instance['commerce_cart_settings'];
+    $commerce_cart_settings = $instance['settings']['commerce_cart_settings'];
   }
 
   // Supply default values for the cart settings pertaining here to field access
@@ -2111,7 +2111,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
         $field_has_options = array();
 
         // Sort the fields by weight.
-        uasort($qualifying_fields, 'backdrop_sort_weight');
+        backdrop_sort($qualifying_fields);
 
         foreach ($qualifying_fields as $field_name => $data) {
           // Build an options array of widget options used by referenced products.

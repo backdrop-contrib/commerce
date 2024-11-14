@@ -958,7 +958,7 @@ class CommerceBaseTesterTestCase extends CommerceBaseTestCase {
     // Enable Euros.
     $this->enableCurrencies(array('EUR'));
     // Check if Euros is enabled.
-    $this->assertTrue(in_array('EUR', variable_get('commerce_enabled_currencies', array('USD' => 'USD'))), t('Euros are enabled'));
+    $this->assertTrue(in_array('EUR', config_get('commerce.settings', 'commerce_enabled_currencies')), t('Euros are enabled'));
   }
 
   /**
