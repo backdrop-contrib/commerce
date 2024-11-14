@@ -432,7 +432,6 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     $profile = $order_wrapper->commerce_customer_billing->value();
     $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
     $address = $profile_wrapper->commerce_customer_address->value();
-
     $this->assertTrue(array_intersect($address_info, $address) == $address_info, t('The address info for the checkout is stored in the customer profile'));
 
     // Check the customer profile in the listing.
