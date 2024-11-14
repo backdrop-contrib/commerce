@@ -249,6 +249,7 @@ function commerce_cart_form_alter(&$form, &$form_state, $form_id) {
 
     if (!empty($view->result)) {
       // Change the Save button to say Update cart.
+      $form['actions']['submit']['#type'] = 'submit';
       $form['actions']['submit']['#value'] = t('Update cart');
       $form['actions']['submit']['#submit'] = array_merge($form['#submit'], array('commerce_cart_line_item_views_form_submit'));
 
