@@ -15,6 +15,7 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
   protected $store_admin;
   protected $store_customer;
   protected $fields;
+  protected $checkout_url;
   protected $profile = 'minimal';
 
   /**

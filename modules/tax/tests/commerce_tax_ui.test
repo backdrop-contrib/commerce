@@ -257,7 +257,7 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
 
     // Check the integrity of the tax rate delete confirmation form.
     $this->pass('Test the tax rate delete confirmation form:');
-    $this->assertTitle(t('Are you sure you want to delete the !title tax rate?', array('!title' => $tax_rate['title'])) . ' | Backdrop', t('The confirmation message is displayed'));
+    $this->assertText(t('Are you sure you want to delete the !title tax rate?', array('!title' => $tax_rate['title'])), t('The confirmation message is displayed'));
     $this->assertText(t('This action cannot be undone'), t('A warning notifying the user about the action can\'t be undone is displayed.'));
     $this->assertFieldById('edit-submit', t('Delete'), t('Delete button is present'));
     $this->assertText(t('Cancel'), t('Cancel is present'));
@@ -524,7 +524,7 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
 
     // Check the integrity of the tax type delete confirmation form.
     $this->pass('Test the tax type delete confirmation form:');
-    $this->assertTitle(t('Are you sure you want to delete the !title tax type?', array('!title' => $this->tax_type['title'])) . ' | Backdrop', t('The confirmation message for deleting a tax type is displayed'));
+    $this->assertText(t('Are you sure you want to delete the !title tax type?', array('!title' => $this->tax_type['title'])), t('The confirmation message for deleting a tax type is displayed'));
     $this->assertText(t('This action cannot be undone'), t('A warning notifying the user about the action can\'t be undone is displayed.'));
     $this->assertFieldById('edit-submit', t('Delete'), t('Delete button is present'));
     $this->assertText(t('Cancel'), t('Cancel is present'));
@@ -556,7 +556,7 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
     $this->backdropGet('admin/commerce/config/taxes/types/' . strtr($this->tax_type['name'], '_', '-') . '/delete');
 
     // Check that the tax can't be deleted as it has a rate associated to it.
-    $this->assertTitle(t('Cannot delete the !title tax type', array('!title' => $this->tax_type['title'])) . ' | Backdrop', t('Page title for tax type deletion with rates associated to it is correct'));
+    $this->assertText(t('Cannot delete the !title tax type', array('!title' => $this->tax_type['title'])), t('Page title for tax type deletion with rates associated to it is correct'));
     $this->assertText(t('There is a tax rate of this type. It cannot be deleted.'), t('A message that prevents user from deleting a tax type with rates associated to it is displayed'));
   }
 

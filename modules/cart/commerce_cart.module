@@ -434,8 +434,6 @@ function commerce_cart_form_commerce_order_settings_form_submit ($form, &$form_s
     config_set('commerce_cart.settings', 'commerce_cart_refresh_frequency', $commerce_cart_refresh_frequency);
     config_set('commerce_cart.settings', 'commerce_cart_refresh_force', $commerce_cart_refresh_force);
   }
-//  print_r($form_state['values']['commerce_order_apply_pricing_rules_link']);
-//die;
 }
 
 /**
@@ -545,7 +543,7 @@ function commerce_cart_form_field_ui_field_edit_form_alter(&$form, &$form_state)
       ),
     );
 
-    $form['field']['cardinality']['#description'] .= '<br />' . t('Must be 1 for this field to function as an attribute selection field on Add to Cart forms.');
+    $form['field']['cardinality_container']['cardinality']['#description'] = '<br />' . t('Number of Values must be limited to 1 for this field to function as an attribute selection field on Add to Cart forms.') . '<br />';
   }
 
   // If the current field instance is not locked and is attached to a product
@@ -568,6 +566,7 @@ function commerce_cart_form_field_ui_field_edit_form_alter(&$form, &$form_state)
       '#default_value' => $commerce_cart_settings['field_access'],
     );
   }
+
 }
 
 /**
@@ -1618,7 +1617,6 @@ function commerce_cart_field_instance_attribute_settings($instance) {
   else {
     $commerce_cart_settings = $instance['commerce_cart_settings'];
   }
-
   // Supply default values for the cart settings pertaining here to
   // product attribute fields.
   $commerce_cart_settings += array(
@@ -1991,7 +1989,6 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
       // can find the default product and add a selection widget if multiple
       // matching products are found.
       $matching_products = _commerce_cart_matching_products($products, $form_state);
-
       // Set the default product.
       if (empty($matching_products)) {
         // If a product ID value was passed in, use that product if it exists.
@@ -2048,6 +2045,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
 
       // If all the products are of the same type...
       if ($same_type) {
+
         // Loop through all the field instances on that product type.
         foreach (field_info_instances('commerce_product', $type) as $field_name => $instance) {
           $field = field_info_field($field_name);
@@ -2113,7 +2111,7 @@ function commerce_cart_add_to_cart_form($form, &$form_state, $line_item, $show_q
         $field_has_options = array();
 
         // Sort the fields by weight.
-        uasort($qualifying_fields, 'drupal_sort_weight');
+        uasort($qualifying_fields, 'backdrop_sort_weight');
 
         foreach ($qualifying_fields as $field_name => $data) {
           // Build an options array of widget options used by referenced products.

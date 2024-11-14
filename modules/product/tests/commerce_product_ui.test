@@ -286,7 +286,7 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
 
     // Check the integrity of the product delete confirmation form.
     $this->pass('Test the product delete confirmation form:');
-    $this->assertTitle(t('Are you sure you want to delete !title?', array('!title' => $product->title)) . ' | Backdrop', t('The confirmation message is displayed'));
+    $this->assertTitle(t('Are you sure you want to delete !title?', array('!title' => $product->title)), t('The confirmation message is displayed'));
     $this->assertText($product->sku, t('SKU of the product is present'));
     $this->assertText($product->title, t('Title of the product is present'));
     $this->assertText(t('Deleting this product cannot be undone.', array('@sku' => $product->sku)), t('A warning notifying the user about the action can\'t be undone is displayed.'));
