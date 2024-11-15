@@ -629,12 +629,10 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
    */
   protected function generateAddressInformation() {
     $address_info['name_line'] = $this->randomName();
-    $address_info['first_name'] = explode(' ', $address_info['name_line'])[0];
     $address_info['thoroughfare'] = $this->randomName();
     $address_info['locality'] = $this->randomName();
     $address_info['postal_code'] = rand(00000, 99999);
     $address_info['administrative_area'] = 'KY';
-    $address_info['country'] = config_get('system.date', 'default_country');
 
     return $address_info;
   }

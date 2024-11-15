@@ -351,9 +351,9 @@ function commerce_checkout_pane_settings_form_save_submit($form, &$form_state) {
     config_set('commerce_order.settings', 'commerce_order_account_pane_mail_double_entry', $commerce_order_account_pane_mail_double_entry);
     config_set('commerce_order.settings', 'commerce_order_account_pane_auth_display', $commerce_order_account_pane_auth_display);
   }
-  if (isset($form_state['values']['commerce_' . $checkout_pane . '_field'])) {
-    $commerce_customer_profile_field = $form_state['values']['commerce_' . $checkout_pane . '_field'];
-    config_set('commerce_customer.settings', 'commerce_' . $checkout_pane . '_field', $commerce_customer_profile_field);
+  if (isset($form_state['values']['commerce_customer_profile_billing_field'])) {
+    $commerce_customer_profile_billing_field = $form_state['values']['commerce_customer_profile_billing_field'];
+    config_set('commerce_customer.settings', 'commerce_customer_profile_billing_field', $commerce_customer_profile_billing_field);
   }
   if (isset($form_state['values']['commerce_cart_contents_pane_view'])) {
     $commerce_cart_contents_pane_view = $form_state['values']['commerce_cart_contents_pane_view'];

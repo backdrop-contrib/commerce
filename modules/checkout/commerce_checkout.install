@@ -98,7 +98,6 @@ function commerce_checkout_update_1000() {
   $config->set('commerce_order_auto_revision', update_variable_get('commerce_order_auto_revision', true));
   $config->set('commerce_checkout_permit_multiple_completions', update_variable_get('commerce_checkout_permit_multiple_completions', true));
   $config->set('commerce_password_length', update_variable_get('commerce_password_length', 8));
-  $config->set('commerce_customer_profile_billing_field', update_variable_get('commerce_customer_profile_billing_field', 'commerce_customer_billing'));
   $config->save();
   update_variable_del('commerce_checkout_run_update_7103');
   update_variable_del('commerce_checkout_completion_message');
@@ -108,5 +107,4 @@ function commerce_checkout_update_1000() {
   update_variable_del('commerce_order_auto_revision');
   update_variable_del('commerce_checkout_permit_multiple_completions');
   update_variable_del('commerce_password_length');
-  update_variable_del('commerce_customer_profile_billing_field');
 }
