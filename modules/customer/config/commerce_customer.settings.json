@@ -1,6 +1,5 @@
 {
     "_config_name": "commerce_customer.settings",
-    "commerce_customer_profile_type_field": "commerce_customer_address",
     "anonymous": "Anonymous",
     "commerce_customer_profile_billing_field": "commerce_customer_billing"
 }

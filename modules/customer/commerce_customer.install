@@ -210,13 +210,9 @@ function commerce_customer_update_last_removed() {
  */
 function commerce_customer_update_1000() {
   $config = config('commerce_customer.settings');
-  $config->set('commerce_customer_profile_type_field', update_variable_get('commerce_customer_profile_type_field', ''));
-  $config->set('commerce_customer_profile_billing_field', update_variable_get('commerce_customer_profile_billing_field', 'commerce_customer_billing'));
   $config->set('anonymous', update_variable_get('anonymous', 'Anonymous'));
   $config->save();
-  update_variable_del('commerce_customer_profile_type_field');
   update_variable_del('anonymous');
-  update_variable_del('commerce_customer_profile_billing_field');
 }
 
 function commerce_customer_update_1001() {

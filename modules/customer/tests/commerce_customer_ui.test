@@ -432,7 +432,14 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     $profile = $order_wrapper->commerce_customer_billing->value();
     $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
     $address = $profile_wrapper->commerce_customer_address->value();
-    $this->assertTrue(array_intersect($address_info, $address) == $address_info, t('The address info for the checkout is stored in the customer profile'));
+    foreach ($address as $key => $val) {
+      if (!$val) {
+        unset($address[$key]);
+      }
+    }
+    $address_info_string = json_encode($address_info);
+    $address_string = json_encode($address);
+    $this->assertTrue($address == $address_info, t('The address info for the checkout is stored in the customer profile'));
 
     // Check the customer profile in the listing.
     $this->backdropGet('admin/commerce/customer-profiles');
@@ -445,11 +452,12 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
   public function testCommerceCustomerUIAddProfileViaOrderUI() {
     // Create an order for store customer.
     $order = $this->createDummyOrder($this->store_customer->uid, array(), 'pending');
+
     // Login with store admin.
     $this->backdropLogin($this->store_admin);
     // Access the order and fill customer profile information.
     $this->backdropGet('admin/commerce/orders/' . $order->order_id . '/edit');
-
+    $this->backdropPostAJAX(NULL, array(), ['op' => 'Add billing information']);
     $address_info = $this->generateAddressInformation();
 
     $billing_country = $this->xpath("//select[starts-with(@name, 'commerce_customer_billing')]");
@@ -480,7 +488,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
       );
     }
     $profiles = $this->loadCustomerProfile($conditions);
-    $profile = commerce_customer_profile_load(reset($profiles)->profile_id);
+    $profile = commerce_customer_profile_load(reset($profiles)->entity_id);
     $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $profile);
     $this->assertFalse(empty($profile), t('Profile has been created in database'));
     foreach ($address_info as $name => $info) {
@@ -619,10 +627,20 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     // the billing information customer profile type.
     config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy', TRUE);
     config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy_source', 'billing');
-    config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy_default', $default_enabled);
+    config_set('commerce_customer.settings', 'commerce_customer_profile_dummy_profile_copy_default', TRUE);
 
     // Create an order.
     $order = $this->createDummyOrder($this->store_customer->uid);
+    // Login with store admin and make sure dummy profile is enabled
+    $this->backdropLogin($this->store_admin);
+    $this->backdropPost('admin/commerce/config/checkout/form/pane/customer_profile_dummy', array(
+      'review' => 1,
+      'commerce_customer_profile_dummy_field' => 'commerce_customer_dummy',
+      'commerce_customer_profile_dummy_profile_copy' => 1,
+      'commerce_customer_profile_dummy_profile_copy_source' => 'billing',
+      'commerce_customer_profile_dummy_profile_copy_default' => 1
+    ), t('Save configuration'));
+    $this->backdropPost('admin/commerce/config/checkout/form', array('panes[customer_profile_dummy][page]'=> 'checkout'), t('Save configuration'));
     // Login with customer.
     $this->backdropLogin($this->store_customer);
     // Access checkout.
