@@ -331,13 +331,11 @@ function commerce_checkout_pane_settings_form_save_submit($form, &$form_state) {
         if (in_array($form['settings'][$field]['#type'], array('container', 'fieldset'))) {
           foreach (element_children($form['settings'][$field]) as $nested_field) {
             if (isset($form_state['values'][$nested_field])) {
-              //variable_set($nested_field, $form_state['values'][$nested_field]);
               config_set('commerce_checkout.settings', $nested_field, $form_state['values'][$nested_field] );
             }
           }
         }
         elseif (isset($form_state['values'][$field])) {
-          //variable_set($field, $form_state['values'][$field]);
           config_set('commerce_checkout.settings', $field, $form_state['values'][$field]);
         }
       }
@@ -353,7 +351,7 @@ function commerce_checkout_pane_settings_form_save_submit($form, &$form_state) {
   }
   if (isset($form_state['values']['commerce_customer_profile_billing_field'])) {
     $commerce_customer_profile_billing_field = $form_state['values']['commerce_customer_profile_billing_field'];
-    config_set('commerce_customer.settings', 'commerce_customer_profile_billing_field', $commerce_customer_profile_billing_field);
+    config_set('commerce_checkout.settings', 'commerce_customer_profile_billing_field', $commerce_customer_profile_billing_field);
   }
   if (isset($form_state['values']['commerce_cart_contents_pane_view'])) {
     $commerce_cart_contents_pane_view = $form_state['values']['commerce_cart_contents_pane_view'];
@@ -386,12 +384,10 @@ function commerce_checkout_pane_settings_form_reset_submit($form, &$form_state) 
       // Provide support for containers one level deep.
       if (in_array($form['settings'][$field]['#type'], array('container', 'fieldset'))) {
         foreach (element_children($form['settings'][$field]) as $nested_field) {
-          //variable_del($nested_field);
           config_clear('commerce_checkout.settings', $nested_field);
         }
       }
       else {
-        //variable_del($field);
         config_clear('commerce_checkout.settings', $field);
       }
     }

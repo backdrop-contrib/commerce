@@ -132,9 +132,9 @@ class CommercePaymentTransactionEntityController extends BackdropCommerceEntityC
    */
   public function attachLoad(&$queried_transactions, $revision_id = FALSE) {
     foreach ($queried_transactions as $transaction_id => &$transaction) {
-      $transaction->message_variables = unserialize($transaction->message_variables);
-      $transaction->payload = unserialize($transaction->payload);
-      $transaction->data = unserialize($transaction->data);
+      $transaction->message_variables = $transaction->message_variables ? unserialize($transaction->message_variables) : '';
+      $transaction->payload = $transaction->payload ? unserialize($transaction->payload) : '';
+      $transaction->data = $transaction->data ? unserialize($transaction->data): '';
     }
 
     // Call the default attachLoad() method. This will add fields and call

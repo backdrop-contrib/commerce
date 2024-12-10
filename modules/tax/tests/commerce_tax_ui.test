@@ -599,7 +599,8 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
     $tax_rate = $this->createDummyTaxRate(array('type' => 'vat'));
 
     // Create a new product and product display.
-    $this->createDummyProductDisplayContentType();
+    $product_type = $this->createDummyProductDisplayContentType();
+    $this->backdropGet('admin/structure/types/manage/' . $product_type->name . '/display/default');
     $product = $this->createDummyProduct();
     $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
     $product_node = $this->createDummyProductNode(array($product->product_id));
@@ -628,7 +629,8 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
     $tax_rate = $this->createDummyTaxRate(array('type' => 'vat'));
 
     // Create a new product and product display.
-    $this->createDummyProductDisplayContentType();
+    $product_type = $this->createDummyProductDisplayContentType();
+    $this->backdropGet('admin/structure/types/manage/' . $product_type->name . '/display/default');
     $product = $this->createDummyProduct();
     $product_node = $this->createDummyProductNode(array($product->product_id));
 

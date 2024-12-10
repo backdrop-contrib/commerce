@@ -101,7 +101,7 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
     $this->assertFieldByXPath('//input[@name="title" and contains(@class, "required")]', NULL,  t('Title field is required'));
     $this->assertFieldByName('commerce_price[und][0][amount]', NULL, t('Price field is present'));
     $this->assertFieldByName('status', NULL, t('Status field is present'));
-    $status_required = $this->xpath('//div[contains(@class, "form-item-status")]/label/span[contains(@class, "form-required")]');
+    $status_required = $this->xpath('//div[contains(@class, "form-item-status")]/label/abbr[contains(@class, "form-required")]');
     $this->assertFalse(empty($status_required), t('Status field is required'));
     $this->assertFieldById('edit-submit', t('Save product'), t('Save product button is present'));
     $this->assertFieldById('edit-save-continue', t('Save and add another'), t('Save an add another button is present'));
@@ -225,13 +225,13 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
     $this->backdropPost(NULL, $edit, t('Save product'));
 
     // Check the product in database
-    $product = commerce_product_load_by_sku($edit['sku']);
-    $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
+    $product = entity_load('commerce_product', [], ['sku' => $edit['sku']], TRUE);
+    $product = reset($product);
     $this->pass(t('Test the product edit in database:'));
-    $this->assertTrue($product_wrapper->sku->value()  == $edit['sku'], t('SKU stored in database correctly set'));
-    $this->assertTrue($product_wrapper->title->value()  == $edit['title'], t('Title stored in database correctly set'));
-    $this->assertTrue($product_wrapper->commerce_price->amount->value() == $price, t('Amount stored in database correctly set'));
-    $this->assertTrue($product->status  == $edit['status'], t('Status stored in database correctly set'));
+    $this->assertTrue($product->sku == $edit['sku'], t('SKU stored in database correctly set'));
+    $this->assertTrue($product->title == $edit['title'], t('Title stored in database correctly set'));
+    $this->assertTrue($product->commerce_price['und'][0]['amount'] == $price, t('Amount stored in database correctly set'));
+    $this->assertTrue($product->status == $edit['status'], t('Status stored in database correctly set'));
 
     // Check the product listing
     $this->pass(t('Test the product form after editing a product'));
@@ -286,7 +286,7 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
 
     // Check the integrity of the product delete confirmation form.
     $this->pass('Test the product delete confirmation form:');
-    $this->assertTitle(t('Are you sure you want to delete !title?', array('!title' => $product->title)), t('The confirmation message is displayed'));
+    $this->assertText(t('Are you sure you want to delete !title?', array('!title' => $product->title)), t('The confirmation message is displayed'));
     $this->assertText($product->sku, t('SKU of the product is present'));
     $this->assertText($product->title, t('Title of the product is present'));
     $this->assertText(t('Deleting this product cannot be undone.', array('@sku' => $product->sku)), t('A warning notifying the user about the action can\'t be undone is displayed.'));
@@ -326,7 +326,7 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
     $this->backdropGet('admin/commerce/products/' . $product->product_id . '/delete');
 
     $this->pass('Assertions for trying to delete a product associated to a line item:');
-    $this->assertText(t('This product is referenced by a line item on Order @order_num and therefore cannot be deleted. Disable it instead.', array('@order_num' => $order->order_id)), t('Product delete restriction message is displayed correctly'));
+    $this->assertText(t('This product is referenced by a line item and therefore cannot be deleted. Disable it instead.', array('@order_num' => $order->order_id)), t('Product delete restriction message is displayed correctly'));
     $this->assertFieldByXPath('//input[@id="edit-submit" and @disabled="disabled"]', NULL, t('Delete button is present and is disabled'));
   }
 
@@ -473,7 +473,7 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
 
     // Check the integrity of the product type delete confirmation form.
     $this->pass('Test the product type delete confirmation form:');
-    $this->assertTitle(t('Are you sure you want to delete the !name product type?', array('!name' => $product_types['product']['name'])) . ' | Backdrop', t('The confirmation message is displayed'));
+    $this->assertText(t('Are you sure you want to delete the !name product type?', array('!name' => $product_types['product']['name'])), t('The confirmation message is displayed'));
     $this->assertText(t('This action cannot be undone'), t('A warning notifying the user about the action can\'t be undone is displayed.'));
     $this->assertFieldById('edit-submit', t('Delete'), t('Delete button is present'));
     $this->assertText(t('Cancel'), t('Cancel is present'));
@@ -512,7 +512,7 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
     // As the product type has at least one product, it souldn't permit to be
     // deleted.
     $this->pass(t('Product type has at least one product, test the validation messages:'));
-    $this->assertTitle(t('Cannot delete the !name product type', array('!name' => $product_types['product']['name'])) . ' | Backdrop', t('Validation title of the page displayed correctly.'));
+    $this->assertText(t('Cannot delete the !name product type', array('!name' => $product_types['product']['name'])), t('Validation title of the page displayed correctly.'));
 
     // Get the count of products of the type
     $query = new EntityFieldQuery();

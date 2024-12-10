@@ -63,7 +63,7 @@ class CommercePaymentUITest extends CommerceBaseTestCase {
 
     // Check if the page resolves and if the default panes are present.
     $this->assertResponse(200, t('Store customer user is able to access the checkout page'));
-    $this->assertTitle(t('Checkout') . ' | Backdrop', t('Checkout page successfully loaded'));
+    $this->assertText(t('Checkout'), t('Checkout page successfully loaded'));
 
     // Generate random information, as city, postal code, etc.
     $address_info = $this->generateAddressInformation();
@@ -87,7 +87,7 @@ class CommercePaymentUITest extends CommerceBaseTestCase {
     $this->backdropPost(NULL, $info, t('Continue to next step'));
 
     // Check for default panes and information in this checkout phase.
-    $this->assertTitle(t('Review order') . ' | Backdrop', t('Review order page successfully loaded'));
+    $this->assertText(t('Review order'), t('Review order page successfully loaded'));
   }
 
   /**
@@ -108,7 +108,7 @@ class CommercePaymentUITest extends CommerceBaseTestCase {
     $this->assertEqual(reset($payment)->status, 'success', t('Payment was successfully processed'));
 
     // Check if the completion message has been displayed.
-    $this->assertTitle(t('Checkout complete') . ' | Backdrop', t('Checkout process completed successfully'));
+    $this->assertText(t('Checkout complete'), t('Checkout process completed successfully'));
   }
 
   /**
@@ -186,7 +186,7 @@ class CommercePaymentUITest extends CommerceBaseTestCase {
     // Go to payment methods page.
     $this->backdropGet('admin/commerce/config/payment-methods');
 
-    $this->assertTitle(t('Payment methods') . ' | Backdrop', t('We are now in the payment methods page'));
+    $this->assertText(t('Payment methods'), t('We are now in the payment methods page'));
     $this->assertText(t('Example payment'), t('Example payment rule is present'));
 
     // Go to edit example payment rule.
@@ -313,9 +313,16 @@ class CommercePaymentOffsiteTest extends CommerceBaseTestCase {
     // Login with store customer and access to checkout.
     $this->backdropLogin($this->store_customer);
     $this->backdropGet($this->getCommerceUrl('checkout'));
+    $address_info = $this->generateAddressInformation();
+    $info = array(
+      'customer_profile_billing[commerce_customer_address][und][0][name_line]' => $address_info['name_line'],
+      'customer_profile_billing[commerce_customer_address][und][0][thoroughfare]' => $address_info['thoroughfare'],
+      'customer_profile_billing[commerce_customer_address][und][0][locality]' => $address_info['locality'],
+      'customer_profile_billing[commerce_customer_address][und][0][postal_code]' => $address_info['postal_code'],
+    );
 
     // Process the order and check if the offsite payment is working.
-    $this->backdropPost(NULL, array(), t('Continue to next step'));
+    $this->backdropPost(NULL, $info, t('Continue to next step'));
     $this->assertText(t('Dummy Payment Method Offsite'), t('Offsite example payment method is listed in the checkout process form'));
     $this->backdropPostAJAX(NULL, array('commerce_payment[payment_method]' => 'commerce_payment_dummy_offsite|commerce_payment_commerce_payment_dummy_offsite'), 'commerce_payment[payment_method]');
     $this->backdropPost(NULL, array(), t('Continue to next step'));

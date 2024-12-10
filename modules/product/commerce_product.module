@@ -540,7 +540,7 @@ function commerce_product_load($product_id) {
 function commerce_product_load_by_sku($sku, $reset = FALSE) {
   $cache = &backdrop_static(__FUNCTION__, array());
   if (!isset($cache[$sku]) || $reset) {
-    $products = commerce_product_load_multiple(array(), array('sku' => $sku));
+    $products = commerce_product_load_multiple(array(), array('sku' => $sku), $reset);
     $cache[$sku] = $products ? reset($products) : FALSE;
   }
 

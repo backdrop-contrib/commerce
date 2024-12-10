@@ -260,7 +260,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
    */
   public function testCommerceProductReferenceDisplayFields() {
     // Go to manage fields screen of the product display.
-    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display');
+    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display/default');
     // Load all the fields that are pulled with the product and check if they
     // are in the display screen.
     $extra_fields = field_info_extra_fields('node', $this->display_type->type, 'display');
@@ -275,7 +275,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
    */
   public function testCommerceProductReferenceSKULinkFormatter() {
     // Go to manage fields screen of the product display.
-    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display');
+    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display/default');
 
     // Change the default value for SKU with link.
     $this->backdropPost(NULL, array('fields[field_product][type]' => 'commerce_product_reference_sku_link'), t('Save'));
@@ -312,7 +312,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
    */
   public function testCommerceProductReferenceSKUNoLinkFormatter() {
     // Go to manage fields screen of the product display.
-    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display');
+    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display/default');
 
     // Change the default value for SKU with link.
     $this->backdropPost(NULL, array('fields[field_product][type]' => 'commerce_product_reference_sku_plain'), t('Save'));
@@ -347,7 +347,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
    */
   public function testCommerceProductReferenceTitleLinkFormatter() {
     // Go to manage fields screen of the product display.
-    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display');
+    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display/default');
 
     // Change the default value for SKU with link.
     $this->backdropPost(NULL, array('fields[field_product][type]' => 'commerce_product_reference_title_link'), t('Save'));
@@ -384,7 +384,7 @@ class CommerceProductReferenceAdminTest extends CommerceBaseTestCase {
    */
   public function testCommerceProductReferenceTitleNoLinkFormatter() {
     // Go to manage fields screen of the product display.
-    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display');
+    $this->backdropGet('admin/structure/types/manage/' . strtr($this->display_type->type, '_', '-') . '/display/default');
 
     // Change the default value for SKU with link.
     $this->backdropPost(NULL, array('fields[field_product][type]' => 'commerce_product_reference_title_plain'), t('Save'));

@@ -10,19 +10,19 @@
  * Checkout pane callback: returns the customer profile pane's settings form.
  */
 function commerce_customer_profile_pane_settings_form($checkout_pane) {
-  $commerce = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_field');
+  $commerce = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_field');
   if (!isset($commerce) || empty($commerce) || $commerce == NULL) {
     $commerce = '';
   }
-  $profile = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy');
-  if (!isset($profile) || empty($profile) || $profile == NULL) {
-    $profile = FALSE;
-  }
-  $profile_copy = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source');
+  $profile_copy = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy');
   if (!isset($profile_copy) || empty($profile_copy) || $profile_copy == NULL) {
-    $profile_copy = NULL;
+    $profile_copy = FALSE;
   }
-  $profile_copy_def = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_default');
+  $profile_copy_source = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source');
+  if (!isset($profile_copy_source) || empty($profile_copy_source) || $profile_copy_source == NULL) {
+    $profile_copy_source = NULL;
+  }
+  $profile_copy_def = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_default');
   if (!isset($profile_copy_def) || empty($profile_copy_def) || $profile_copy_def == NULL) {
     $profile_copy_def = TRUE;
   }
@@ -96,21 +96,21 @@ function commerce_customer_profile_pane_settings_form($checkout_pane) {
  * Checkout pane callback: returns a customer profile edit form.
  */
 function commerce_customer_profile_pane_checkout_form($form, &$form_state, $checkout_pane, $order) {
-  $commerce = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_field');
+  $commerce = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_field');
   if (!isset($commerce) || empty($commerce) || $commerce == NULL) {
     $commerce = '';
   }
-  $profile = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy');
-  if (!isset($profile) || empty($profile) || $profile == NULL) {
-    $profile = FALSE;
-  }
-  $profile_copy = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source');
+  $profile_copy = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy');
   if (!isset($profile_copy) || empty($profile_copy) || $profile_copy == NULL) {
-    $profile_copy = NULL;
+    $profile_copy = FALSE;
   }
-  $profile_copy_def = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_default');
+  $profile_copy_source = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_source');
+  if (!isset($profile_copy_source) || empty($profile_copy_source) || $profile_copy_source == NULL) {
+    $profile_copy_source = NULL;
+  }
+  $profile_copy_def = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_profile_copy_default');
   if (!isset($profile_copy_def) || empty($profile_copy_def) || $profile_copy_def == NULL) {
-    $profile_copy_def = TRUE;
+    $profile_copy_def = FALSE;
   }
 
   $pane_form = ['#parents' => [$checkout_pane['pane_id']]];
@@ -160,11 +160,10 @@ function commerce_customer_profile_pane_checkout_form($form, &$form_state, $chec
 
   // If this checkout pane is configured to use values from a different
   // customer profile, add a checkbox to allow users to toggle this.
-  if ($profile
-    && $source_profile_type_name = $profile_copy) {
+
+  if ($profile_copy && $source_profile_type_name = $profile_copy_source) {
     // Load the default profile copy option from settings.
     $profile_copy_default = $profile_copy_def;
-
     // Make sure our profile type still exists..
     if ($source_profile_type = commerce_customer_profile_type_load($source_profile_type_name)) {
       $target_profile_type = commerce_customer_profile_type_load($profile->type);
@@ -261,7 +260,7 @@ function commerce_customer_profile_pane_checkout_form($form, &$form_state, $chec
  */
 function commerce_customer_profile_copy_refresh($form, &$form_state) {
   $pane_id = reset($form_state['triggering_element']['#parents']);
-
+  
   $commands = [];
 
   // Render the pane afresh to capture any changes based on address entry.
@@ -278,7 +277,7 @@ function commerce_customer_profile_copy_refresh($form, &$form_state) {
  */
 function commerce_customer_profile_pane_checkout_form_validate($form, &$form_state, $checkout_pane, $order) {
   $pane_id = $checkout_pane['pane_id'];
-  $field = config_get('commerce_customer.settings', 'commerce_' . $pane_id . '_field');
+  $field = config_get('commerce_checkout.settings', 'commerce_' . $pane_id . '_field');
   if (!isset($field) || empty($field) || $field == NULL) {
     $field = '';
   }
@@ -315,7 +314,7 @@ function commerce_customer_profile_pane_checkout_form_validate($form, &$form_sta
 function commerce_customer_profile_pane_checkout_form_submit($form, &$form_state, $checkout_pane, $order) {
   $pane_id = $checkout_pane['pane_id'];
 
-  $field = config_get('commerce_customer.settings', 'commerce_' . $pane_id . '_field');
+  $field = config_get('commerce_checkout.settings', 'commerce_' . $pane_id . '_field');
   if (!isset($field) || empty($field) || $field == NULL) {
     $field = '';
   }
@@ -359,7 +358,7 @@ function commerce_customer_profile_pane_checkout_form_submit($form, &$form_state
  *   Review checkout pane.
  */
 function commerce_customer_profile_pane_review($form, $form_state, $checkout_pane, $order) {
-  $commerce = config_get('commerce_customer.settings', 'commerce_' . $checkout_pane['pane_id'] . '_field');
+  $commerce = config_get('commerce_checkout.settings', 'commerce_' . $checkout_pane['pane_id'] . '_field');
   if (!isset($commerce) || empty($commerce) || $commerce == NULL) {
     $commerce = '';
   }

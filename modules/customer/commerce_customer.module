@@ -1440,7 +1440,7 @@ function commerce_customer_profile_copy_validate($element, &$form_state, $form) 
   // attempt to copy now if there are no errors in the source profile.
   elseif (!empty($element['#value'])) {
     $type = substr($pane_id, 17);  // Removes 'customer_profile_'
-    $source_id = 'customer_profile_' . variable_get('commerce_' . $pane_id . '_profile_copy_source', '');
+    $source_id = 'customer_profile_' . config_get('commerce_checkout', 'commerce_' . $pane_id . '_profile_copy_source');
     $info = array('commerce_customer_profile', $type, $pane_id);
 
     // Try getting the source profile from the form_state values, if it is present on the form..

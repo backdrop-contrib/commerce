@@ -176,38 +176,6 @@ function commerce_order_ui_menu_local_tasks_alter(&$data, $router_item, $root_pa
 }
 
 /**
- * Implements hook_i18n_string_list().
- */
-function commerce_order_ui_i18n_string_list($group) {
-  $config = config('commerce_order.settings');
-  if ($group == 'commerce') {
-    // Allow the order creation help text to be translated.
-    $help = $config->get('commerce_order_help_text', '');
-
-    if (!empty($help)) {
-      $strings['commerce']['order']['help']['create'] = $help;
-      return $strings;
-    }
-  }
-}
-
-/**
- * Implements hook_help().
- */
-function commerce_order_ui_help($path, $arg) {
-  $config = config('commerce_order.settings');
-  // Display a user configurable help text on the order add page.
-  if (strpos($path, 'admin/commerce/orders/add') === 0) {
-    $help = $config->get('commerce_order_help_text');
-
-    if (!empty($help)) {
-      $help = commerce_i18n_string('commerce:order:help:create', $help, array('sanitize' => FALSE));
-      return '<p>' . filter_xss_admin($help) . '</p>';
-    }
-  }
-}
-
-/**
  * Implements hook_entity_info_alter().
  */
 function commerce_order_ui_entity_info_alter(&$entity_info) {

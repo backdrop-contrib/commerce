@@ -19,6 +19,7 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
   protected $profile = 'minimal';
   protected $product;
   protected $product_node;
+  protected $other_user;
 
   /**
    * Helper function to determine which modules should be enabled. Should be
@@ -471,6 +472,7 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
       node_object_prepare($node);
       $node->uid = 1;
       $node->title = $title;
+      $node->body[LANGUAGE_NONE][]['value'] = t('Hello World');
       foreach ($product_ids as $product_id) {
         $node->{$product_ref_field_name}[LANGUAGE_NONE][]['product_id'] = $product_id;
       }
@@ -628,11 +630,12 @@ class CommerceBaseTestCase extends BackdropWebTestCase {
    * Generate random valid information for Address information.
    */
   protected function generateAddressInformation() {
-    $address_info['name_line'] = $this->randomName();
+    $address_info['name_line'] = $address_info['first_name'] = $this->randomName();
     $address_info['thoroughfare'] = $this->randomName();
     $address_info['locality'] = $this->randomName();
     $address_info['postal_code'] = rand(00000, 99999);
     $address_info['administrative_area'] = 'KY';
+    $address_info['country'] = 'US';
 
     return $address_info;
   }
