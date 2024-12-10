@@ -5,6 +5,8 @@ This is a port of [Drupal Commerce](https://www.drupal.org/project/commerce) sta
 
 This port has not been tested widely enough to tag a release, but it is believed to be in a working state.
 
+Functional tests are now working.
+
 Requirements
 ------------
 
