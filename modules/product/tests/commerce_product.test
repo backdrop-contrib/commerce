@@ -188,6 +188,9 @@ class CommerceProductCRUDTestCase extends CommerceBaseTestCase {
   function testCommerceProductTokens() {
     $product = commerce_product_new('product');
     $creator = $this->backdropCreateUser();
+    //create a node before using token_replace avoids an issue with entity_tokens where
+    //node body is not available in the field map.
+    $this->createDummyProductNodeBatch(2);
 
     $product->sku = $this->randomName(10);
     $product->title = $this->randomName(10);
