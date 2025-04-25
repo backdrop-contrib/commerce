@@ -24,6 +24,7 @@ class CommerceProductCRUDTestCase extends CommerceBaseTestCase {
     parent::setUp($modules);
 
     $this->site_admin = $this->createSiteAdmin();
+    $this->createDummyProductNodeBatch(2);
     cache_clear_all(); // Just in case
   }
 
@@ -190,7 +191,6 @@ class CommerceProductCRUDTestCase extends CommerceBaseTestCase {
     $creator = $this->backdropCreateUser();
     //create a node before using token_replace avoids an issue with entity_tokens where
     //node body is not available in the field map.
-    $this->createDummyProductNodeBatch(2);
 
     $product->sku = $this->randomName(10);
     $product->title = $this->randomName(10);
