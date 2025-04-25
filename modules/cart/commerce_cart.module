@@ -646,9 +646,9 @@ function commerce_cart_user_login(&$edit, $account) {
  * When a user account e-mail address is updated, update any shopping cart
  * orders owned by the user account to use the new e-mail address.
  */
-function commerce_cart_user_update(&$edit, $account, $category) {
+function commerce_cart_user_update($account) {
   // If the e-mail address was changed...
-  if (!empty($edit['original']->mail) && $account->mail != $edit['original']->mail) {
+  if (!empty($account->original->mail) && $account->mail != $account->original->mail) {
     // Load the user's shopping cart orders.
     $query = new EntityFieldQuery();
 
