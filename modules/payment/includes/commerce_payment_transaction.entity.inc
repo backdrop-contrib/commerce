@@ -20,7 +20,7 @@ class CommercePaymentTransaction extends Entity {
   }
 
   public function label() {
-    return $this->name;
+    return $this->transaction_id;
   }
 
   public function uri() {
