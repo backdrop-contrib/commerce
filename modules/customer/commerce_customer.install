@@ -244,3 +244,12 @@ function commerce_customer_update_1002() {
     $config->save();
   }
 }
+
+function commerce_customer_update_1003() {
+  $config_name = 'field.field.field_commerce_customer_address';
+  $path = backdrop_get_path('module', 'commerce_customer') . '/config/install_later/' . $config_name . '.json';
+  $data = json_decode(file_get_contents($path), TRUE);
+  if (config($config_name)->isNew()) {
+    config($config_name)->setData($data)->save();
+  }
+}
