@@ -6,6 +6,13 @@
  *   checkout pane API.
  */
 
+function commerce_checkout_config_info() {
+  $prefixes['commerce_checkout.settings'] = array(
+    'label' => t('Commerce Checkout settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
 
 /**
  * Implements hook_menu().
