@@ -1553,6 +1553,7 @@ function commerce_customer_config_info() {
  */
 function commerce_customer_autoload_info() {
   return [
+    'BackdropCommerceEntityController' => 'includes/commerce.controller.inc',
     'CommerceCustomerProfile' => 'includes/commerce_customer.entity.inc',
     'CommerceCustomerProfileEntityController' => 'includes/commerce_customer_profile.controller.inc',
     'commerce_customer_handler_area_empty_text' => 'includes/views/handlers/commerce_customer_handler_area_empty_text.inc',
