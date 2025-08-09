@@ -44,6 +44,7 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
 
     // Create a dummy tax type for testing.
     $this->tax_type = $this->createDummyTaxType();
+    $this->createDummyProductNodeBatch(2);
   }
 
   /**

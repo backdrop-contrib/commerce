@@ -44,6 +44,7 @@ class CommerceCheckoutTestProcess extends CommerceBaseTestCase {
     $rules_config = rules_config_load('commerce_checkout_order_email');
     $rules_config->active = FALSE;
     $rules_config->save();
+    $this->createDummyProductNodeBatch(2);
   }
 
   /**

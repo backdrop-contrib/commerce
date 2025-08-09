@@ -34,6 +34,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
 
     // Set the default country to US.
     config_set('system.date', 'default_country', 'US');
+    $this->createDummyProductNodeBatch(2);
   }
 
   /**

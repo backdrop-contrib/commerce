@@ -23,6 +23,7 @@ class CommerceOrderCRUDTestCase extends CommerceBaseTestCase {
     parent::setUp($modules);
 
     $this->site_admin = $this->createSiteAdmin();
+    $this->createDummyProductNodeBatch(2);
     cache_clear_all(); // Just in case
   }
 
@@ -102,6 +103,8 @@ class CommerceOrderCRUDTestCase extends CommerceBaseTestCase {
    */
   function testCommerceOrderTokens() {
     $creator = $this->backdropCreateUser();
+    //create a node before using token_replace avoids an issue with entity_tokens where
+    //node body is not available in the field map.
     $order = commerce_order_new($creator->uid);
 
     $order->mail = $this->generateEmail();
