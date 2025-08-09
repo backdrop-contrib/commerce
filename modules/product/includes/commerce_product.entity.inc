@@ -20,7 +20,7 @@ class CommerceProduct extends Entity {
   }
 
   public function label() {
-    return $this->name;
+    return $this->title;
   }
 
   public function uri() {

@@ -20,7 +20,7 @@ class CommerceLineItem extends Entity {
   }
 
   public function label() {
-    return $this->name;
+    return $this->line_item_id;
   }
 
   public function uri() {
