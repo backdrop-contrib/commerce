@@ -1462,6 +1462,7 @@ function commerce_config_info() {
 
 function commerce_autoload_info() {
   return array(
+    'BackdropCommerceEntityController' => 'includes/commerce.controller.inc',
     'BackdropCommerceEntityControllerInterface' =>'includes/commerce.controller.inc',
   );
 }
