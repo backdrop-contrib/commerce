@@ -1,6 +1,7 @@
 name = Customer
 description = Defines the Customer entity with Address Field integration.
 package = Commerce
+dependencies[] = system (>=1.31.1)
 dependencies[] = addressfield
 dependencies[] = commerce
 dependencies[] = entity
