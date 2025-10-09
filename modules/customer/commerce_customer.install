@@ -244,3 +244,20 @@ function commerce_customer_update_1002() {
     $config->save();
   }
 }
+
+/**
+  * We're adding this for the small handful of early adopters who were using
+  * the unreleased Backdrop module.
+ */
+function commerce_customer_update_1003() {
+  $config = config('commerce_customer.settings');
+  $config->clear('commerce_customer_profile_type_field');
+  $config->set('commerce_customer_profile_billing_profile_copy', 'false');
+  $config->set('commerce_customer_profile_billing_profile_copy_default', 'true');
+  $config->set('commerce_customer_profile_billing_profile_copy_source', 'shipping');
+  $config->set('commerce_customer_profile_shipping_field', 'commerce_customer_shipping');
+  $config->set('commerce_customer_profile_shipping_profile_copy', 'true');
+  $config->set('commerce_customer_profile_shipping_profile_copy_default', 'true');
+  $config->set('commerce_customer_profile_shipping_profile_copy_source', 'billing');
+  $config->save();
+}
