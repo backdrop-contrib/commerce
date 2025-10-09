@@ -28,6 +28,7 @@ Current Maintainers
 
 - [Eli Lisseck](https://github.com/elisseck).
 - [Anthony Nemirovsky](https://github.com/anemirovsky).
+- [Anna Heath](https://github.com/aheathgr).
 
 Credits
 -------
