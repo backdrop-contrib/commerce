@@ -1,6 +1,12 @@
 {
     "_config_name": "commerce_customer.settings",
-    "commerce_customer_profile_type_field": "commerce_customer_address",
-    "anonymous": "Anonymous",
-    "commerce_customer_profile_billing_field": "commerce_customer_billing"
+    "commerce_customer_profile_billing_field": "commerce_customer_billing",
+    "commerce_customer_profile_billing_profile_copy": false,
+    "commerce_customer_profile_billing_profile_copy_default": true,
+    "commerce_customer_profile_billing_profile_copy_source": "shipping",
+    "commerce_customer_profile_shipping_field": "commerce_customer_shipping",
+    "commerce_customer_profile_shipping_profile_copy": true,
+    "commerce_customer_profile_shipping_profile_copy_default": true,
+    "commerce_customer_profile_shipping_profile_copy_source": "billing",
+    "anonymous": "Anonymous"
 }
