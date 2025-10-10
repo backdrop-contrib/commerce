@@ -104,93 +104,106 @@ function commerce_order_tokens($type, $tokens, array $data = array(), array $opt
   }
 
   $sanitize = !empty($options['sanitize']);
-
   $replacements = array();
 
-  if ($type == 'commerce-order' && !empty($data['commerce-order'])) {
-    $order = $data['commerce-order'];
+  if ($type == 'commerce-order') {
+    $order = FALSE;
+    $entity_type = str_replace('-', '_', $type);
 
-    foreach ($tokens as $name => $original) {
-      switch ($name) {
+    if (array_key_exists($type, $data)) {
+      $order = $data[$type];
+    }
+    elseif (array_key_exists($entity_type, $data)) {
+      $order = $data[$entity_type];
+    }
+
+    if ($order === FALSE) {
+      return $replacements;
+    }
+
+    foreach ($tokens as $full_name => $original) {
+      $parts = explode(':', $full_name);
+      $base_name = reset($parts);
+      switch ($base_name) {
         // Simple key values on the order.
-        case 'order-id':
-          $replacements[$original] = $order->order_id;
-          break;
+      case 'order-id':
+        $replacements[$original] = $order->order_id;
+        break;
 
-        case 'order-number':
-          $replacements[$original] = $sanitize ? check_plain($order->order_number) : $order->order_number;
-          break;
+      case 'order-number':
+        $replacements[$original] = $sanitize ? check_plain($order->order_number) : $order->order_number;
+        break;
 
-        case 'revision_id':
-          $replacements[$original] = $order->revision_id;
-          break;
+      case 'revision_id':
+        $replacements[$original] = $order->revision_id;
+        break;
 
-        case 'type':
-          $replacements[$original] = $sanitize ? check_plain($order->type) : $order->type;
-          break;
+      case 'type':
+        $replacements[$original] = $sanitize ? check_plain($order->type) : $order->type;
+        break;
 
-        case 'type-name':
-          $type_name = commerce_order_type_get_name($order->type);
-          $replacements[$original] = $sanitize ? check_plain($type_name) : $type_name;
-          break;
+      case 'type-name':
+        $type_name = commerce_order_type_get_name($order->type);
+        $replacements[$original] = $sanitize ? check_plain($type_name) : $type_name;
+        break;
 
-        case 'mail':
-          $replacements[$original] = $sanitize ? check_plain($order->mail) : $order->mail;
-          break;
+      case 'mail':
+        $replacements[$original] = $sanitize ? check_plain($order->mail) : $order->mail;
+        break;
 
-        case 'status':
-          $replacements[$original] = $sanitize ? check_plain($order->status) : $order->status;
-          break;
+      case 'status':
+        $replacements[$original] = $sanitize ? check_plain($order->status) : $order->status;
+        break;
 
-        case 'status-title':
-          $replacements[$original] = $sanitize ? check_plain(commerce_order_status_get_title($order->status)) : commerce_order_status_get_title($order->status);
-          break;
+      case 'status-title':
+        $replacements[$original] = $sanitize ? check_plain(commerce_order_status_get_title($order->status)) : commerce_order_status_get_title($order->status);
+        break;
 
-        case 'state':
-          $order_status = commerce_order_status_load($order->status);
-          $replacements[$original] = $sanitize ? check_plain($order_status['state']) : $order_status['state'];
-          break;
+      case 'state':
+        $order_status = commerce_order_status_load($order->status);
+        $replacements[$original] = $sanitize ? check_plain($order_status['state']) : $order_status['state'];
+        break;
 
-        case 'state-title':
-          $order_status = commerce_order_status_load($order->status);
-          $replacements[$original] = $sanitize ? check_plain(commerce_order_state_get_title($order_status['state'])) : commerce_order_state_get_title($order_status['state']);
-          break;
-
+      case 'state-title':
+        $order_status = commerce_order_status_load($order->status);
+        $replacements[$original] = $sanitize ? check_plain(commerce_order_state_get_title($order_status['state'])) : commerce_order_state_get_title($order_status['state']);
+        break;
 
         // Default values for the chained tokens handled below.
-        case 'owner':
-          if ($order->uid == 0) {
-            $name = t($config->get('anonymous'));
-          }
-          else {
-            $account = user_load($order->uid);
-            $name = $account->name;
-          }
-          $replacements[$original] = $sanitize ? filter_xss($name) : $name;
-          break;
-        case 'created':
-          $replacements[$original] = format_date($order->created, 'medium', '', NULL, $language_code);
-          break;
+      case 'owner':
+        if ($order->uid == 0) {
+          $name = t($config->get('anonymous'));
+        }
+        else {
+          $account = user_load($order->uid);
+          $name = $account->name;
+        }
+        $replacements[$original] = $sanitize ? filter_xss($name) : $name;
+        break;
+      case 'created':
+        $replacements[$original] = format_date($order->created, 'medium', '', NULL, $language_code);
+        break;
 
-        case 'changed':
-          $replacements[$original] = format_date($order->changed, 'medium', '', NULL, $language_code);
-          break;
+      case 'changed':
+        $replacements[$original] = format_date($order->changed, 'medium', '', NULL, $language_code);
+        break;
 
-        case 'placed':
-          $replacements[$original] = format_date($order->changed, 'medium', '', NULL, $language_code);
-          break;
+      case 'placed':
+        $replacements[$original] = format_date($order->changed, 'medium', '', NULL, $language_code);
+        break;
       }
     }
 
-
     if ($owner_tokens = token_find_with_prefix($tokens, 'owner')) {
       $owner = user_load($order->uid);
-      $replacements += token_generate('user', $owner_tokens, array('user' => $owner), $options);
+      $owner_replacements = token_generate('user', $owner_tokens, array('user' => $owner), $options);
+      $replacements = $owner_replacements + $replacements;
     }
 
     foreach (array('created', 'changed', 'placed') as $date) {
       if ($created_tokens = token_find_with_prefix($tokens, $date)) {
-        $replacements += token_generate('date', $created_tokens, array('date' => $order->{$date}), $options);
+        $created_tokens = token_generate('date', $created_tokens, array('date' => $order->{$date}), $options);
+        $replacements = $created_tokens + $replacements;
       }
     }
   }
