@@ -4,6 +4,7 @@ package = Commerce
 dependencies[] = system (>=1.31.1)
 dependencies[] = addressfield
 dependencies[] = commerce
+dependencies[] = commerce_checkout
 dependencies[] = entity
 backdrop = 1.x
 type = module
