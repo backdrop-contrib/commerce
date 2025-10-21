@@ -4,6 +4,7 @@ package = Commerce
 dependencies[] = commerce
 dependencies[] = commerce_line_item
 dependencies[] = commerce_price
+dependencies[] = commerce_product_ui
 dependencies[] = commerce_product_pricing
 dependencies[] = entity
 dependencies[] = rules
