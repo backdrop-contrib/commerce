@@ -326,7 +326,8 @@ class CommerceProductUIAdminTest extends CommerceBaseTestCase {
     $this->backdropGet('admin/commerce/products/' . $product->product_id . '/delete');
 
     $this->pass('Assertions for trying to delete a product associated to a line item:');
-    $this->assertText(t('This product is referenced by a line item and therefore cannot be deleted. Disable it instead.', array('@order_num' => $order->order_id)), t('Product delete restriction message is displayed correctly'));
+    $this->assertText(t('This product is referenced by a line item', array('@order_num' => $order->order_id)), t('Product delete restriction message is displayed correctly'));
+    $this->assertText(t('and therefore cannot be deleted. Disable it instead.', array('@order_num' => $order->order_id)), t('Product delete restriction message is displayed correctly'));
     $this->assertFieldByXPath('//input[@id="edit-submit" and @disabled="disabled"]', NULL, t('Delete button is present and is disabled'));
   }
 
