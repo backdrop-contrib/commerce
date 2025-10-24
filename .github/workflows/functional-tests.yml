@@ -33,7 +33,7 @@ jobs:
       - name: Checkout Backdrop core
         uses: actions/checkout@v4
         with:
-          repository: backdrop/backdrop
+          repository: elisseck/backdrop
 
       - name: Checkout dependency entity_plus
         uses: actions/checkout@v4
