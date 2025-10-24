@@ -3,8 +3,6 @@ Commerce
 
 This is a port of [Drupal Commerce](https://www.drupal.org/project/commerce) starting at 7.x-1.17
 
-This port has not been tested widely enough to tag a release, but it is believed to be in a working state.
-
 Requirements
 ------------
 
