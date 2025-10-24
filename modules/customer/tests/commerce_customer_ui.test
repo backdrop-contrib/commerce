@@ -405,7 +405,7 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
     // Fill in the billing address information
     $billing_pane = $this->xpath("//select[starts-with(@name, 'customer_profile_billing[commerce_customer_address]')]");
 
-    //$this->backdropPostAJAX(NULL, array((string) $billing_pane[0]['name'] => 'US'), (string) $billing_pane[0]['name']);
+    $this->backdropPostAJAX(NULL, array((string) $billing_pane[0]['name'] => 'US'), (string) $billing_pane[0]['name']);
 
     // Check if the country has been selected correctly, this uses XPath as the
     //  ajax call replaces the element and the id may change
@@ -430,8 +430,10 @@ class CommerceCustomerUITest extends CommerceBaseTestCase {
 
     // Check the customer profile at database level.
     $orders = commerce_order_load_multiple(array($order->order_id), array(), TRUE);
+
     $order = reset($orders);
-    $profile = commerce_customer_profile_load($order->data['profiles']['customer_profile_billing']);
+
+    $profile = commerce_customer_profile_load($order->commerce_customer_billing['und'][0]['profile_id']);
 
     $address = $profile->commerce_customer_address['und'][0];
     $test = [];

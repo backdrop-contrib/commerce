@@ -14,6 +14,8 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
    * Normal user (without admin or store permissions) for testing.
    */
   protected $normal_user;
+  protected $store_admin;
+  protected $site_admin;
 
   /**
    * Tax type.
@@ -40,6 +42,7 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
 
     // User creation for different operations.
     $this->store_admin = $this->createStoreAdmin();
+    $this->site_admin = $this->createSiteAdmin();
     $this->normal_user = $this->backdropCreateUser(array('access checkout', 'view own commerce_order entities'));
 
     // Create a dummy tax type for testing.
@@ -599,13 +602,17 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
     // Create a tax rate VAT Type.
     $tax_rate = $this->createDummyTaxRate(array('type' => 'vat'));
 
-    // Create a new product and product display.
-    $product_type = $this->createDummyProductDisplayContentType();
-    $this->backdropGet('admin/structure/types/manage/' . $product_type->name . '/display/default');
     $product = $this->createDummyProduct();
     $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
     $product_node = $this->createDummyProductNode(array($product->product_id));
 
+    // Create a new product and product display.
+    $product_type = $this->createDummyProductDisplayContentType();
+
+    $this->backdropLogin($this->site_admin);
+    $this->backdropGet('admin/structure/types/manage/' . $product_type->name . '/fields');
+
+    //$this->backdropLogout();
     // Login with normal user.
     $this->backdropLogin($this->normal_user);
 
@@ -616,6 +623,7 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
     $products = commerce_product_load_multiple(array($product->product_id), array(), TRUE);
     $product = reset($products);
     $price_component = commerce_product_calculate_sell_price($product);
+
     $this->assertText(trim(commerce_currency_format($price_component['amount'], $price_component['currency_code'])), t('Amount with taxes corresponds with the amount displayed in the product display page'));
     $components = commerce_price_component_load($price_component, $tax_rate['price_component']);
     $tax_component = reset($components);
@@ -629,11 +637,13 @@ class CommerceTaxUIAdminTest extends CommerceBaseTestCase {
     // Create a tax rate VAT Type.
     $tax_rate = $this->createDummyTaxRate(array('type' => 'vat'));
 
-    // Create a new product and product display.
-    $product_type = $this->createDummyProductDisplayContentType();
-    $this->backdropGet('admin/structure/types/manage/' . $product_type->name . '/display/default');
     $product = $this->createDummyProduct();
     $product_node = $this->createDummyProductNode(array($product->product_id));
+
+    // Create a new product and product display.
+    $product_type = $this->createDummyProductDisplayContentType();
+    $this->backdropLogin($this->site_admin);
+    $this->backdropGet('admin/structure/types/manage/' . $product_type->name . '/fields');
 
     // Login with store admin user.
     $this->backdropLogin($this->store_admin);
