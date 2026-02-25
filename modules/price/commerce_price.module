@@ -604,7 +604,7 @@ function commerce_price_field_formatter_view($entity_type, $entity, $field, $ins
         backdrop_alter('commerce_price_formatted_components', $components, $item, $entity);
 
         // Sort the components by weight.
-        uasort($components, 'drupal_sort_weight');
+        backdrop_sort($components);
 
         // Format the prices for display.
         foreach ($components as $key => &$component) {
