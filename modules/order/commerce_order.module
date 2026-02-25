@@ -1028,7 +1028,7 @@ function commerce_order_states() {
     // Give other modules a chance to alter the order states.
     backdrop_alter('commerce_order_state_info', $order_states);
 
-    uasort($order_states, 'drupal_sort_weight');
+    backdrop_sort($order_states);
   }
 
   return $order_states;
@@ -1137,7 +1137,7 @@ function commerce_order_statuses($conditions = array()) {
     // Give other modules a chance to alter the order statuses.
     backdrop_alter('commerce_order_status_info', $order_statuses);
 
-    uasort($order_statuses, 'drupal_sort_weight');
+    backdrop_sort($order_statuses);
   }
 
   // Apply conditions to the returned statuses if specified.

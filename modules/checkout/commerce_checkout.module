@@ -480,7 +480,7 @@ function commerce_checkout_pages() {
       }
     }
 
-    uasort($checkout_pages, 'drupal_sort_weight');
+    backdrop_sort($checkout_pages);
 
     // Initialize the previous and next pages.
     $previous_page_id = NULL;
@@ -623,7 +623,7 @@ function commerce_checkout_panes($conditions = array(), $skip_saved_data = FALSE
     }
 
     // Sort the panes by their weight value.
-    uasort($checkout_panes, 'drupal_sort_weight');
+    backdrop_sort($checkout_panes);
   }
 
   // Apply conditions to the returned panes if specified.

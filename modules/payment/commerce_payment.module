@@ -1158,7 +1158,7 @@ function commerce_payment_totals_rows($totals, $order) {
   backdrop_alter('commerce_payment_totals_row_info', $rows, $totals, $order);
 
   // Sort the rows by weight and return the array.
-  uasort($rows, 'drupal_sort_weight');
+  backdrop_sort($rows);
 
   return $rows;
 }
