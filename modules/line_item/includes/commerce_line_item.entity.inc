@@ -23,6 +23,10 @@ class CommerceLineItem extends Entity {
     return $this->line_item_id;
   }
 
+  public function bundle() {
+    return $this->type;
+  }
+
   public function uri() {
     if (empty($this->id)) {
       return array();

@@ -23,6 +23,10 @@ class CommerceOrder extends Entity {
     return t('Order ') . $this->id();
   }
 
+  public function bundle() {
+    return $this->type;
+  }
+
   public function uri() {
     if (empty($this->id)) {
       return array();
