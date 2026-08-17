@@ -23,6 +23,10 @@ class CommerceProduct extends Entity {
     return $this->title;
   }
 
+  public function bundle() {
+    return $this->type;
+  }
+
   public function uri() {
     if (empty($this->id)) {
       return array();

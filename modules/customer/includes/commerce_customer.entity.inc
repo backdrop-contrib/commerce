@@ -23,6 +23,10 @@ class CommerceCustomerProfile extends Entity {
     return "Customer Profile (uid {$this->uid})";
   }
 
+  public function bundle() {
+    return $this->type;
+  }
+
   public function uri() {
     if (empty($this->id)) {
       return array();
