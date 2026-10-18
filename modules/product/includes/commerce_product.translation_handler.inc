@@ -56,6 +56,6 @@ class EntityTranslationCommerceProductHandler extends EntityTranslationDefaultHa
    * Returns whether the product is active (TRUE) or disabled (FALSE).
    */
   protected function getStatus() {
-    return (boolean) $this->entity->status;
+    return (bool) $this->entity->status;
   }
 }
