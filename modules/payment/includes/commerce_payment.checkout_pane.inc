@@ -128,7 +128,7 @@ function commerce_payment_pane_checkout_form($form, &$form_state, $checkout_pane
       $default_value = $pane_values['payment_method'];
     }
     elseif (isset($form_state['input']['commerce_payment']['payment_method'])) {
-      $default_value = $form_state['complete form']['commerce_payment']['payment_method']['#default_value'];
+      $default_value = $form_state['complete_form']['commerce_payment']['payment_method']['#default_value'];
     }
     elseif (isset($order->data['payment_method']) && isset($options[$order->data['payment_method']])) {
       $default_value = $order->data['payment_method'];
