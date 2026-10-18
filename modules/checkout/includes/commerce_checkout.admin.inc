@@ -254,7 +254,7 @@ function commerce_checkout_pane_settings_form($form, &$form_state, $checkout_pan
     '#type' => 'checkbox',
     '#title' => t('Include this pane on the Review checkout pane.'),
     '#default_value' => $checkout_pane['review'],
-    '#access' => (boolean) commerce_checkout_pane_callback($checkout_pane, 'review'),
+    '#access' => (bool) commerce_checkout_pane_callback($checkout_pane, 'review'),
   );
 
   // If a settings form exists for the specified checkout pane...
