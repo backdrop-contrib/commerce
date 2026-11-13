@@ -62,7 +62,7 @@ function commerce_customer_profile_pane_settings_form($checkout_pane) {
     $form['commerce_' . $checkout_pane['pane_id'] . '_profile_copy'] = [
       '#type' => 'checkbox',
       '#title' => t('Enable profile copying on this checkout pane, helping customers avoid having to enter the same address twice.'),
-      '#default_value' => $profile,
+      '#default_value' => $profile_copy,
     ];
 
     $form['commerce_' . $checkout_pane['pane_id'] . '_profile_copy_wrapper'] = [
